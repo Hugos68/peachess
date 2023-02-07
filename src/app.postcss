@@ -1,0 +1,10 @@
+/*place global styles here */
+html, body { @apply h-full overflow-hidden; }
+
+:root {
+    --header-height: 6rem;
+}
+
+.base-page-container {
+    @apply min-h-[calc(100vh-var(--header-height))] container mx-auto px-4 pb-12;
+}
