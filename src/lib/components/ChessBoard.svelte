@@ -2,15 +2,6 @@
     import { Chess } from 'chess.js'
     export let fenState: string;
     const chess = new Chess(fenState);
-
-    const chessTypeIcon: Record<string, string> = {
-        'r': '♜',
-        'n': '♞',
-        'b': '♝',
-        'q': '♛',
-        'k': '♚',
-        'p': '♟'    
-    }
     
     const getTileColor = (rowNumber: number, tileNumber: number): string => {
         if (rowNumber%2 === 0) {
