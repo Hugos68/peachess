@@ -3,7 +3,7 @@
 	import '@skeletonlabs/skeleton/styles/all.css';
 	import '../app.postcss';
 
-	import { AppShell } from "@skeletonlabs/skeleton";
+	import { AppShell, Toast } from "@skeletonlabs/skeleton";
 	import Header from '$lib/components/Header.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import { invalidate } from '$app/navigation';
@@ -16,6 +16,8 @@
 		return () => subscription.unsubscribe();
 	});
 </script>
+
+<Toast />
 
 <AppShell>
 	<svelte:fragment slot="header"><Header /></svelte:fragment>
