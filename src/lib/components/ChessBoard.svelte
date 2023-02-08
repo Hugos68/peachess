@@ -1,9 +1,9 @@
 <script lang="ts">
+	import { page } from '$app/stores';
     import { Chess } from 'chess.js'
 	import { onMount } from 'svelte';
-    export let fenState: string;
-    export let sidePlaying: string;
-    const chess = new Chess(fenState);
+    export let chessGame: ChessGame;
+    const chess = new Chess(chessGame.fen);
     
     const getTileColor = (rowNumber: number, tileNumber: number): string => {
         if (rowNumber%2 === 0) {
@@ -16,18 +16,19 @@
 
     let flipped: boolean = false;
     onMount(() => {
-        if (sidePlaying==="black") flipped = !flipped;
+        const playingBlack: boolean = $page.data.session.user.id === chessGame.player_id_white;
+        if (playingBlack) flipped = !flipped;
     })
     
 </script>
 
 
-<table class="w-[min(75vw,35rem)] aspect-square chess-board" class:rotate-180={flipped}>
+<table class="w-[min(75vw,35rem)] aspect-square" class:rotate-180={flipped}>
     <tbody>
         {#each chess.board() as rank, i} 
             <tr>
                 {#each rank as tileInfo, j} 
-                    <td class="{getTileColor(i, j)} relative chess-board-square">
+                    <td class="{getTileColor(i, j)} relative">
                         {#if tileInfo !==null}
                             <img class="z-[1] top-0 absolute" class:rotate-180={flipped} src="https://www.chess.com/chess-themes/pieces/neo/150/{tileInfo.color}{tileInfo.type}.png" alt="{tileInfo.color}{tileInfo.type}">
                         {/if}
