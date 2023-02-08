@@ -22,15 +22,15 @@
     }
 </script>
 
-<AppBar class="h-[var(--header-height)] justify-center">
+<AppBar class="h-[var(--header-height)] justify-center" padding="px-[4vw]">
     <svelte:fragment slot="lead">
-        <h1>Peachess</h1>
+        <a href="/"><h1>🍑 Peachess</h1></a>
     </svelte:fragment>
     <svelte:fragment slot="trail">
         <nav>
-            <ul class="flex list-nav">
+            <ul class="flex gap-8 list-nav">
                 {#each routes as navItem}
-                    <li><a href={navItem.link}>{navItem.label}</a></li>
+                    <li><a class="btn variant-filled-primary" href={navItem.link}>{navItem.label}</a></li>
                 {/each}
             </ul>
         </nav>
