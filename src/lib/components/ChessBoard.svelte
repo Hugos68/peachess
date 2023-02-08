@@ -2,7 +2,6 @@
     import { Chess } from 'chess.js'
     export let fenState: string;
     const chess = new Chess(fenState);
-    const board = chess.board();
 
     const chessTypeIcon: Record<string, string> = {
         'r': '♜',
@@ -12,20 +11,28 @@
         'k': '♚',
         'p': '♟'    
     }
+    
+    const getTileColor = (rowNumber: number, tileNumber: number): string => {
+        if (rowNumber%2 === 0) {
+            return tileNumber%2===0 ? "bg-[var(--chess-light-tile-color)]" : "bg-[var(--chess-dark-tile-color)]";
+        }
+        else {
+            return tileNumber%2===0 ? "bg-[var(--chess-dark-tile-color)]" : "bg-[var(--chess-light-tile-color)]";
+        }
+    }
+    
 </script>
 
 <div class="mx-auto flex flex-col justify-center items-center gap-4">
     <h1>Chess Board</h1>
     <table class="w-[min(75vw,35rem)] aspect-square">
         <tbody>
-            {#each board as rank, i} 
+            {#each chess.board() as rank, i} 
                 <tr>
                     {#each rank as tile, j} 
-                        <td class="bg-[var(--chess-{i%2 === 0 ? (j%2===0 ? "light" : "dark") : (j%2===0 ? "dark" : "light")}-tile-color)] relative">
+                        <td class="{getTileColor(i, j)} relative">
                             {#if tile !==null}
-                                <p class="text-center !text-[min(7vw,3rem)] {tile.color==='w' ? "text-base-token" : "text-dark-token"} absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]">
-                                    {chessTypeIcon[tile.type]}
-                                </p>
+                                <img class="z-[1] top-0 absolute" src="https://www.chess.com/chess-themes/pieces/neo/150/{tile.color}{tile.type}.png">
                             {/if}
                         </td>
                     {/each}
