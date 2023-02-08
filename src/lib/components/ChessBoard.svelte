@@ -1,10 +1,13 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-    import { Chess } from 'chess.js'
+    import { Chess, type Color } from 'chess.js'
 	import { onMount } from 'svelte';
     export let chessGame: ChessGame;
-    const chess = new Chess(chessGame.fen);
-    
+    const chess: Chess = new Chess(chessGame.fen);
+
+    const playingColor: Color = $page.data.session.user.id === chessGame.player_id_white ? 'w' : 'b';
+    const turnColor: Color = chess.turn();
+
     const getTileColor = (rowNumber: number, tileNumber: number): string => {
         if (rowNumber%2 === 0) {
             return tileNumber%2===0 ? "bg-[var(--chess-light-tile-color)]" : "bg-[var(--chess-dark-tile-color)]";
@@ -16,13 +19,15 @@
 
     let flipped: boolean = false;
     onMount(() => {
-        const playingBlack: boolean = $page.data.session.user.id === chessGame.player_id_white;
-        if (playingBlack) flipped = !flipped;
-    })
-    
+        if (playingColor==='b') flipped = !flipped;
+    });
 </script>
 
-
+{#if playingColor===turnColor}
+    <p>Your turn</p>
+{:else}
+    <p>Waiting for {playingColor === 'w' ? "Black" : "White"} to play</p>
+{/if}
 <table class="w-[min(75vw,35rem)] aspect-square" class:rotate-180={flipped}>
     <tbody>
         {#each chess.board() as rank, i} 
