@@ -34,6 +34,7 @@
         Password:
         <input class="input" type="password" name="password">
     </label>
+    <a class="text-center" href="/sign-up">Don't have an account yet? Sign up here</a>
     <button formaction="/?/signIn" class="btn variant-filled-primary" type="submit">Sign In</button>
     <div class="flex items-center gap-2">
         <div class="w-full h-0.5 variant-soft-surface"></div>
