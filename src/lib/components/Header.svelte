@@ -28,7 +28,7 @@
     </svelte:fragment>
     <svelte:fragment slot="trail">
         <nav>
-            <ul class="flex gap-8 list-nav">
+            <ul class="flex gap-8">
                 {#each routes as navItem}
                     <li><a class="btn variant-filled-primary" href={navItem.link}>{navItem.label}</a></li>
                 {/each}
