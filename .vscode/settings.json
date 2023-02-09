@@ -73,5 +73,7 @@
 		"text",
 		"track",
 		"width"
-	]
+	],
+	"deno.enable": true,
+	"deno.unstable": true
 }

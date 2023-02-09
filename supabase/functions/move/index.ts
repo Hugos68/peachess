@@ -1,0 +1,72 @@
+// Follow this setup guide to integrate the Deno language server with your editor:
+// https://deno.land/manual/getting_started/setup_your_environment
+// This enables autocomplete, go to definition, etc.
+
+import { serve } from 'https://deno.land/std@0.131.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+const serviceRoleSupabaseClient = createClient("https://oepoavgiwdswkdfigwsi.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lcG9hdmdpd2Rzd2tkZmlnd3NpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY3NTExNzAxMSwiZXhwIjoxOTkwNjkzMDExfQ.gCCV5XJ-xnbF-8xSvQR1NXVnAVio1g-HfRb5vgpcHZQ");
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey',
+}
+
+serve(async (req) => {
+
+  // TODO: Fix json not parsing correclty
+  const { gameId, move } = await req.json(); 
+
+  try {
+    if (!gameId || !move) {
+      return new Response(JSON.stringify({ error: 'gameId and/or move are undefined'}), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 400,
+      });
+    }
+
+    const supabaseClient = createClient(
+      "https://oepoavgiwdswkdfigwsi.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lcG9hdmdpd2Rzd2tkZmlnd3NpIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzUxMTcwMTEsImV4cCI6MTk5MDY5MzAxMX0.hUWLGXfRLmgLgVgyUDl3yBzLyOeRBAA60G0aGpm4rWg",
+      { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
+    );
+
+    const {data: { user }} = await supabaseClient.auth.getUser();
+
+    const { chessGame, error } = await serviceRoleSupabaseClient
+      .from("games")
+      .select("*")
+      .eq('id', gameId)
+      .limit(1)
+      .single();
+
+    if (error) {
+      return new Response(JSON.stringify({ error: error.message}), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 400,
+      });
+    }
+
+    // TODO
+    // const chess = new Chess(chessGame.fen);
+
+    
+    return new Response(JSON.stringify({ body }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200,
+    });
+
+  } catch (error) {
+    console.error(error)
+    return new Response(JSON.stringify({ error: error.message }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 400,
+    });
+  }
+});
+
+// To invoke:
+// curl -i --location --request POST 'http://localhost:54321/functions/v1/' \
+//   --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0' \
+//   --header 'Content-Type: application/json' \
+//   --data '{"name":"Functions"}'
