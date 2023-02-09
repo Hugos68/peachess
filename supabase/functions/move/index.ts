@@ -5,16 +5,19 @@
 import { serve } from 'https://deno.land/std@0.131.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const serviceRoleSupabaseClient = createClient("https://oepoavgiwdswkdfigwsi.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lcG9hdmdpd2Rzd2tkZmlnd3NpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY3NTExNzAxMSwiZXhwIjoxOTkwNjkzMDExfQ.gCCV5XJ-xnbF-8xSvQR1NXVnAVio1g-HfRb5vgpcHZQ");
-
-const corsHeaders = {
+export const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
 }
+
+const serviceRoleSupabaseClient = createClient("https://oepoavgiwdswkdfigwsi.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lcG9hdmdpd2Rzd2tkZmlnd3NpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY3NTExNzAxMSwiZXhwIjoxOTkwNjkzMDExfQ.gCCV5XJ-xnbF-8xSvQR1NXVnAVio1g-HfRb5vgpcHZQ");
 
 serve(async (req) => {
 
-  // TODO: Fix json not parsing correclty
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
   const { gameId, move } = await req.json(); 
 
   try {
@@ -49,9 +52,10 @@ serve(async (req) => {
 
     // TODO
     // const chess = new Chess(chessGame.fen);
+    // Check if move is valid and player is linked to the game
 
     
-    return new Response(JSON.stringify({ body }), {
+    return new Response(JSON.stringify({ message: 'Successfully executed move' }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     });
