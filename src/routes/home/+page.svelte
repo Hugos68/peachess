@@ -1,19 +1,22 @@
 <script lang="ts">
+    import { Chess, type Color} from 'chess.js'
 	import { page } from "$app/stores";
     import ChessBoard from "$lib/components/ChessBoard.svelte";
     import { supabase } from "$lib/supabase";
 	import { onDestroy } from "svelte";
 
-    let chessGame: ChessGame;
+    let chess: Chess;
+    let chessRecord: ChessRecord;
     
     supabase
     .from("games")
     .select("*")
     .or(`player_id_white.eq.${$page.data.session.user.id},player_id_black.eq.${$page.data.session.user.id}`)
     .limit(1)
-    .single()
+    .single()   
     .then(({error, data}) => {
-        chessGame = data;
+        chessRecord = data;
+        chess = new Chess(chessRecord.fen);
     }); 
 
     const channel = supabase
@@ -25,19 +28,27 @@
             schema: 'public',
             table: 'games',
         },
-        (payload) => chessGame = payload.new as ChessGame
+        (payload) => {
+            chessRecord = payload.new as ChessRecord;
+            chess = new Chess(chessRecord.fen);
+        }
     )
     .subscribe();
+    
+    let playingColor: Color;
+    $: if (chessRecord) playingColor = $page.data.session.user.id===chessRecord.player_id_white ? 'w' : 'b';
+  
+    let board;
 
     onDestroy(() => {
         supabase.removeChannel(channel);
     });
 </script>
 
-<div class="mx-auto flex flex-col justify-center items-center gap-4">
-    {#if chessGame}
-        {#key chessGame}
-            <ChessBoard chessGame={chessGame} />
+<div class="card mx-auto flex justify-center items-center gap-4">
+    {#if chessRecord}
+        {#key chessRecord}
+            <ChessBoard chess={chess} flipped={playingColor==='b'} bind:this={board} />
         {/key}
     {/if}
 </div>

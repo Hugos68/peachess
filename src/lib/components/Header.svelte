@@ -37,7 +37,7 @@
 
 <AppBar class="h-[var(--header-height)] justify-center" padding="px-[4vw]">
     <svelte:fragment slot="lead">
-        <a href="/"><h1>🍑 Peachess</h1></a>
+        <a class="font-bold text-3xl" href="/">🍑 Peachess</a>
     </svelte:fragment>
     <svelte:fragment slot="trail">
         {#if $page.data.session}
