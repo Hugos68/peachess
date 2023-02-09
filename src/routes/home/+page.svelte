@@ -5,7 +5,7 @@
         const { data, error } = await supabase.functions.invoke('move', {
             body: {
                 gameId: '1',
-                move: 'e4e6'
+                move: 'e2e4'
             }
         });
         console.log(error ,data);

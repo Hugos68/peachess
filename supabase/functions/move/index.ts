@@ -75,40 +75,27 @@ serve(async (req) => {
                 status: 400,
             });
         }
-        // REQUEST GOES RIGHT UNTIL HERE
-
-        return new Response(JSON.stringify({ isPlayingWhite }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 200,
-        });
 
         const playingSide = isPlayingWhite ? 'white' : 'black';
 
-
-
         const status = chess.getStatus();
-        const hasTurn = playingSide !== status.turn;
-        
 
-        
+        const hasTurn = playingSide !== status.turn;
 
         if (!hasTurn) {
             return new Response(JSON.stringify({ error: 'Cannot move pieces when it is not your turn' }), {
-                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                headers: { ...corsHeaders, 'Content-Type': 'application/json'},
                 status: 400,
             });
         }
 
         chess.move(move);
 
+        // REQUEST GOES RIGHT UNTIL HERE
         const updateChessGameRequest = await serviceRoleSupabaseClient
             .from("games")
-            .update({
-                fen: chess.toString("fen")
-            })
-            .eq('id', gameId)
-            .limit(1)
-            .single();
+            .update({fen: chess.toString("fen")})
+            .eq('id', gameId);
 
         const updatedChessGameError = updateChessGameRequest.error;
 
