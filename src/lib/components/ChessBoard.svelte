@@ -22,7 +22,7 @@
     }
 </script>
 
-<table class="w-[min(75vw,35rem)] aspect-square">
+<table class="w-full aspect-square">
     <tbody>
         {#key flipped}
             {#each getArrayOrder(chess.board()) as rank, i} 
