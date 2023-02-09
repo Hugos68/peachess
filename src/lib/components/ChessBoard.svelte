@@ -50,9 +50,9 @@
                             {/if}
                             {#if i===7}
                                 {#if flipped}
-                                    <p class="absolute bottom-1 right-1">{8-j}</p>
+                                    <p class="absolute bottom-1 right-1">{String.fromCharCode(96 + (8-j))}</p>
                                 {:else}
-                                    <p class="absolute bottom-1 right-1">{j+1}</p>
+                                    <p class="absolute bottom-1 right-1">{String.fromCharCode(96 + (j+1))}</p>
                                 {/if}
                             {/if}
                         </td>
