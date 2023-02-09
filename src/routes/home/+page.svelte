@@ -4,8 +4,8 @@
     const invoke = async () => {
         const { data, error } = await supabase.functions.invoke('move', {
             body: {
-                gameId: 1,
-                move: "e4e6"
+                gameId: '1',
+                move: 'e4e6'
             }
         });
         console.log(error ,data);
