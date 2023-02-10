@@ -39,7 +39,8 @@
         turnColor = chess.turn() === 'w' ? 'w' : 'b';
     }
 
-    const move = async (move: string) => {        
+    const move = async (move: string) => {       
+        if (turnColor!==playingColor) return;
 
         chess.move(move as string);
         chess = new Chess(chess.fen());
