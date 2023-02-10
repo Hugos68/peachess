@@ -95,9 +95,11 @@
                 <p>Player 2, black {#if playingColor==='b'}(you){/if} :</p>
                 {chessRecord?.player_id_black}
             </span>
-            {#if error}
-                <p class="font-bold !text-lg lg:!text-2xl text-error-600" out:fade>{error}</p>
-            {/if}
+            <span class="h-5">
+                {#if error}
+                    <p class="font-bold !text-lg lg:!text-2xl text-error-600" out:fade>{error}</p>
+                {/if}
+            </span>
         </div>
     </div>
 
