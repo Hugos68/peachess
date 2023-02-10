@@ -1,8 +1,17 @@
+<script>
+
+	import { page } from "$app/stores";
+
+</script>
 <div class="mx-auto flex flex-col items-center gap-16">
 	<h1 class="!text-[clamp(3rem,10vw,6rem)] !leading-snug">Peachess</h1>
 	<p class="font-bold">The #1 chess website.</p>
 	<div class="flex gap-8">
-		<a class="btn btn-large variant-filled-primary" href="/sign-up">Get started!</a>
+		{#if $page.data.session}
+			<a class="btn btn-large variant-filled-primary" href="/games">Browse games</a>
+		{:else}
+			<a class="btn btn-large variant-filled-primary" href="/sign-up">Get started!</a>
+		{/if}
 		<a class="btn btn-large variant-ghost-secondary" href="/about">Learn more</a>
 	</div>
 	<div class="flex gap-[10vw] flex-wrap justify-evenly">

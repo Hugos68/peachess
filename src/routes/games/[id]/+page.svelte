@@ -21,6 +21,9 @@
             table: 'games',
         },
         (payload) => {
+
+            // If the updated state is in sync with client don't update the board since it's already in the right state
+            if (payload.new.fen===chess.fen()) return;
             chessRecord = payload.new as ChessRecord;
             chess = new Chess(chessRecord.fen);
         }
@@ -28,19 +31,54 @@
     .subscribe();
     
     let playingColor: Color;
-    $: if (chessRecord) playingColor = $page.data.session.user.id===chessRecord.player_id_white ? 'w' : 'b';
-  
-    let board;
+    $: if (chessRecord) {
+        playingColor = $page.data.session.user.id===chessRecord.player_id_white ? 'w' : 'b';
+    }
+    
+    let board, inputMove: string;
+
+    const move = async () => {
+        const {data, error} = await supabase.functions.invoke('move', {
+            body : {
+                gameId: chessRecord?.id,
+                move: inputMove
+            }
+        });
+    }
 
     onDestroy(() => {
         supabase.removeChannel(channel);
     });
 </script>
 
-<div class="card mx-auto flex justify-center items-center gap-4">
-    {#if chessRecord}
+<div class="card p-4 mx-auto flex justify-center items-center gap-4">
+    <div class="w-[30%] flex flex-col">
+        Current turn: {chess.turn() === 'w' ? "White" : "Black"}
+        <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
+            <div class="input-group-shim">Enter move</div>
+            <input type="search" placeholder="Example: 'e2e4'..." bind:value={inputMove}/>
+            <button class="variant-filled-secondary" on:click={move}>Move</button>
+        </div>
+    </div>
+    <div class="w-[40%]">
+        <p class="font-bold text-center p-4">
+            {#if playingColor==='b'}
+                Player white: {chessRecord?.player_id_white}
+            {:else}
+                Player black: {chessRecord?.player_id_black}
+            {/if}
+        </p>
         {#key chessRecord}
             <ChessBoard chess={chess} flipped={playingColor==='b'} bind:this={board} />
         {/key}
-    {/if}
+        <p class="font-bold text-center p-4">
+            {#if playingColor==='w'}
+                Player white: You
+            {:else}
+                Player black: You
+            {/if}
+        </p>    </div>
+    <div class="w-[30%]">
+
+    </div>
 </div>

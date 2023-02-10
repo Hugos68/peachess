@@ -6,17 +6,20 @@
     export let data: PageData;
 
     const chessRecords: ChessRecord[] = data.chessRecords as ChessRecord[];
-
-    console.log(chessRecords);
 </script>
 
 <h1>Browse games</h1>
+
 <hr class="my-4" />
-{#each chessRecords as chessRecord}
-    <div class="card p-4 pt-10 w-[20rem]">
+
+<div class="flex flex-wrap">
+    {#each chessRecords as chessRecord}
+    <a class="card card-hover p-4 w-[20rem]" href="/games/{chessRecord.id}">
         <p>Player White: {chessRecord.player_id_white}</p>
         <p>VS</p>
         <p>Player Black: {chessRecord.player_id_black}</p>
+     
         <ChessBoard chess={new Chess(chessRecord.fen)} flipped={false} />
-    </div>
+    </a>
 {/each}
+</div>
