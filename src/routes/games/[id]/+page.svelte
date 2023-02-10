@@ -30,14 +30,25 @@
     )
     .subscribe();
     
-    let playingColor: Color;
+    let playingColor: Color | null;
+    let turnColor: Color;
     $: if (chessRecord) {
-        playingColor = $page.data.session.user.id===chessRecord.player_id_white ? 'w' : 'b';
+        if ($page.data.session.user.id===chessRecord.player_id_white) playingColor = 'w';
+        else if ($page.data.session.user.id===chessRecord.player_id_black) playingColor = 'b';
+        else playingColor = null;
+        turnColor = chess.turn() === 'w' ? 'w' : 'b';
     }
     
     let board, inputMove: string;
 
     const move = async () => {
+        try {
+            chess.move(inputMove);
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+        
         const {data, error} = await supabase.functions.invoke('move', {
             body : {
                 gameId: chessRecord?.id,
@@ -54,10 +65,11 @@
 <div class="card p-4 mx-auto flex justify-center items-center gap-4">
     <div class="w-[30%] flex flex-col">
         Current turn: {chess.turn() === 'w' ? "White" : "Black"}
+        
         <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
             <div class="input-group-shim">Enter move</div>
-            <input type="search" placeholder="Example: 'e2e4'..." bind:value={inputMove}/>
-            <button class="variant-filled-secondary" on:click={move}>Move</button>
+            <input type="search" placeholder="Example: 'e2e4'..." bind:value={inputMove} disabled={playingColor === turnColor}/>
+            <button class="variant-filled-secondary" on:click={move} disabled={playingColor === turnColor}>Move</button>
         </div>
     </div>
     <div class="w-[40%]">
@@ -74,8 +86,10 @@
         <p class="font-bold text-center p-4">
             {#if playingColor==='w'}
                 Player white: You
-            {:else}
+            {:else if playingColor==='b'}
                 Player black: You
+            {:else}
+                Player white: {chessRecord?.player_id_white}
             {/if}
         </p>    </div>
     <div class="w-[30%]">
