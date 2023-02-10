@@ -14,13 +14,13 @@
 
 <div class="flex flex-wrap">
     {#each chessRecords as chessRecord}
-    <a draggable="false" class="card card-hover p-4 w-[20rem]" href="/games/{chessRecord.id}">
-        <p>Player White: {chessRecord.player_id_white}</p>
-        <p>VS</p>
-        <p>Player Black: {chessRecord.player_id_black}</p>
-        <div class="pointer-events-none">
-            <ChessBoard chess={new Chess(chessRecord.fen)} flipped={false} />
-        </div>
-    </a>
-{/each}
+        <a draggable="false" class="card card-hover p-4 w-[20rem]" href="/games/{chessRecord.id}">
+            <p>Player White: {chessRecord.player_id_white}</p>
+            <p>VS</p>
+            <p>Player Black: {chessRecord.player_id_black}</p>
+            <div class="pointer-events-none">
+                <ChessBoard chess={new Chess(chessRecord.fen)} flipped={false} />
+            </div>
+        </a>
+    {/each}
 </div>

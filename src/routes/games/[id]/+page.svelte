@@ -3,7 +3,7 @@
 	import { page } from "$app/stores";
     import ChessBoard from "$lib/components/ChessBoard.svelte";
     import { supabase } from "$lib/supabase";
-	import { onDestroy } from "svelte";
+	import { onDestroy, SvelteComponent } from "svelte";
     import type { PageData } from './$types';
 
     export let data: PageData;
@@ -53,36 +53,41 @@
         }); 
     }
 
+
+    let board: SvelteComponent;
     onDestroy(() => {
         supabase.removeChannel(channel);
     });
 </script>
 
-<div class="card p-4 mx-auto flex justify-center items-center gap-4">
-    <div class="w-[30%] flex flex-col">
-        Current turn: {chess.turn() === 'w' ? "White" : "Black"}
-    </div>
-    <div class="w-[40%]">
-        <p class="font-bold text-center p-4">
-            {#if playingColor==='b'}
-                Player white: {chessRecord?.player_id_white}
+<div class="mx-auto flex justify-between">
+    <div class="flex-1 flex flex-col">
+        <div class="card py-4 px-8 flex justify-between items-center">
+            {#if turnColor === playingColor}
+                <p class="font-bold !text-2xl">{turnColor==='w' ? "White" : "Black"}'s turn...</p>
             {:else}
-                Player black: {chessRecord?.player_id_black}
+                <p class="font-bold !text-2xl">Your turn...</p>
             {/if}
-        </p>
-        {#key chess}
-            <ChessBoard chess={chess} flipped={playingColor==='b'} on:move={(event) => move(event.detail.move) } />
-        {/key}
-        <p class="font-bold text-center p-4">
-            {#if playingColor==='w'}
-                Player white: You
-            {:else if playingColor==='b'}
-                Player black: You
-            {:else}
-                Player white: {chessRecord?.player_id_white}
-            {/if}
-        </p>    </div>
-    <div class="w-[30%]">
 
+            <button class="btn variant-filled-secondary " on:click={board.flip()}>Flip Board</button>
+        </div>
+        <div class="card bg-surface-300-600-token p-8 flex-1 flex flex-col gap-8">
+            <span class="font-bold !text-2xl">
+                <p>Player 1, white {#if playingColor==='w'}(you){/if} :</p>
+                {chessRecord?.player_id_white}
+            </span>
+            <span class="font-bold !text-2xl">
+                <p>Player 2, black {#if playingColor==='b'}(you){/if} :</p>
+                {chessRecord?.player_id_black}
+            </span>
+        </div>
     </div>
+
+    <div class="w-[calc(100vh-var(--header-height)-2rem)]">
+        {#key chess}
+            <ChessBoard chess={chess} flipped={playingColor==='b'} bind:this={board} on:move={(event) => move(event.detail.move) } />
+        {/key}
+    </div>
+
+
 </div>

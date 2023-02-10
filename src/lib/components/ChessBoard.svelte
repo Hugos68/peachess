@@ -14,13 +14,16 @@
     }
 </script>
 
-<table class="w-full aspect-square">
-    <tbody>
-        {#key flipped}
-            {#each getArrayOrder(chess.board()) as rank, i} 
-                <BoardRank rank={rank} rankNumber={i} flipped={flipped} on:move/>
-            {/each}
-        {/key}
-    </tbody>
-</table>
+<div class="border-8 border-orange-900">
+    <table class="w-full aspect-square">
+        <tbody>
+            {#key flipped}
+                {#each getArrayOrder(chess.board()) as rank, i} 
+                    <BoardRank rank={rank} rankNumber={i} flipped={flipped} on:move/>
+                {/each}
+            {/key}
+        </tbody>
+    </table>
+</div>
+
 
