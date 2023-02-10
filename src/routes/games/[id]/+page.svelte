@@ -42,12 +42,6 @@
     let board, inputMove: string;
 
     const move = async () => {
-        try {
-            chess.move(inputMove);
-        } catch (error) {
-            console.error(error);
-            return;
-        }
         
         const {data, error} = await supabase.functions.invoke('move', {
             body : {
@@ -55,6 +49,8 @@
                 move: inputMove
             }
         });
+        console.log(data);
+        
     }
 
     onDestroy(() => {
@@ -66,11 +62,13 @@
     <div class="w-[30%] flex flex-col">
         Current turn: {chess.turn() === 'w' ? "White" : "Black"}
         
+        {#if playingColor === turnColor}
         <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
             <div class="input-group-shim">Enter move</div>
-            <input type="search" placeholder="Example: 'e2e4'..." bind:value={inputMove} disabled={playingColor === turnColor}/>
-            <button class="variant-filled-secondary" on:click={move} disabled={playingColor === turnColor}>Move</button>
+            <input type="search" placeholder="Example: 'e2e4'..." bind:value={inputMove}/>
+            <button class="variant-filled-secondary" on:click={move}>Move</button>
         </div>
+        {/if}
     </div>
     <div class="w-[40%]">
         <p class="font-bold text-center p-4">

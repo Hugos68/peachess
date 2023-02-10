@@ -76,12 +76,10 @@ serve(async (req) => {
             });
         }
 
-        const playingSide = isPlayingWhite ? 'white' : 'black';
-
+        const playingColor = isPlayingWhite ? 'white' : 'black';
         const status = chess.getStatus();
 
-        const hasTurn = playingSide !== status.turn;
-
+        const hasTurn = playingColor === status.turn;
         if (!hasTurn) {
             return new Response(JSON.stringify({ error: 'Cannot move pieces when it is not your turn' }), {
                 headers: { ...corsHeaders, 'Content-Type': 'application/json'},
