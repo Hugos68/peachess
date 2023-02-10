@@ -33,7 +33,7 @@
     .subscribe();
     
     let playingColor: Color | null;
-    $: if (chessRecord) {
+    $: if (chessRecord && $page.data.session) {
         if ($page.data.session.user.id===chessRecord.player_id_white) playingColor = 'w';
         else if ($page.data.session.user.id===chessRecord.player_id_black) playingColor = 'b';
         else playingColor = null;
@@ -43,7 +43,13 @@
 
     let error: string;
 
-    const move = async (move: string) => {       
+    const move = async (move: string) => {     
+
+        if (!playingColor) {
+            promptError("You are not a participant in this game");
+            return;
+        }
+
         if (turnColor!==playingColor) {
             promptError("It's not your turn to move");
             return;
@@ -67,11 +73,11 @@
         }); 
     }
 
+    let errorTimer = setTimeout(() => error="", 3000);
     const promptError = (message: string) => {
+        clearTimeout(errorTimer);
         error = message;
-        setTimeout(() => {
-            error="";
-        }, 3000)
+        errorTimer = setTimeout(() => error="", 3000);
     }
 
     let board: SvelteComponent;
@@ -97,7 +103,7 @@
             </span>
             <span class="h-5">
                 {#if error}
-                    <p class="font-bold !text-lg lg:!text-2xl text-error-600" out:fade>{error}</p>
+                    <p class="font-bold !text-lg lg:!text-2xl text-red-600" out:fade>{error}</p>
                 {/if}
             </span>
         </div>
