@@ -63,12 +63,7 @@
 <div class="mx-auto flex justify-between">
     <div class="flex-1 flex flex-col">
         <div class="card py-4 px-8 flex justify-between items-center">
-            {#if turnColor === playingColor}
-                <p class="font-bold !text-2xl">{turnColor==='w' ? "White" : "Black"}'s turn...</p>
-            {:else}
-                <p class="font-bold !text-2xl">Your turn...</p>
-            {/if}
-
+            <p class="font-bold !text-2xl">{turnColor==='w' ? "White" : "Black"}'s turn...</p>
             <button class="btn variant-filled-secondary " on:click={board.flip()}>Flip Board</button>
         </div>
         <div class="card bg-surface-300-600-token p-8 flex-1 flex flex-col gap-8">
