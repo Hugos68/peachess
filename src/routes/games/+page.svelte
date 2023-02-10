@@ -1,6 +1,5 @@
 <script lang="ts">
     import type { PageData } from "./$types";
-    import { ChessBoardElement } from "chessboard-element";
 
     export let data: PageData;
 
@@ -20,8 +19,7 @@
                 <p>VS</p>
                 <p>Player Black: {chessRecord.player_id_black}</p>
             </div>
-       
-
+            <div id="board{chessRecord.id}" style="width: 400px"></div>
         </a>
     {/each}
 </div>

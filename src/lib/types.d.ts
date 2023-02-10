@@ -5,9 +5,3 @@ interface ChessRecord {
     player_id_black: string
     history: string[]
 }
-
-interface Tile {
-    square: string
-    type: string
-    color: string
-}
