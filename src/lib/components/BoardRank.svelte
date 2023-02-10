@@ -12,6 +12,6 @@
 
 <tr>
     {#each getArrayOrder(rank) as tile, j} 
-        <BoardTile tile={tile} tileNumber={j} rankNumber={rankNumber} flipped={flipped} />
+        <BoardTile tile={tile} tileNumber={j} rankNumber={rankNumber} flipped={flipped} on:move/>
     {/each}
 </tr>

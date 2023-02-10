@@ -38,10 +38,8 @@
         else playingColor = null;
         turnColor = chess.turn() === 'w' ? 'w' : 'b';
     }
-    
-    let board;
 
-    const move = async (move: string) => {
+    const move = async (move: string) => {        
         const {data, error} = await supabase.functions.invoke('move', {
             body : {
                 gameId: chessRecord?.id,
@@ -68,7 +66,7 @@
             {/if}
         </p>
         {#key chessRecord}
-            <ChessBoard chess={chess} flipped={playingColor==='b'} bind:this={board} on:move={(event) => move(event.detail.move) } />
+            <ChessBoard chess={chess} flipped={playingColor==='b'} on:move={(event) => move(event.detail.move) } />
         {/key}
         <p class="font-bold text-center p-4">
             {#if playingColor==='w'}

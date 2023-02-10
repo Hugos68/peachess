@@ -18,7 +18,7 @@
     <tbody>
         {#key flipped}
             {#each getArrayOrder(chess.board()) as rank, i} 
-                <BoardRank rank={rank} rankNumber={i} flipped={flipped} />
+                <BoardRank rank={rank} rankNumber={i} flipped={flipped} on:move/>
             {/each}
         {/key}
     </tbody>

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from "svelte";
+    import { currentlyDraggedPiece, fromSquare, toSquare } from "$lib/stores";
 
     export let tile: Tile;
     export let tileNumber: number;
@@ -22,7 +23,7 @@
         }
         else {
             rankNumber = 8 - rankNumber;
-            tileNumber+=1;
+            tileNumber+=1;fromSquare
         }
         return String.fromCharCode(96 + tileNumber) + rankNumber;
     }
@@ -35,28 +36,28 @@
         });
     }
 
-    let from: string | null = null, to: string | null = null;
-    let draggingPiece: HTMLElement | null = null;
-
     const handleDragStart = (event: any) => {
-        from = event.target.dataset.square;
-        draggingPiece = event.target;
+        fromSquare.set(event.target.dataset.square);
+        currentlyDraggedPiece.set(event.target);
     }
 
     const handleDrop = (event: any) => {
-        to = event.target.dataset.square;
-        if (draggingPiece && from && to && (from!==to)) dispatchMove(from+to);
+        toSquare.set(event.target.dataset.square);
+        if ($currentlyDraggedPiece && 
+            $fromSquare && 
+            $toSquare && 
+            ($fromSquare!==$toSquare)
+        ) dispatchMove($fromSquare as string + $toSquare as string);
         else {
-            from = null;
-            to = null;
+            fromSquare.set(null);
+            toSquare.set(null);
         }
-        draggingPiece = null;
+        currentlyDraggedPiece.set(null);
     }
 </script>
 
 <td 
 class="{getTileColor(rankNumber, tileNumber)} dropzone relative text-base-token transition-opacity duration-200"
-class:hover:opacity-75={draggingPiece}
 data-square={getTile(rankNumber,tileNumber)}
 on:dragover|preventDefault
 on:drop={handleDrop}
