@@ -3,8 +3,7 @@ interface ChessRecord {
     created_at: string
     player_id_white: string
     player_id_black: string
-    fen: string
-    flipped: boolean
+    history: string[]
 }
 
 interface Tile {

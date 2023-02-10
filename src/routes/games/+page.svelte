@@ -1,12 +1,12 @@
 <script lang="ts">
-	import ChessBoard from "$lib/components/ChessBoard.svelte";
-	import { Chess } from "chess.js";
     import type { PageData } from "./$types";
+    import { ChessBoardElement } from "chessboard-element";
 
     export let data: PageData;
 
     const chessRecords: ChessRecord[] = data.chessRecords as ChessRecord[];
 </script>
+
 
 <h1>Browse games</h1>
 
@@ -20,9 +20,8 @@
                 <p>VS</p>
                 <p>Player Black: {chessRecord.player_id_black}</p>
             </div>
-            <div class="pointer-events-none">
-                <ChessBoard chess={new Chess(chessRecord.fen)} flipped={false} />
-            </div>
+       
+
         </a>
     {/each}
 </div>
