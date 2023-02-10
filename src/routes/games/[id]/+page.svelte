@@ -40,6 +40,10 @@
     }
 
     const move = async (move: string) => {        
+
+        chess.move(move as string);
+        chess = new Chess(chess.fen());
+
         const {data, error} = await supabase.functions.invoke('move', {
             body : {
                 gameId: chessRecord?.id,
@@ -65,7 +69,7 @@
                 Player black: {chessRecord?.player_id_black}
             {/if}
         </p>
-        {#key chessRecord}
+        {#key chess}
             <ChessBoard chess={chess} flipped={playingColor==='b'} on:move={(event) => move(event.detail.move) } />
         {/key}
         <p class="font-bold text-center p-4">
