@@ -39,18 +39,15 @@
         turnColor = chess.turn() === 'w' ? 'w' : 'b';
     }
     
-    let board, inputMove: string;
+    let board;
 
-    const move = async () => {
-        
+    const move = async (move: string) => {
         const {data, error} = await supabase.functions.invoke('move', {
             body : {
                 gameId: chessRecord?.id,
-                move: inputMove
+                move: move
             }
-        });
-        console.log(data);
-        
+        }); 
     }
 
     onDestroy(() => {
@@ -61,14 +58,6 @@
 <div class="card p-4 mx-auto flex justify-center items-center gap-4">
     <div class="w-[30%] flex flex-col">
         Current turn: {chess.turn() === 'w' ? "White" : "Black"}
-        
-        {#if playingColor === turnColor}
-        <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
-            <div class="input-group-shim">Enter move</div>
-            <input type="search" placeholder="Example: 'e2e4'..." bind:value={inputMove}/>
-            <button class="variant-filled-secondary" on:click={move}>Move</button>
-        </div>
-        {/if}
     </div>
     <div class="w-[40%]">
         <p class="font-bold text-center p-4">
@@ -79,7 +68,7 @@
             {/if}
         </p>
         {#key chessRecord}
-            <ChessBoard chess={chess} flipped={playingColor==='b'} bind:this={board} />
+            <ChessBoard chess={chess} flipped={playingColor==='b'} bind:this={board} on:move={(event) => move(event.detail.move) } />
         {/key}
         <p class="font-bold text-center p-4">
             {#if playingColor==='w'}

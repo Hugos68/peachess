@@ -6,3 +6,9 @@ interface ChessRecord {
     fen: string
     flipped: boolean
 }
+
+interface Tile {
+    square: string
+    type: string
+    color: string
+}
