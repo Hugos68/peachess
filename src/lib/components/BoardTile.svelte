@@ -64,7 +64,7 @@ on:drop={handleDrop}
 >
     {#if tile !==null}
         <img 
-        class="z-[1] top-0 absolute" 
+        class="z-[1] top-0 absolute cursor-grab active:cursor-grab" 
         draggable="true" 
         src="https://www.chess.com/chess-themes/pieces/neo/150/{tile.color}{tile.type}.png" 
         alt="{tile.color}{tile.type}"
