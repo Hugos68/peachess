@@ -9,11 +9,11 @@
 
     let chessBoard;
     onMount(() => {
-        const config = getConfig(chess, chess);
+        const config = getConfig(chess);
         chessBoard = Chessground(document.getElementById("board") as HTMLElement, config);
     });
 
-    const getConfig = (oldChess: Chess, chess: Chess) => {
+    const getConfig = (chess: Chess) => {
         
         return {
             fen: chess.fen(),
