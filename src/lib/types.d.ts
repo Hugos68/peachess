@@ -1,4 +1,4 @@
-interface ChessRecord {
+interface ChessGame {
     id: number
     created_at: string
     player_id_white: string

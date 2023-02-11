@@ -1,17 +1,17 @@
 import { getSupabase } from "@supabase/auth-helpers-sveltekit";
-import { fail } from "@sveltejs/kit";
 import type { PageServerLoad } from './$types';
 
 export const load = (async (event) => {
     const {supabaseClient} = await getSupabase(event);
-
-    const {error, data} =  await supabaseClient
-    .from("games")
-    .select("*");
-
-    if (error) return fail(404);
     
+    const {error, data} = await supabaseClient
+    .from("games")
+    .select("*")
+    .eq("id", event.params.id as number)
+    .limit(1)
+    .single();
+
     return {
-        chessRecords: data as ChessRecord[]
+        chessGame: data as ChessGame
     }
 }) satisfies PageServerLoad;
