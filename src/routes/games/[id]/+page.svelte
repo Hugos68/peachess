@@ -96,7 +96,7 @@
     .subscribe();
 </script>
 
-<div class="card p-4 w-[50rem] h-[50rem] mx-auto">
+<div class="w-[min(50rem,98vw)] aspect-square mx-auto">
     <div id="board"></div>
 </div>
 
