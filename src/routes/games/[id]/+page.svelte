@@ -120,7 +120,9 @@
         if (color==='b' && rankNumber!==1) return;
 
         promotion = true;
-        
+        // TODO: Create popup with promotion input here | valid promotions are: 'q', 'r', 'n', 'b'
+        promotion = false;
+
         return 'q';
     }
 
