@@ -1,4 +1,4 @@
-<script lang="ts" type="module">
+<script lang="ts">
 	import { Chess, SQUARES, type Square } from "chess.js";
     import type { PageData } from "./$types";
     import { Chessground } from 'chessground';
@@ -7,23 +7,31 @@
 	import { supabase } from "$lib/supabase";
 	import { page } from "$app/stores";
 
-    let chessBoard;
+    export let data: PageData;
+    let chessGame: ChessGame, chess: Chess, chessBoard: any, currentMoveIndex: number;
     onMount(() => {
-        const config = getConfig(chess);
-        chessBoard = Chessground(document.getElementById("board") as HTMLElement, config);
+        chessBoard = Chessground(document.getElementById("board") as HTMLElement);
+
+        chessGame = data.chessGame;
+
+        currentMoveIndex = chessGame.history.length-1;
+
+        loadState(chessGame);
     });
+    
 
     const getConfig = (chess: Chess) => {
-        
         return {
             fen: chess.fen(),
-            orientation: getPlayingColor(chess),
-            turnColor: getTurnColor(chess),
+            orientation: getPlayingColor(),
+            turnColor: getTurnColor(chess), 
+            lastMove: getLastMove(chessGame),
+            check: chess.inCheck(),
             highlight: {
                 lastMove: true,  
             },
             movable: {
-                color: getPlayingColor(chess),
+                color: getPlayingColor(),
                 free: false,
                 dests: getValidDestinations(chess)
             },
@@ -34,8 +42,6 @@
                 enabled: true
             },
             events: {
-                // called after a piece has been moved.
-                // capturedPiece is null or like {color: 'white', 'role': 'queen'}
                 move: moveCallback
             }
         }
@@ -54,12 +60,17 @@
         return (chess.turn() === 'w') ? 'white' : 'black';
     }
 
-    const getPlayingColor = (chess: Chess) => {
+    const getPlayingColor = () => {
         if (!$page.data.session) return undefined;
         return $page.data.session.user.id === chessGame.player_id_white ? 'white' : 'black';
     }
 
+    const getLastMove = (chessGame: ChessGame) => {
+        return [chessGame.history[currentMoveIndex].move.from, chessGame.history[currentMoveIndex].move.to];
+    }
+
     const moveCallback = async (orig: Square, dest: Square) => {
+
         // TODO: Handle promotion logic
         const move = {
             from: orig,
@@ -67,23 +78,15 @@
         }
 
         chess.move(move);
+
+        chessBoard.set(getConfig(chess));
         const {data, error} = await supabase.functions.invoke('move', {
             body : {
                 gameId: chessGame.id,
                 move
             }
         });
-        console.log(data);
-          
     }
-
-    onDestroy(() => {
-        channel.unsubscribe();
-    });
-
-    export let data: PageData;
-    let chessGame: ChessGame = data.chessGame;
-    let chess: Chess = new Chess(chessGame.history[chessGame.history.length-1].fen);
 
     const channel = supabase
     .channel('table-db-changes')
@@ -95,18 +98,39 @@
             table: 'games',
         },
         (payload) => {
-            chessGame = payload.new as ChessGame;
-            chess = new Chess(chessGame.history[chessGame.history.length-1].fen);
-            chessBoard.set(getConfig(chess));
+            loadState(payload.new as ChessGame);
+
             if (chess.isGameOver()) {
                 // TODO: Game over
             }
         }
     )
     .subscribe();
+
+    onDestroy(() => {
+        channel.unsubscribe();
+    });
+
+    const previousMove = () => {
+        if (currentMoveIndex > 0) currentMoveIndex-=1;
+        loadState(chessGame);
+    }
+    const nextMove = () => {
+        if (currentMoveIndex < chessGame.history.length-1) currentMoveIndex +=1;
+        loadState(chessGame);
+    }
+
+
+    const loadState = (chessGame: ChessGame) => {
+        chess = new Chess(chessGame.history[currentMoveIndex].fen);
+        chessBoard.set(getConfig(chess));
+    }
 </script>
 
 <div class="w-[min(50rem,98vw)] aspect-square mx-auto">
     <div id="board"></div>
 </div>
+<button on:click={previousMove} class="btn variant-filled-primary">Previous</button>
+<button on:click={nextMove} class="btn variant-filled-primary">Next</button>
+
 

@@ -4,10 +4,12 @@ interface ChessGame {
     player_id_white: string
     player_id_black: string
     history: [
-        {
-            to: string
-            from: string
+        {   
             fen: string
+            move : {
+                to: string
+                from: string
+            }
         }
     ]
 }
