@@ -55,7 +55,7 @@ serve(async (req) => {
         }
 
         // Get latest move from the FEN history
-        const chess = ChessGame.NewFromFEN(chessGame.history[chessGame.history.length-1]);
+        const chess = ChessGame.NewFromFEN(chessGame.history[chessGame.history.length-1].fen);
 
         if (chess.isGameOver()) {
             return new Response(JSON.stringify({ error: 'Cannot move pieces of game that has ended' }), {
@@ -88,9 +88,19 @@ serve(async (req) => {
             });
         }
 
-        chess.move(move);
+        // Throw error if move is illegal so we don't do any other checks here besides calling the function
+        chess.move({
+            from: move.from,
+            dest: move.to
+        });
 
-        chessGame.history.push(chess.toString('fen'));
+        chessGame.history.push({
+            fen: chess.toString("fen"),
+            move: {
+                from: move.from,
+                to: move.to
+            }
+        });
 
         const updateChessGameRequest = await serviceRoleSupabaseClient
             .from("games")

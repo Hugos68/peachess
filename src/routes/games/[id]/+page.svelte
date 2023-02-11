@@ -55,17 +55,26 @@
     }
 
     const getPlayingColor = (chess: Chess) => {
+        if (!$page.data.session) return undefined;
         return $page.data.session.user.id === chessGame.player_id_white ? 'white' : 'black';
     }
 
     const moveCallback = async (orig: Square, dest: Square) => {
         // TODO: Handle promotion logic
+        const move = {
+            from: orig,
+            to: dest
+        }
+
+        chess.move(move);
         const {data, error} = await supabase.functions.invoke('move', {
             body : {
                 gameId: chessGame.id,
-                move: orig.toString() + dest.toString(),
+                move
             }
         });
+        console.log(data);
+          
     }
 
     onDestroy(() => {
@@ -74,7 +83,7 @@
 
     export let data: PageData;
     let chessGame: ChessGame = data.chessGame;
-    let chess: Chess = new Chess(chessGame.history[chessGame.history.length-1]);
+    let chess: Chess = new Chess(chessGame.history[chessGame.history.length-1].fen);
 
     const channel = supabase
     .channel('table-db-changes')
@@ -87,7 +96,7 @@
         },
         (payload) => {
             chessGame = payload.new as ChessGame;
-            chess = new Chess(chessGame.history[chessGame.history.length-1]);
+            chess = new Chess(chessGame.history[chessGame.history.length-1].fen);
             chessBoard.set(getConfig(chess));
             if (chess.isGameOver()) {
                 // TODO: Game over

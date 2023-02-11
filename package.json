@@ -27,7 +27,6 @@
 		"postcss": "^8.4.21",
 		"prettier": "^2.8.0",
 		"prettier-plugin-svelte": "^2.8.1",
-		"supabase": "^1.37.1",
 		"svelte": "^3.54.0",
 		"svelte-check": "^3.0.1",
 		"svelte-preprocess": "^5.0.1",
@@ -41,6 +40,6 @@
 		"@supabase/auth-helpers-sveltekit": "^0.8.7",
 		"@supabase/supabase-js": "^2.7.1",
 		"chess.js": "^1.0.0-beta.3",
-		"chessground": "^8.3.7",
+		"chessground": "^8.3.7"
 	}
 }
