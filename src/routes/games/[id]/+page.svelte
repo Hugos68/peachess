@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Chess, SQUARES, type Square } from "chess.js";
+	import { Chess, SQUARES, type Color, type Move, type Piece, type Square } from "chess.js";
     import type { PageData } from "./$types";
     import { Chessground } from 'chessground';
 	import { onMount, onDestroy } from "svelte";
@@ -13,7 +13,9 @@
     let chess: Chess;
  
     let chessBoard: any;
+    let mounted: boolean;
     onMount(() => {
+        mounted = true;
         chessBoard = Chessground(document.getElementById("board") as HTMLElement);
         chessGame = data.chessGame;
         loadGame(chessGame);
@@ -79,21 +81,34 @@
     }
 
     const moveCallback = async (orig: Square, dest: Square) => {
-
-        // TODO: Handle promotion logic
         const move = {
             from: orig,
-            to: dest
+            to: dest,
+            promotion: getPromotion(orig, dest)
         }
-
+        
         chess.move(move);
-
+        
         const {data, error} = await supabase.functions.invoke('move', {
             body : {
                 gameId: chessGame.id,
                 move
             }
         });
+    }
+
+    const getPromotion = (orig: Square, dest: Square): string | undefined => {
+        const {type, color} = chess.get(orig);
+        const rankNumber =  Number.parseInt(dest.charAt(1));
+
+        if (type!=='p') return;
+        if (color==='w' && rankNumber!==8) return;
+        if (color==='b' && rankNumber!==1) return;
+
+        
+        const chosenPromotionPiece = prompt("What piece would you like to promoto to?");
+
+        return color === 'w' ? chosenPromotionPiece?.toUpperCase() : chosenPromotionPiece?.toLowerCase();
     }
 
     const channel = supabase
@@ -116,14 +131,44 @@
         }
     )
     .subscribe();
-
+    
     onDestroy(() => {
         channel.unsubscribe();
     });
 </script>
 
-<div class="w-[min(50rem,98vw)] aspect-square mx-auto">
-    <div id="board"></div>
+
+<div class="mx-auto flex card bg-surface-500-400-token">
+
+    <!-- BOARD-LEFT-PANEL -->
+    {#if mounted}
+        <div class="flex-1 flex flex-col p-4">
+            <a href="/games">Back</a>
+            <header class="flex p-4">    
+    
+                <p>{chess.turn()==='w' ? 'White' : 'black'} to move...</p>
+            
+            </header>
+        </div>
+    {/if}   
+    
+    <!-- BOARD-WRAPPER -->
+    <div class="w-[min(100%,calc(100vh-var(--header-height)-4rem))] aspect-square relative">
+        <!-- BOARD -->
+        <div id="board"></div>
+
+        <!-- PROMOTION-MODAL -->
+        <div class="absolute top-0 z-[999] bg-black text-white w-32 h-32">HELLO WORLD</div>
+    </div>
+
+    <!-- BOARD-RIGHT-PANEL -->
+    {#if mounted}
+        <div class="flex-1 flex flex-col p-4">
+            
+        </div>
+    {/if}
 </div>
+
+
 
 
