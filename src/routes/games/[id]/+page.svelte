@@ -68,7 +68,10 @@
     }
 
     const getLastMove = (chessGame: ChessGame) => {
-        return [chessGame.history[chessGame.history.length-1].move.from, chessGame.history[chessGame.history.length-1].move.to];
+        const from = chessGame.history[chessGame.history.length-1].move.from;
+        const to = chessGame.history[chessGame.history.length-1].move.to
+        if (!from || !to) return [];
+        return [from, to];
     }
 
     const getValidDestinations = (chess: Chess) => {
@@ -87,7 +90,14 @@
             promotion: getPromotion(orig, dest)
         }
         
-        chess.move(move);
+        try {
+            chess.move(move);
+        } catch(error) {
+            console.error(error);
+            loadGame(chessGame);
+            return;
+        }
+        
         
         const {data, error} = await supabase.functions.invoke('move', {
             body : {
@@ -95,8 +105,12 @@
                 move
             }
         });
+        if (error) {
+            loadGame(chessGame);
+        }
     }
 
+    let promotion: boolean = false;
     const getPromotion = (orig: Square, dest: Square): string | undefined => {
         const {type, color} = chess.get(orig);
         const rankNumber =  Number.parseInt(dest.charAt(1));
@@ -105,10 +119,9 @@
         if (color==='w' && rankNumber!==8) return;
         if (color==='b' && rankNumber!==1) return;
 
+        promotion = true;
         
-        const chosenPromotionPiece = prompt("What piece would you like to promoto to?");
-
-        return color === 'w' ? chosenPromotionPiece?.toUpperCase() : chosenPromotionPiece?.toLowerCase();
+        return 'q';
     }
 
     const channel = supabase
@@ -158,7 +171,9 @@
         <div id="board"></div>
 
         <!-- PROMOTION-MODAL -->
-        <div class="absolute top-0 z-[999] bg-black text-white w-32 h-32">HELLO WORLD</div>
+        {#if promotion}
+            <div class="absolute top-0 z-[999] card bg-surface-600-300-token w-32 h-32">HELLO WORLD</div>
+        {/if}
     </div>
 
     <!-- BOARD-RIGHT-PANEL -->

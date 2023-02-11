@@ -89,10 +89,20 @@ serve(async (req) => {
         }
 
         // Throw error if move is illegal so we don't do any other checks here besides calling the function
-        chess.move({
-            from: move.from,
-            dest: move.to
-        });
+        if (move.promotion) {
+            chess.move({
+                from: move.from,
+                dest: move.to,
+                promotion: move.promotion
+            });
+        }
+        else {
+            chess.move({
+                from: move.from,
+                dest: move.to
+            });
+        }
+
 
         chessGame.history.push({
             fen: chess.toString("fen"),
