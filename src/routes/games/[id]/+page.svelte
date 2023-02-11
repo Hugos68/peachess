@@ -59,6 +59,7 @@
     }
 
     const moveCallback = async (orig: Square, dest: Square) => {
+        // TODO: Handle promotion logic
         const {data, error} = await supabase.functions.invoke('move', {
             body : {
                 gameId: chessGame.id,
