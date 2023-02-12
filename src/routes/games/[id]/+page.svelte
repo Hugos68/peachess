@@ -15,6 +15,7 @@
     let chess: Chess;
     let chessBoard: any;
     let boardElement: HTMLElement;
+    let promotionModal: HTMLElement;
     let mounted: boolean;
     onMount(() => {
         mounted = true;
@@ -180,6 +181,13 @@
     });
 </script>
 
+<svelte:window on:click={(event) => {
+    if (!promotionModal.contains(event.target)) {
+        cancelPromote();
+    }
+}} />
+
+
 
 <div class="mx-auto flex card bg-surface-500-400-token">
 
@@ -198,15 +206,15 @@
     <!-- BOARD-WRAPPER -->
     <div class="w-[min(100%,calc(100vh-var(--header-height)-4rem))] aspect-square relative">
         <!-- BOARD -->
-        <div bind:this={boardElement}></div>
+        <div class:opacity-50={promotionMove!==null} bind:this={boardElement}></div>
 
         <!-- PROMOTION-MODAL -->
-        <div class:hidden={promotionMove===null} class="absolute top-0 z-[999] card p-4 m-4 bg-surface-600-300-token flex flex-col gap-4">
-            <div class="flex gap-4">
+        <div bind:this={promotionModal} class:hidden={promotionMove===null} class="absolute top-0 left-[50%] translate-x-[-50%] z-[999] card p-4 m-4 bg-surface-600-300-token flex flex-col gap-2">
+            <div class="flex gap-2">
                 <button class="btn variant-filled-secondary flex-1" on:click={() => promote('q')}>Q</button>
                 <button class="btn variant-filled-secondary flex-1" on:click={() => promote('r')}>R</button>
             </div>
-            <div class="flex gap-4">
+            <div class="flex gap-2">
                 <button class="btn variant-filled-secondary flex-1" on:click={() => promote('n')}>K</button>
                 <button class="btn variant-filled-secondary flex-1" on:click={() => promote('b')}>B</button>
             </div>
