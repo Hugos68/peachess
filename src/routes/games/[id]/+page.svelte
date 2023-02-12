@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Chess, SQUARES, type Square } from "chess.js";
+	import { Chess, SQUARES, type Move, type Square } from "chess.js";
     import type { PageData } from "./$types";
     import { Chessground } from 'chessground';
 	import { onMount, onDestroy } from "svelte";
@@ -7,42 +7,41 @@
 	import { supabase } from "$lib/supabase";
 	import { page } from "$app/stores";
 	import { invalidateAll } from "$app/navigation";
+
     export let data: PageData;
 
     $: chessGame = data.chessGame;
 
-    let currentMoveIndex = data.chessGame.history.length-1;
-
     let moveSFX: HTMLAudioElement;
 
-    let chess: Chess;
+    let chess: Chess = new Chess();
     let chessBoard: any;
     let boardElement: HTMLElement;
     let promotionModal: HTMLElement;
+    const undoneMoveStack: Move[] = [];
     onMount(() => {
         moveSFX = new Audio('/sfx/move.mp3');
-        chessBoard = Chessground(boardElement as HTMLElement);
-        loadGame(chessGame);
+        chessBoard = Chessground(boardElement);
+        loadGame(data.chessGame);
     });
 
-    const loadGame = (updatedChessGame?: ChessGame) => {
-        invalidateAll();
-        if (!updatedChessGame) {
-            chessGame = data.chessGame;
-        }
-        else {
-            chessGame = updatedChessGame;
-        }
-        chess = new Chess(chessGame.history[currentMoveIndex].fen);
-        chessBoard.set(getConfig(chess, chessGame));
+    const loadGame = (newChessGame: ChessGame) => {
+        if (newChessGame.pgn) chess.loadPgn(newChessGame.pgn);
+        chessBoard.set(getConfig(chess, newChessGame)); 
+
     }   
+
+    const reloadGame = () => {
+        chess.loadPgn(chessGame.pgn);
+        chessBoard.set(getConfig(chess, chessGame));
+    }
     
     const getConfig = (chess: Chess, chessGame: ChessGame) => {
         return {
             fen: chess.fen(),
             orientation: getPlayingColor(chessGame),
             turnColor: getTurnColor(chess), 
-            lastMove: getLastMove(chessGame),
+            lastMove: getLastMove(),
             check: chess.inCheck(),
             highlight: {
                 lastMove: true,  
@@ -53,12 +52,10 @@
                 dests: getValidDestinations(chess)
             },
             premovable: {
-                enabled: true,
-                showDests: true,
-                dests: getValidDestinations(chess)
+                enabled: false,
             },
             draggable: {
-                enabled: true
+                enabled: false
             },
             drawable: {
                 enabled: true
@@ -78,16 +75,15 @@
         return (chess.turn() === 'w') ? 'white' : 'black';
     }
 
-    const getLastMove = (chessGame: ChessGame) => {
-        const from = chessGame.history[currentMoveIndex].move.from;
-        const to = chessGame.history[currentMoveIndex].move.to
-        if (!from || !to) return [];
-        return [from, to];
+    const getLastMove = () => {
+        const undoneMove = chess.undo();
+        if (undoneMove===null) return [];
+        return [undoneMove.from, undoneMove.to];
     }
 
     const getValidDestinations = (chess: Chess) => {
         const dests = new Map();
-        if (currentMoveIndex!==chessGame.history.length-1) return dests;
+        if (undoneMoveStack.length!==0) return dests;
         SQUARES.forEach(s => {
             const ms = chess.moves({square: s, verbose: true});
             if (ms.length) dests.set(s, ms.map(m => m.to));
@@ -120,35 +116,23 @@
             // Move (throws exception if move is invalid)
             chess.move(move);
 
-            // Add move to history to trigger new last move
-            chessGame.history.push({
-                fen: chess.fen(),
-                move
-            });
-
-            currentMoveIndex++;
-            loadGame(chessGame)
+            // Reload game to render the move
+            reloadGame();
         } catch(error) {
             console.error(error);
-
-           // If anything goes to shit reload the most recent stable game state
-            loadGame();
             return;
         }
         
-        const {data, error} = await supabase.functions.invoke('move', {
+        // Execute the move to the database
+        const {error, data} = await supabase.functions.invoke('move', {
             body : {
                 gameId: chessGame.id,
                 move
             }
         });
-        
-        if (error) {
-            console.error(error);
-            
-            // If anything goes to shit reload the most recent stable game state
-            loadGame();
-        }
+
+        // Indalidate page data to retrigger populate chessGame with updated version from database
+        await invalidateAll();
     }
 
     const checkIfPromotion = (orig: Square, dest: Square): boolean => {
@@ -174,7 +158,7 @@
     
     const cancelPromote = () => {
         promotionMove = null;
-        loadGame();
+        reloadGame();
     }
 
     const channel = supabase
@@ -187,50 +171,58 @@
             table: 'games',
         },
         (payload) => {
-
-            // Set the current move index to the latest move so that if a user is looking at earlier moves they are updated with the newest move when their opponent plays a move
-            currentMoveIndex = payload.new.history.length-1;
-
-            // Only load the game and play the move audio when the game is out of sync ()
-            if (payload.new.history[payload.new.history.length-1].fen!==chess.fen()) {
+            if (payload.new.pgn!==chess.pgn()) {
                 loadGame(payload.new as ChessGame);
                 moveSFX.play();
             }
-
             // If game is reloaded and still going on, play any remaining premoves
             chessBoard.playPremove();
         }
     )
     .subscribe();
 
-    const firstMove = () => {
-        currentMoveIndex=0;
+    const loadFirstMove = () => {
+        if (!getLastMove()) return;
         moveSFX.play();
-        moveSFX.play();
-        loadGame(); 
+        let undoneMove;
+        while ((undoneMove = chess.undo())!==null) undoneMoveStack.push(undoneMove);
+        chessBoard.set(getConfig(chess, chessGame));
     }
 
-    const previousMove =() => {
-        if (currentMoveIndex === 0) return;
-        currentMoveIndex--;
+    const loadPreviousMove =() => {
+        const move = chess.undo();
+        if (move===null) return;
         moveSFX.play();
-        loadGame(); 
+        undoneMoveStack.push(move);
+        chessBoard.set(getConfig(chess, chessGame));
     }
 
-    const nextMove =() => {
-        if (currentMoveIndex === chessGame.history.length-1) return;
-        currentMoveIndex++;
+    const loadNextMove = () => {
+        if (undoneMoveStack.length===0) return;
         moveSFX.play();
-        loadGame();
+        const poppedMove = undoneMoveStack.pop();
+        const move: CustomMove = {
+            from: poppedMove?.from as string,
+            to: poppedMove?.to as string,
+            promotion: poppedMove?.promotion as 'q' | 'r' | 'n' | 'b' | undefined
+        }
+        chess.move(move);
+        chessBoard.set(getConfig(chess, chessGame));
     }
     
-    const lastMove = () => {
-        currentMoveIndex = chessGame.history.length-1;
+    const loadLastMove = () => {
+        if (undoneMoveStack.length===0) return;
+        let poppedMove;
+        while ((poppedMove = undoneMoveStack.pop())!==null) {
+            const move: CustomMove = {
+                from: poppedMove?.from as string,
+                to: poppedMove?.to as string,
+            }
+            chess.move(move);
+        }
         moveSFX.play();
-        moveSFX.play();
-        loadGame();
+        chessBoard.set(getConfig(chess, chessGame));
     }
-
     
     onDestroy(() => {
         channel.unsubscribe();
@@ -247,26 +239,27 @@
 
 <div class="mx-auto flex flex-col lg:flex-row card variant-ghost-primary  overflow-hidden">
 
-    <!-- BOARD-PANEL -->
-    <div class="flex-1 flex flex-col gap-8 justify-between p-4">
+    <!-- BOARD-LEFT-PANEL -->
+    <div class="flex-1 flex flex-col justify-between p-4">
         {#if chess}
             <div class="flex flex-wrap gap-2 justify-between items-center">
-                <a class="btn variant-filled-primary font-semibold" href="/games">Go back</a>
+                <a class="btn variant-filled-primary w-fit" href="/games">Go back</a>
                 <p
                 class:text-white={chess.turn()==='b'}
                 class:text-black={chess.turn()==='w'}
                 class:bg-white={chess.turn()==='w'} 
                 class:bg-black={chess.turn()==='b'}
                 class:bg-surface-300-600-token={chess.isGameOver()}
-                class="p-3 rounded-token font-semibold text-center">
+                class="p-3 rounded-token font-semibold text-center !text-md lg:!text-xl">
                 {#if chess.isGameOver()}
-                    {#if chess.isCheckmate()}
-                        {chess.turn() === 'w' ? 'Black' : 'White'} won with checkmate
-                    {:else if chess.isStalemate()}
-                        Stalemate
-                    {:else if chess.isDraw()}
-                        Draw
-                    {/if}
+                    Game ended:
+                {#if chess.isCheckmate()}
+                    <p>{chess.turn() === 'w' ? 'Black' : 'White'} won with checkmate</p>
+                {:else if chess.isStalemate()}
+                    <p>Stalemate</p>
+                {:else if chess.isDraw()}
+                    <p>Draw</p>
+                {/if}
                 {:else}
                     {chess.turn()==='w' ? 'White' : 'Black'}'s turn
                 {/if}
@@ -274,7 +267,7 @@
             </div>
             <div class="flex justify-between">
                 <div class="flex gap-1">
-                    <button disabled={currentMoveIndex===0} on:click={firstMove} class="btn btn-sm variant-filled-primary w-min">
+                    <button disabled={!getLastMove()} on:click={loadFirstMove} class="btn btn-sm variant-filled-primary w-min">
                         <svg class="w-8 h-8" viewBox="0 0 1920 1920">
                             <g fill-rule="evenodd">
                                 <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
@@ -282,17 +275,17 @@
                             </g>
                         </svg>
                     </button>
-                    <button disabled={currentMoveIndex===0} on:click={previousMove} class="btn btn-sm variant-filled-primary">
+                    <button disabled={!getLastMove()} on:click={loadPreviousMove} class="btn btn-sm variant-filled-primary">
                         <svg class="w-8 h-8"  viewBox="0 0 1920 1920">
                             <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
                         </svg>
                     </button>
-                    <button disabled={currentMoveIndex===chessGame.history.length-1} on:click={nextMove} class="btn btn-sm variant-filled-primary">
+                    <button disabled={undoneMoveStack.length===0} on:click={loadNextMove} class="btn btn-sm variant-filled-primary">
                         <svg class="w-8 h-8 rotate-180"  viewBox="0 0 1920 1920">
                             <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
                         </svg>
                     </button>
-                    <button disabled={currentMoveIndex===chessGame.history.length-1} on:click={lastMove} class="btn btn-sm variant-filled-primary">
+                    <button disabled={undoneMoveStack.length===0} on:click={loadLastMove} class="btn btn-sm variant-filled-primary">
                         <svg class="w-8 h-8 rotate-180" viewBox="0 0 1920 1920">
                             <g fill-rule="evenodd">
                                 <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
