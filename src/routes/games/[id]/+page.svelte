@@ -7,7 +7,6 @@
 	import { supabase } from "$lib/supabase";
 	import { page } from "$app/stores";
 	import { invalidateAll } from "$app/navigation";
-	import { menu } from "@skeletonlabs/skeleton";
 
     export let data: PageData;
 
@@ -291,18 +290,11 @@
                     </button>
                 </div>
                 <span class="relative">
-                    <button use:menu={{ menu: 'share' }} class="btn btn-sm variant-filled-secondary">
+                    <button class="btn btn-sm variant-filled-secondary">
                         <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none">
                             <path d="M5 12V17C5 18.6569 6.34315 20 8 20H16C17.6569 20 19 18.6569 19 17V12M12 16V4M12 4L8 8M12 4L16 8" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </button>
-
-                    <div class="card p-4 w-[min(90vw,40rem)]" data-menu="share">
-                        <label class="flex">
-                            FEN:
-                            <p class="input p-2">{chess.fen()}</p>
-                        </label>
-                    </div>
                 </span>
             </div>
         {/if}
