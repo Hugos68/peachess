@@ -12,6 +12,8 @@
 
     $: chessGame = data.chessGame;
 
+    let currentMoveIndex = data.chessGame.history.length-1;
+
     let chess: Chess;
     let chessBoard: any;
     let boardElement: HTMLElement;
@@ -31,9 +33,9 @@
         else {
             chessGame = updatedChessGame;
         }
-        chess = new Chess(chessGame.history[chessGame.history.length-1].fen);
+        chess = new Chess(chessGame.history[currentMoveIndex].fen);
         chessBoard.set(getConfig(chess, chessGame));
-    }
+    }   
     
     const getConfig = (chess: Chess, chessGame: ChessGame) => {
         return {
@@ -75,14 +77,15 @@
     }
 
     const getLastMove = (chessGame: ChessGame) => {
-        const from = chessGame.history[chessGame.history.length-1].move.from;
-        const to = chessGame.history[chessGame.history.length-1].move.to
+        const from = chessGame.history[currentMoveIndex].move.from;
+        const to = chessGame.history[currentMoveIndex].move.to
         if (!from || !to) return [];
         return [from, to];
     }
 
     const getValidDestinations = (chess: Chess) => {
         const dests = new Map();
+        if (currentMoveIndex!==chessGame.history.length-1) return dests;
         SQUARES.forEach(s => {
             const ms = chess.moves({square: s, verbose: true});
             if (ms.length) dests.set(s, ms.map(m => m.to));
@@ -120,7 +123,8 @@
                 move
             });
 
-             loadGame(chessGame)
+            currentMoveIndex++;
+            loadGame(chessGame)
         } catch(error) {
             console.error(error);
 
@@ -180,6 +184,7 @@
             table: 'games',
         },
         (payload) => {
+            currentMoveIndex = payload.new.history.length-1;
             loadGame(payload.new as ChessGame);
             if (chess.isGameOver()) {
                 // TODO: Game over
@@ -190,6 +195,28 @@
         }
     )
     .subscribe();
+
+    const firstMove = () => {
+        currentMoveIndex=0;
+        loadGame(); 
+    }
+
+    const previousMove =() => {
+        if (currentMoveIndex === 0) return;
+        currentMoveIndex--;
+        loadGame(); 
+    }
+
+    const nextMove =() => {
+        if (currentMoveIndex === chessGame.history.length-1) return;
+        currentMoveIndex++;
+        loadGame();
+    }
+    
+    const lastMove = () => {
+        currentMoveIndex = chessGame.history.length-1;
+        loadGame();
+    }
 
     
     onDestroy(() => {
@@ -217,9 +244,49 @@
                 class:text-black={chess.turn()==='w'}
                 class:bg-white={chess.turn()==='w'} 
                 class:bg-black={chess.turn()==='b'}
-                class="p-2 rounded-token font-semibold text-center !text-md lg:!text-xl">
+                class:bg-surface-300-600-token={chess.isGameOver()}
+                class="p-3 rounded-token font-semibold text-center !text-md lg:!text-xl">
+                {#if chess.isGameOver()}
+                    Game ended:
+                {#if chess.isCheckmate()}
+                    <p>{chess.turn() === 'w' ? 'Black' : 'White'} won with checkmate</p>
+                {:else if chess.isStalemate()}
+                    <p>Stalemate</p>
+                {:else if chess.isDraw()}
+                    <p>Draw</p>
+                {/if}
+                {:else}
                     {chess.turn()==='w' ? 'White' : 'black'}'s turn
+                {/if}
                 </p>
+            </div>
+            <div class="flex gap-1">
+                <button on:click={firstMove} class="btn btn-sm variant-filled-primary w-min">
+                    <svg class="w-6 h-6" viewBox="0 0 1920 1920">
+                        <g fill-rule="evenodd">
+                            <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
+                            <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
+                        </g>
+                    </svg>
+                </button>
+                <button on:click={previousMove} class="btn btn-sm variant-filled-primary">
+                    <svg class="w-6 h-6"  viewBox="0 0 1920 1920">
+                        <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
+                    </svg>
+                </button>
+                <button on:click={nextMove} class="btn btn-sm variant-filled-primary">
+                    <svg class="w-6 h-6 rotate-180"  viewBox="0 0 1920 1920">
+                        <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
+                    </svg>
+                </button>
+                <button on:click={lastMove} class="btn btn-sm variant-filled-primary">
+                    <svg class="w-6 h-6 rotate-180" viewBox="0 0 1920 1920">
+                        <g fill-rule="evenodd">
+                            <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
+                            <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
+                        </g>
+                    </svg>
+                </button>
             </div>
         {/if}
     </div>
