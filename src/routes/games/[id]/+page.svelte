@@ -232,7 +232,7 @@
 
 
 
-<div class="mx-auto flex flex-col lg:flex-row card bg-secondary-500-400-token overflow-hidden">
+<div class="mx-auto flex flex-col lg:flex-row card variant-ghost-primary  overflow-hidden">
 
     <!-- BOARD-LEFT-PANEL -->
     <div class="flex-1 flex flex-col justify-between p-4">
@@ -256,37 +256,45 @@
                     <p>Draw</p>
                 {/if}
                 {:else}
-                    {chess.turn()==='w' ? 'White' : 'black'}'s turn
+                    {chess.turn()==='w' ? 'White' : 'Black'}'s turn
                 {/if}
                 </p>
             </div>
-            <div class="flex gap-1">
-                <button on:click={firstMove} class="btn btn-sm variant-filled-primary w-min">
-                    <svg class="w-6 h-6" viewBox="0 0 1920 1920">
-                        <g fill-rule="evenodd">
-                            <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
-                            <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
-                        </g>
+            <div class="flex justify-between">
+                <div class="flex gap-1">
+                    <button on:click={firstMove} class="btn btn-sm variant-filled-primary w-min">
+                        <svg class="w-8 h-8" viewBox="0 0 1920 1920">
+                            <g fill-rule="evenodd">
+                                <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
+                                <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
+                            </g>
+                        </svg>
+                    </button>
+                    <button on:click={previousMove} class="btn btn-sm variant-filled-primary">
+                        <svg class="w-8 h-8"  viewBox="0 0 1920 1920">
+                            <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
+                        </svg>
+                    </button>
+                    <button on:click={nextMove} class="btn btn-sm variant-filled-primary">
+                        <svg class="w-8 h-8 rotate-180"  viewBox="0 0 1920 1920">
+                            <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
+                        </svg>
+                    </button>
+                    <button on:click={lastMove} class="btn btn-sm variant-filled-primary">
+                        <svg class="w-8 h-8 rotate-180" viewBox="0 0 1920 1920">
+                            <g fill-rule="evenodd">
+                                <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
+                                <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
+                            </g>
+                        </svg>
+                    </button>
+                </div>
+                <button class="btn btn-sm variant-filled-secondary">
+                    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none">
+                        <path d="M5 12V17C5 18.6569 6.34315 20 8 20H16C17.6569 20 19 18.6569 19 17V12M12 16V4M12 4L8 8M12 4L16 8" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </button>
-                <button on:click={previousMove} class="btn btn-sm variant-filled-primary">
-                    <svg class="w-6 h-6"  viewBox="0 0 1920 1920">
-                        <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
-                    </svg>
-                </button>
-                <button on:click={nextMove} class="btn btn-sm variant-filled-primary">
-                    <svg class="w-6 h-6 rotate-180"  viewBox="0 0 1920 1920">
-                        <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
-                    </svg>
-                </button>
-                <button on:click={lastMove} class="btn btn-sm variant-filled-primary">
-                    <svg class="w-6 h-6 rotate-180" viewBox="0 0 1920 1920">
-                        <g fill-rule="evenodd">
-                            <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
-                            <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
-                        </g>
-                    </svg>
-                </button>
+          
             </div>
         {/if}
     </div>
