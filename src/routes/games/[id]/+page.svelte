@@ -53,10 +53,12 @@
                 dests: getValidDestinations(chess)
             },
             premovable: {
-                enabled: false,
+                enabled: true,
+                showDests: true,
+                dests: getValidDestinations(chess)
             },
             draggable: {
-                enabled: false
+                enabled: true
             },
             drawable: {
                 enabled: true
@@ -185,16 +187,14 @@
             table: 'games',
         },
         (payload) => {
+
+            // Set the current move index to the latest move so that if a user is looking at earlier moves they are updated with the newest move when their opponent plays a move
             currentMoveIndex = payload.new.history.length-1;
 
             // Only load the game and play the move audio when the game is out of sync ()
             if (payload.new.history[payload.new.history.length-1].fen!==chess.fen()) {
                 loadGame(payload.new as ChessGame);
                 moveSFX.play();
-            }
-
-            if (chess.isGameOver()) {
-                // TODO: Game over
             }
 
             // If game is reloaded and still going on, play any remaining premoves
