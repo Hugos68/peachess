@@ -247,27 +247,26 @@
 
 <div class="mx-auto flex flex-col lg:flex-row card variant-ghost-primary  overflow-hidden">
 
-    <!-- BOARD-LEFT-PANEL -->
-    <div class="flex-1 flex flex-col justify-between p-4">
+    <!-- BOARD-PANEL -->
+    <div class="flex-1 flex flex-col gap-8 justify-between p-4">
         {#if chess}
             <div class="flex flex-wrap gap-2 justify-between items-center">
-                <a class="btn variant-filled-primary w-fit" href="/games">Go back</a>
+                <a class="btn variant-filled-primary font-semibold" href="/games">Go back</a>
                 <p
                 class:text-white={chess.turn()==='b'}
                 class:text-black={chess.turn()==='w'}
                 class:bg-white={chess.turn()==='w'} 
                 class:bg-black={chess.turn()==='b'}
                 class:bg-surface-300-600-token={chess.isGameOver()}
-                class="p-3 rounded-token font-semibold text-center !text-md lg:!text-xl">
+                class="p-3 rounded-token font-semibold text-center">
                 {#if chess.isGameOver()}
-                    Game ended:
-                {#if chess.isCheckmate()}
-                    <p>{chess.turn() === 'w' ? 'Black' : 'White'} won with checkmate</p>
-                {:else if chess.isStalemate()}
-                    <p>Stalemate</p>
-                {:else if chess.isDraw()}
-                    <p>Draw</p>
-                {/if}
+                    {#if chess.isCheckmate()}
+                        {chess.turn() === 'w' ? 'Black' : 'White'} won with checkmate
+                    {:else if chess.isStalemate()}
+                        Stalemate
+                    {:else if chess.isDraw()}
+                        Draw
+                    {/if}
                 {:else}
                     {chess.turn()==='w' ? 'White' : 'Black'}'s turn
                 {/if}
