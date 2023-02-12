@@ -24,7 +24,7 @@
     }
 </script>
 
-<form method="post" class="mx-auto max-w-lg flex flex-col gap-12" use:enhance={submitSignIn}>
+<form method="post" class="mx-auto mt-[7.5vh] max-w-lg flex flex-col gap-12" use:enhance={submitSignIn}>
     <h1 class="text-end">Sign In</h1>
     <label class="label-input input-label">
         Email:
