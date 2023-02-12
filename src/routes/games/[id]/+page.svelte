@@ -205,7 +205,7 @@
 
 
 
-<div class="mx-auto max-h-[calc(100vh-var(--header-height)-4rem)] flex flex-col lg:flex-row card bg-secondary-500-400-token">
+<div class="mx-auto flex flex-col lg:flex-row card bg-secondary-500-400-token overflow-hidden">
 
     <!-- BOARD-LEFT-PANEL -->
     <div class="flex-1 flex flex-col justify-between p-4">
@@ -225,7 +225,7 @@
     </div>
     
     <!-- BOARD-WRAPPER -->
-    <div class="w-[min(100%,calc(100vh-var(--header-height)-4rem))]  aspect-square relative">
+    <div class="w-[min(100%,calc(100vh-var(--header-height)))] aspect-square relative">
         <!-- BOARD -->
         <div class:brightness-50={promotionMove!==null} bind:this={boardElement}></div>
 
