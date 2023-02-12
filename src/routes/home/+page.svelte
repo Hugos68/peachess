@@ -12,7 +12,7 @@
             const chess: Chess = new Chess(chessGame.fen)
             const board = document.getElementById(`board${chessGame.id}`) as HTMLElement;
             const config = getConfig(chess);
-            const chessGround =  Chessground(board, config);
+            const chessBoard =  Chessground(board, config);
         });
     });
 
@@ -24,12 +24,16 @@
     }
 
 </script>
-<p class="mt-[7.5vh] text-center !leading-tight !text-[clamp(2rem,5vw,3rem)]">Welcome,</p>
-<p class="text-center !leading-tight !text-[clamp(1rem,5vw,3rem)]">{$page.data.session.user.email}</p>
-<hr />
-<h2 class="mt-[2.5vh]">Your games:</h2>
+
+<h2 class="mt-[7.5vh]">Welcome, {$page.data.session.user.email}</h2>
+<hr class="my-4" />
+<h2 >Your games:</h2>
 <div>
     {#each data.chessGames as chessGame}
-        <div id="board{chessGame.id}"></div>
+
+        <div class="w-[min(100%,calc(100vh-var(--header-height)))] aspect-square relative">
+            <!-- BOARD -->
+            <div id="board{chessGame.id}"></div>
+        </div>
     {/each}
 </div>
