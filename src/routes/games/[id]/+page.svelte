@@ -13,13 +13,14 @@
 
     let currentMoveIndex = data.chessGame.history.length-1;
 
+    let moveSFX: HTMLAudioElement;
+
     let chess: Chess;
     let chessBoard: any;
     let boardElement: HTMLElement;
     let promotionModal: HTMLElement;
-    let mounted: boolean;
     onMount(() => {
-        mounted = true;
+        moveSFX = new Audio('/sfx/move.mp3');
         chessBoard = Chessground(boardElement as HTMLElement);
         loadGame(chessGame);
     });
@@ -201,8 +202,6 @@
         }
     )
     .subscribe();
-
-    const moveSFX = new Audio('/sfx/move.mp3');
 
     const firstMove = () => {
         currentMoveIndex=0;
