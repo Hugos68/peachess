@@ -7,7 +7,6 @@
 	import { supabase } from "$lib/supabase";
 	import { page } from "$app/stores";
 	import { invalidateAll } from "$app/navigation";
-
     export let data: PageData;
 
     $: chessGame = data.chessGame;
@@ -113,6 +112,7 @@
     }
 
     const doMove = async (move: CustomMove) => {
+        moveSFX.play();
         try {
             // Move (throws exception if move is invalid)
             chess.move(move);
@@ -185,7 +185,13 @@
         },
         (payload) => {
             currentMoveIndex = payload.new.history.length-1;
-            loadGame(payload.new as ChessGame);
+
+            // Only load the game and play the move audio when the game is out of sync ()
+            if (payload.new.history[payload.new.history.length-1].fen!==chess.fen()) {
+                loadGame(payload.new as ChessGame);
+                moveSFX.play();
+            }
+
             if (chess.isGameOver()) {
                 // TODO: Game over
             }
@@ -196,25 +202,33 @@
     )
     .subscribe();
 
+    const moveSFX = new Audio('/sfx/move.mp3');
+
     const firstMove = () => {
         currentMoveIndex=0;
+        moveSFX.play();
+        moveSFX.play();
         loadGame(); 
     }
 
     const previousMove =() => {
         if (currentMoveIndex === 0) return;
         currentMoveIndex--;
+        moveSFX.play();
         loadGame(); 
     }
 
     const nextMove =() => {
         if (currentMoveIndex === chessGame.history.length-1) return;
         currentMoveIndex++;
+        moveSFX.play();
         loadGame();
     }
     
     const lastMove = () => {
         currentMoveIndex = chessGame.history.length-1;
+        moveSFX.play();
+        moveSFX.play();
         loadGame();
     }
 
