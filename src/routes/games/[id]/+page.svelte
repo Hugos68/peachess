@@ -7,7 +7,6 @@
 	import { supabase } from "$lib/supabase";
 	import { page } from "$app/stores";
 	import { invalidateAll } from "$app/navigation";
-	import { clipboard, toastStore, type ToastSettings } from "@skeletonlabs/skeleton";
 
     export let data: PageData;
 
@@ -24,9 +23,14 @@
         loadGame(chessGame);
     });
 
-    const loadGame = (chessGame: ChessGame) => {
+    const loadGame = (updatedChessGame?: ChessGame) => {
         invalidateAll();
-        chessGame = chessGame;
+        if (!updatedChessGame) {
+            chessGame = data.chessGame;
+        }
+        else {
+            chessGame = updatedChessGame;
+        }
         chess = new Chess(chessGame.history[chessGame.history.length-1].fen);
         chessBoard.set(getConfig(chess, chessGame));
     }
@@ -47,11 +51,10 @@
                 dests: getValidDestinations(chess)
             },
             premovable: {
-                enabled: true,
-                showDests: true
+                enabled: false,
             },
             draggable: {
-                showGhost: true
+                enabled: false
             },
             drawable: {
                 enabled: true
@@ -88,10 +91,10 @@
     }
 
     let promotionMove: CustomMove | null = null;
-    const moveCallback = async (orig: Square, dest: Square) => {
+    const moveCallback = async (orig: Square, dest: Square) => {        
 
+        // If there is a promotion set the promotionMove and return so that the move doesn't get played yet (in case of a promotion cancel)
         const promotion = checkIfPromotion(orig, dest);
-
         if (promotion) {
             promotionMove = {
                 from: orig,
@@ -108,11 +111,21 @@
 
     const doMove = async (move: CustomMove) => {
         try {
+            // Move (throws exception if move is invalid)
             chess.move(move);
-        // Load last stable state in case of error
+
+            // Add move to history to trigger new last move
+            chessGame.history.push({
+                fen: chess.fen(),
+                move
+            });
+
+             loadGame(chessGame)
         } catch(error) {
             console.error(error);
-            loadGame(chessGame);
+
+           // If anything goes to shit reload the most recent stable game state
+            loadGame();
             return;
         }
         
@@ -122,11 +135,12 @@
                 move
             }
         });
-
-        // Load last stable state in case of error
+        
         if (error) {
             console.error(error);
-            loadGame(chessGame);
+            
+            // If anything goes to shit reload the most recent stable game state
+            loadGame();
         }
     }
 
@@ -141,9 +155,9 @@
         return true;
     }
 
-    const promote = (promotion: 'q' | 'r' | 'n' | 'b') => {
+    const promote = async (promotion: 'q' | 'r' | 'n' | 'b') => {
         if (!promotionMove) return;
-        doMove({
+        await doMove({
             from: promotionMove.from,
             to: promotionMove.to,
             promotion: promotion
@@ -153,7 +167,7 @@
     
     const cancelPromote = () => {
         promotionMove = null;
-        loadGame(chessGame);
+        loadGame();
     }
 
     const channel = supabase
@@ -177,15 +191,6 @@
     )
     .subscribe();
 
-    const triggerFenCopyToast = () => {
-        const t: ToastSettings = {
-        message: 'Copied FEN',
-        preset: 'success',
-        autohide: true,
-        timeout: 3000,
-    };
-    toastStore.trigger(t);
-    }
     
     onDestroy(() => {
         channel.unsubscribe();
@@ -193,46 +198,46 @@
 </script>
 
 <svelte:window on:click={(event) => {
-    if (!promotionModal.contains(event.target)) {
+    if (!promotionModal.contains(event.target) && promotionMove!==null) {
         cancelPromote();
     }
 }} />
 
 
 
-<div class="mx-auto max-h-[calc(100vh-var(--header-height)-4rem)] flex flex-col lg:flex-row card bg-surface-500-400-token">
+<div class="mx-auto max-h-[calc(100vh-var(--header-height)-4rem)] flex flex-col lg:flex-row card bg-secondary-500-400-token">
 
     <!-- BOARD-LEFT-PANEL -->
     <div class="flex-1 flex flex-col justify-between p-4">
         {#if chess}
-            <div class="flex justify-between items-center">
+            <div class="flex flex-wrap gap-2 justify-between items-center">
                 <a class="btn variant-filled-primary w-fit" href="/games">Go back</a>
-                    <p
-                    class:text-white={chess.turn()==='b'}
-                    class:text-black={chess.turn()==='w'}
-                    class:bg-white={chess.turn()==='w'} 
-                    class:bg-black={chess.turn()==='b'}
-                    class="p-2 rounded-token font-semibold !text-xl">
-                        {chess.turn()==='w' ? 'White' : 'black'}'s turn
-                    </p>
+                <p
+                class:text-white={chess.turn()==='b'}
+                class:text-black={chess.turn()==='w'}
+                class:bg-white={chess.turn()==='w'} 
+                class:bg-black={chess.turn()==='b'}
+                class="p-2 rounded-token font-semibold text-center !text-md lg:!text-xl">
+                    {chess.turn()==='w' ? 'White' : 'black'}'s turn
+                </p>
             </div>
         {/if}
     </div>
     
     <!-- BOARD-WRAPPER -->
-    <div class="w-[min(100%,calc(100vh-var(--header-height)-4rem))] h-full aspect-square relative">
+    <div class="w-[min(100%,calc(100vh-var(--header-height)-4rem))]  aspect-square relative">
         <!-- BOARD -->
-        <div class:opacity-50={promotionMove!==null} bind:this={boardElement}></div>
+        <div class:brightness-50={promotionMove!==null} bind:this={boardElement}></div>
 
         <!-- PROMOTION-MODAL -->
         <div bind:this={promotionModal} class:hidden={promotionMove===null} class="absolute top-0 left-[50%] translate-x-[-50%] z-[999] card p-4 m-4 bg-surface-600-300-token flex flex-col gap-2">
             <div class="flex gap-2">
-                <button class="btn variant-filled-secondary flex-1" on:click={() => promote('q')}>Q</button>
-                <button class="btn variant-filled-secondary flex-1" on:click={() => promote('r')}>R</button>
+                <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('q')}>Q</button>
+                <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('r')}>R</button>
             </div>
             <div class="flex gap-2">
-                <button class="btn variant-filled-secondary flex-1" on:click={() => promote('n')}>K</button>
-                <button class="btn variant-filled-secondary flex-1" on:click={() => promote('b')}>B</button>
+                <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('n')}>K</button>
+                <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('b')}>B</button>
             </div>
             <button class="btn variant-filled-secondary" on:click={cancelPromote}>Cancel</button>
         </div>
