@@ -7,6 +7,7 @@
 	import { supabase } from "$lib/supabase";
 	import { page } from "$app/stores";
 	import { invalidateAll } from "$app/navigation";
+	import { menu } from "@skeletonlabs/skeleton";
 
     export let data: PageData;
 
@@ -262,7 +263,7 @@
             </div>
             <div class="flex justify-between">
                 <div class="flex gap-1">
-                    <button on:click={firstMove} class="btn btn-sm variant-filled-primary w-min">
+                    <button disabled={currentMoveIndex===0} on:click={firstMove} class="btn btn-sm variant-filled-primary w-min">
                         <svg class="w-8 h-8" viewBox="0 0 1920 1920">
                             <g fill-rule="evenodd">
                                 <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
@@ -270,17 +271,17 @@
                             </g>
                         </svg>
                     </button>
-                    <button on:click={previousMove} class="btn btn-sm variant-filled-primary">
+                    <button disabled={currentMoveIndex===0} on:click={previousMove} class="btn btn-sm variant-filled-primary">
                         <svg class="w-8 h-8"  viewBox="0 0 1920 1920">
                             <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
                         </svg>
                     </button>
-                    <button on:click={nextMove} class="btn btn-sm variant-filled-primary">
+                    <button disabled={currentMoveIndex===chessGame.history.length-1} on:click={nextMove} class="btn btn-sm variant-filled-primary">
                         <svg class="w-8 h-8 rotate-180"  viewBox="0 0 1920 1920">
                             <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
                         </svg>
                     </button>
-                    <button on:click={lastMove} class="btn btn-sm variant-filled-primary">
+                    <button disabled={currentMoveIndex===chessGame.history.length-1} on:click={lastMove} class="btn btn-sm variant-filled-primary">
                         <svg class="w-8 h-8 rotate-180" viewBox="0 0 1920 1920">
                             <g fill-rule="evenodd">
                                 <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
@@ -289,11 +290,20 @@
                         </svg>
                     </button>
                 </div>
-                <button class="btn btn-sm variant-filled-secondary">
-                    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none">
-                        <path d="M5 12V17C5 18.6569 6.34315 20 8 20H16C17.6569 20 19 18.6569 19 17V12M12 16V4M12 4L8 8M12 4L16 8" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
+                <span class="relative">
+                    <button use:menu={{ menu: 'share' }} class="btn btn-sm variant-filled-secondary">
+                        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none">
+                            <path d="M5 12V17C5 18.6569 6.34315 20 8 20H16C17.6569 20 19 18.6569 19 17V12M12 16V4M12 4L8 8M12 4L16 8" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+
+                    <div class="card p-4 w-[min(90vw,40rem)]" data-menu="share">
+                        <label class="flex">
+                            FEN:
+                            <p class="input p-2">{chess.fen()}</p>
+                        </label>
+                    </div>
+                </span>
             </div>
         {/if}
     </div>
