@@ -239,7 +239,6 @@
                 <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('n')}>K</button>
                 <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('b')}>B</button>
             </div>
-            <button class="btn variant-filled-secondary" on:click={cancelPromote}>Cancel</button>
         </div>
     </div>
 </div>
