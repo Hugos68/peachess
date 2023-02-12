@@ -1,27 +1,29 @@
 <script lang="ts">
-	import { Chess, SQUARES, type Color, type Move, type Piece, type Square } from "chess.js";
+	import { Chess, SQUARES, type Square } from "chess.js";
     import type { PageData } from "./$types";
     import { Chessground } from 'chessground';
 	import { onMount, onDestroy } from "svelte";
     import '../../../chessground.css';
 	import { supabase } from "$lib/supabase";
 	import { page } from "$app/stores";
+	import { invalidateAll } from "$app/navigation";
 
     export let data: PageData;
 
-    let chessGame: ChessGame;
+    $: chessGame = data.chessGame;
+
     let chess: Chess;
- 
     let chessBoard: any;
+    let boardElement: HTMLElement;
     let mounted: boolean;
     onMount(() => {
         mounted = true;
-        chessBoard = Chessground(document.getElementById("board") as HTMLElement);
-        chessGame = data.chessGame;
+        chessBoard = Chessground(boardElement as HTMLElement);
         loadGame(chessGame);
     });
 
     const loadGame = (chessGame: ChessGame) => {
+        invalidateAll();
         chessGame = chessGame;
         chess = new Chess(chessGame.history[chessGame.history.length-1].fen);
         chessBoard.set(getConfig(chess, chessGame));
@@ -83,21 +85,34 @@
         return dests;
     }
 
+    let promotionMove: CustomMove | null = null;
     const moveCallback = async (orig: Square, dest: Square) => {
-        const move = {
-            from: orig,
-            to: dest,
-            promotion: getPromotion(orig, dest)
+
+        const promotion = checkIfPromotion(orig, dest);
+
+        if (promotion) {
+            promotionMove = {
+                from: orig,
+                to: dest
+            }
+            return;
         }
-        
+
+        await doMove({
+            from: orig as string,
+            to: dest as string
+        });
+    }
+
+    const doMove = async (move: CustomMove) => {
         try {
             chess.move(move);
+        // Load last stable state in case of error
         } catch(error) {
             console.error(error);
             loadGame(chessGame);
             return;
         }
-        
         
         const {data, error} = await supabase.functions.invoke('move', {
             body : {
@@ -105,25 +120,38 @@
                 move
             }
         });
+
+        // Load last stable state in case of error
         if (error) {
+            console.error(error);
             loadGame(chessGame);
         }
     }
 
-    let promotion: boolean = false;
-    const getPromotion = (orig: Square, dest: Square): string | undefined => {
+    const checkIfPromotion = (orig: Square, dest: Square): boolean => {
         const {type, color} = chess.get(orig);
         const rankNumber =  Number.parseInt(dest.charAt(1));
 
-        if (type!=='p') return;
-        if (color==='w' && rankNumber!==8) return;
-        if (color==='b' && rankNumber!==1) return;
+        if (type!=='p') return false;
+        if (color==='w' && rankNumber!==8) return false;
+        if (color==='b' && rankNumber!==1) return false;
 
-        promotion = true;
-        // TODO: Create popup with promotion input here | valid promotions are: 'q', 'r', 'n', 'b'
-        promotion = false;
+        return true;
+    }
 
-        return 'q';
+    const promote = (promotion: 'q' | 'r' | 'n' | 'b') => {
+        if (!promotionMove) return;
+        doMove({
+            from: promotionMove.from,
+            to: promotionMove.to,
+            promotion: promotion
+        });
+        promotionMove = null;
+    }
+    
+    const cancelPromote = () => {
+        promotionMove = null;
+        loadGame(chessGame);
     }
 
     const channel = supabase
@@ -170,12 +198,20 @@
     <!-- BOARD-WRAPPER -->
     <div class="w-[min(100%,calc(100vh-var(--header-height)-4rem))] aspect-square relative">
         <!-- BOARD -->
-        <div id="board"></div>
+        <div bind:this={boardElement}></div>
 
         <!-- PROMOTION-MODAL -->
-        {#if promotion}
-            <div class="absolute top-0 z-[999] card bg-surface-600-300-token w-32 h-32">HELLO WORLD</div>
-        {/if}
+        <div class:hidden={promotionMove===null} class="absolute top-0 z-[999] card p-4 m-4 bg-surface-600-300-token flex flex-col gap-4">
+            <div class="flex gap-4">
+                <button class="btn variant-filled-secondary flex-1" on:click={() => promote('q')}>Q</button>
+                <button class="btn variant-filled-secondary flex-1" on:click={() => promote('r')}>R</button>
+            </div>
+            <div class="flex gap-4">
+                <button class="btn variant-filled-secondary flex-1" on:click={() => promote('n')}>K</button>
+                <button class="btn variant-filled-secondary flex-1" on:click={() => promote('b')}>B</button>
+            </div>
+            <button class="btn variant-filled-secondary" on:click={cancelPromote}>Cancel</button>
+        </div>
     </div>
 
     <!-- BOARD-RIGHT-PANEL -->

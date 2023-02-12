@@ -13,3 +13,9 @@ interface ChessGame {
         }
     ]
 }
+
+interface CustomMove {
+    from: string
+    to: string
+    promotion?: 'q' | 'r' | 'n' | 'b'
+}
