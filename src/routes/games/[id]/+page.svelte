@@ -7,6 +7,7 @@
 	import { supabase } from "$lib/supabase";
 	import { page } from "$app/stores";
 	import { invalidateAll } from "$app/navigation";
+	import { clipboard, toastStore, type ToastSettings } from "@skeletonlabs/skeleton";
 
     export let data: PageData;
 
@@ -175,6 +176,16 @@
         }
     )
     .subscribe();
+
+    const triggerFenCopyToast = () => {
+        const t: ToastSettings = {
+        message: 'Copied FEN',
+        preset: 'success',
+        autohide: true,
+        timeout: 3000,
+    };
+    toastStore.trigger(t);
+    }
     
     onDestroy(() => {
         channel.unsubscribe();
@@ -189,22 +200,27 @@
 
 
 
-<div class="mx-auto flex card bg-surface-500-400-token">
+<div class="mx-auto max-h-[calc(100vh-var(--header-height)-4rem)] flex flex-col lg:flex-row card bg-surface-500-400-token">
 
     <!-- BOARD-LEFT-PANEL -->
-    {#if mounted}
-        <div class="flex-1 flex flex-col p-4">
-            <a href="/games">Back</a>
-            <header class="flex p-4">    
-    
-                <p>{chess.turn()==='w' ? 'White' : 'black'} to move...</p>
-            
-            </header>
-        </div>
-    {/if}   
+    <div class="flex-1 flex flex-col justify-between p-4">
+        {#if chess}
+            <div class="flex justify-between items-center">
+                <a class="btn variant-filled-primary w-fit" href="/games">Go back</a>
+                    <p
+                    class:text-white={chess.turn()==='b'}
+                    class:text-black={chess.turn()==='w'}
+                    class:bg-white={chess.turn()==='w'} 
+                    class:bg-black={chess.turn()==='b'}
+                    class="p-2 rounded-token font-semibold !text-xl">
+                        {chess.turn()==='w' ? 'White' : 'black'}'s turn
+                    </p>
+            </div>
+        {/if}
+    </div>
     
     <!-- BOARD-WRAPPER -->
-    <div class="w-[min(100%,calc(100vh-var(--header-height)-4rem))] aspect-square relative">
+    <div class="w-[min(100%,calc(100vh-var(--header-height)-4rem))] h-full aspect-square relative">
         <!-- BOARD -->
         <div class:opacity-50={promotionMove!==null} bind:this={boardElement}></div>
 
@@ -221,13 +237,6 @@
             <button class="btn variant-filled-secondary" on:click={cancelPromote}>Cancel</button>
         </div>
     </div>
-
-    <!-- BOARD-RIGHT-PANEL -->
-    {#if mounted}
-        <div class="flex-1 flex flex-col p-4">
-            
-        </div>
-    {/if}
 </div>
 
 
