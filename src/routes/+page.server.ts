@@ -10,7 +10,6 @@ export const actions: Actions = {
 
         if (body.password!==body.confirmPassword) return fail(400, { message: 'Password mismatch' });
          
-        
         if (!body.displayName || !body.email || !body.password) return fail(400, { message: 'Please fill in all fields' });
         
         const {supabaseClient} = await getSupabase(event);
