@@ -10,7 +10,9 @@ export const actions: Actions = {
 
         if (body.password!==body.confirmPassword) return fail(400, { message: 'Password mismatch' });
          
-        if (!body.displayName || !body.email || !body.password) return fail(400, { message: 'Please fill in all fields' });
+        if (!body.username || !body.email || !body.password) return fail(400, { message: 'Please fill in all fields' });
+
+        if (body.username.length < 4 || body.username.length > 20) return fail(400, { message: 'Username must be between 4 and 20 characteres long' });
         
         const {supabaseClient} = await getSupabase(event);
         
@@ -19,11 +21,10 @@ export const actions: Actions = {
             password: body.password as string,
             options: {
                 data: {
-                    user_name: body.displayName
+                    user_name: body.username
                 }
             }
         });
-
 
         // Janky hotfix to check wether an email is taken or not until supabase gives us a better solution
         if (data?.user?.identities?.length === 0){
