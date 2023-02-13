@@ -1,10 +1,19 @@
 <script>
-
 	import { page } from "$app/stores";
+	import { supabase } from "$lib/supabase";
 
+	const testInvoke = async () => {
+
+		const response = await supabase.functions.invoke('create_game', {
+			body: JSON.stringify({ opponentUsername: 'Hugos68' })
+		});
+		console.log(response);
+	}
 </script>
+
 <div class="mx-auto mt-[7.5vh] flex flex-col items-center gap-16">
 	<h1 class="!text-[clamp(3rem,10vw,6rem)] !leading-snug">Peachess</h1>
+	<button on:click={testInvoke}>TEST</button>
 	<p class="font-bold">The #1 chess website.</p>
 	<div class="flex gap-8">
 		<a class="btn btn-large variant-filled-primary" href= {$page.data.session ? "/home" : "/sign-up"}>Get started!</a>

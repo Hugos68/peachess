@@ -48,10 +48,14 @@
         (payload) => {
             const updatedGame: ChessGame = payload.new as ChessGame
 
-            // Only play game sound when its a move that isnt in our pgn yet
-            if (updatedGame.pgn!==chess.pgn()) playMoveSound()
+            const before = chess;
             
             loadGame(updatedGame);
+
+            console.log(before);
+            console.log(chess);
+            if (before.history.length!==chess.history.length) playMoveSound();
+            // Only play game sound when its a move that we don't have on the client yet, we do this by comparing last move's
 
             // Once game is reloaded play premoves
             chessBoard.playPremove();
@@ -61,8 +65,7 @@
 
     const loadGame = (newChessGame: ChessGame) => {
         chessGame = newChessGame;
-        console.log(chessGame.pgn.replace(' ', '\n'))
-        chess.loadPgn(chessGame.pgn.replace(' ', '\n'));
+        chess.loadPgn(chessGame.pgn);
 
         // Clear the undone move stack since the chess object was resassigned
         undoneMoveStack = [];

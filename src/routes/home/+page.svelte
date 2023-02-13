@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { page } from "$app/stores";
+	import { supabase } from "$lib/supabase";
 	import { Chess } from "chess.js";
 	import { Chessground } from "chessground";
 	import { onMount } from "svelte";
 	import type { PageData } from "../$types";
 
     export let data: PageData;
+
     
     onMount(() => {
         data.chessGames.forEach(chessGame => {

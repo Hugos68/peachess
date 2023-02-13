@@ -94,9 +94,10 @@ serve(async (req) => {
             promotion: move?.promotion
         });
 
+        // The replaces call fixes bug where atrix gets placed after last move without a space between causing client side parsers to fail
         const updateChessGameRequest = await serviceRoleSupabaseClient
             .from("games")
-            .update({ pgn: chess.toString("pgn")})
+            .update({ pgn: chess.toString("pgn").replace(/.{1}$/, ' $&')})
             .eq('id', gameId);
 
         const updatedChessGameError = updateChessGameRequest.error;
@@ -113,17 +114,10 @@ serve(async (req) => {
             status: 200,
         });
 
-        } catch (error) {
-            console.error(error)
-            return new Response(JSON.stringify({ error: error.message }), {
-                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-                status: 400,
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 400,
         });
     }
 });
-
-// To invoke:
-// curl -i --location --request POST 'http://localhost:54321/functions/v1/' \
-//   --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0' \
-//   --header 'Content-Type: application/json' \
-//   --data '{"name":"Functions"}'
