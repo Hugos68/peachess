@@ -28,13 +28,7 @@
     const loadGame = (newChessGame: ChessGame) => {
         if (newChessGame.pgn) chess.loadPgn(newChessGame.pgn);
         chessBoard.set(getConfig(chess, newChessGame)); 
-
-    }   
-
-    const reloadGame = () => {
-        chess.loadPgn(chessGame.pgn);
-        chessBoard.set(getConfig(chess, chessGame));
-    }
+    } 
     
     const getConfig = (chess: Chess, chessGame: ChessGame) => {
         return {
@@ -116,8 +110,8 @@
             // Move (throws exception if move is invalid)
             chess.move(move);
 
-            // Reload game to render the move
-            reloadGame();
+            // Rerender board
+            chessBoard.set(getConfig(chess, chessGame));
         } catch(error) {
             console.error(error);
             return;
@@ -158,7 +152,9 @@
     
     const cancelPromote = () => {
         promotionMove = null;
-        reloadGame();
+     
+        // Rerender board
+        chessBoard.set(getConfig(chess, chessGame));
     }
 
     const channel = supabase
