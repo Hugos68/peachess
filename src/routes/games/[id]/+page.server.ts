@@ -1,5 +1,6 @@
 import { getSupabase } from "@supabase/auth-helpers-sveltekit";
 import type { PageServerLoad } from './$types';
+import { redirect } from '@sveltejs/kit';
 
 export const load = (async (event) => {
     const {supabaseClient} = await getSupabase(event);
@@ -10,6 +11,8 @@ export const load = (async (event) => {
     .eq("id", event.params.id as number)
     .limit(1)
     .single();
+
+    if (error) throw redirect(303, `/games?${new URLSearchParams({message: 'The game you tried to visit does not exist'})}`);
 
     return {
         chessGame: data as ChessGame

@@ -16,4 +16,5 @@ interface Settings {
     animate: boolean
     sfx: boolean
     premove: boolean
+    drag: boolean
 }

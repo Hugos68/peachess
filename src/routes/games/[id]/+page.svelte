@@ -23,7 +23,8 @@
     const settings: Writable<Settings> = localStorageStore('settings',  {
         animate: true,
         sfx: true,
-        premove: false
+        premove: false,
+        drag: true
     });
 
     let boardElement: HTMLElement;
@@ -60,6 +61,7 @@
 
     const loadGame = (newChessGame: ChessGame) => {
         chessGame = newChessGame;
+        
         chess.loadPgn(chessGame.pgn);
 
         // Clear the undone move stack since the chess object was resassigned
@@ -91,16 +93,17 @@
                 dests: getValidDestinations(chess)
             },
             premovable: {
-                enabled: $settings.premove,
+                enabled: $settings.premove
             },
             animation: {
-                enabled: $settings.animate,
+                enabled: $settings.animate
             },
             draggable: {
-                enabled: false
+                enabled: $settings.drag
             },
             drawable: {
-                enabled: true
+                enabled: true,
+                eraseOnClick: true
             },
             events: {
                 move: moveCallback
@@ -345,9 +348,10 @@
                             </div>
                         {:else if tabSet === 1}
                             <div class="flex flex-col">
-                                <SlideToggle name="animate" bind:checked={$settings.animate} on:input={() => setTimeout(() => {updateUI}, 3000)}>Animate</SlideToggle>
-                                <SlideToggle name="sfx" bind:checked={$settings.sfx} on:input={() => setTimeout(() => {updateUI}, 3000)} >SFX</SlideToggle>
-                                <SlideToggle name="premove" bind:checked={$settings.premove} on:input={() => setTimeout(() => {updateUI}, 3000)}>Premove</SlideToggle>
+                                <SlideToggle name="animate" bind:checked={$settings.animate} on:input={() => setTimeout(() => {updateUI}, 500)}>Animate</SlideToggle>
+                                <SlideToggle name="sfx" bind:checked={$settings.sfx} on:input={() => setTimeout(() => {updateUI}, 500)} >SFX</SlideToggle>
+                                <SlideToggle name="premove" bind:checked={$settings.premove} on:input={() => setTimeout(() => {updateUI}, 500)}>Premove</SlideToggle>
+                                <SlideToggle name="drag" bind:checked={$settings.drag} on:input={() => setTimeout(() => {updateUI}, 500)}>Drag</SlideToggle>
                             </div>
                         {:else if tabSet === 2}
                             <label>
