@@ -18,7 +18,7 @@
     let chessBoard: any;
     let boardElement: HTMLElement;
     let promotionModal: HTMLElement;
-    const undoneMoveStack: Move[] = [];
+    let undoneMoveStack: Move[] = [];
     onMount(() => {
         moveSFX = new Audio('/sfx/move.mp3');
         chessBoard = Chessground(boardElement);
@@ -26,8 +26,16 @@
     });
 
     const loadGame = (newChessGame: ChessGame) => {
-        if (newChessGame.pgn) chess.loadPgn(newChessGame.pgn);
-        chessBoard.set(getConfig(chess, newChessGame)); 
+
+        // Clear the undone move stack since the chess object was resassigned
+        undoneMoveStack = [];
+
+        // This triggers svelte updates
+        chessGame = newChessGame;
+        chess = chess;
+
+        chess.loadPgn(chessGame.pgn);
+        chessBoard.set(getConfig(chess, chessGame)); 
     } 
     
     const getConfig = (chess: Chess, chessGame: ChessGame) => {
@@ -36,6 +44,7 @@
             orientation: getPlayingColor(chessGame),
             turnColor: getTurnColor(chess), 
             lastMove: getLastMove(),
+            viewOnly: undoneMoveStack.length!==0,
             check: chess.inCheck(),
             highlight: {
                 lastMove: true,  
@@ -72,12 +81,19 @@
     const getLastMove = () => {
         const undoneMove = chess.undo();
         if (undoneMove===null) return [];
+        chess.move({
+            from: undoneMove.from,
+            to: undoneMove.to,
+            promotion: undoneMove.promotion
+        });
         return [undoneMove.from, undoneMove.to];
     }
 
     const getValidDestinations = (chess: Chess) => {
         const dests = new Map();
-        if (undoneMoveStack.length!==0) return dests;
+
+        // // When the undoneMovestack
+        // if (undoneMoveStack.length!==0) return dests;
         SQUARES.forEach(s => {
             const ms = chess.moves({square: s, verbose: true});
             if (ms.length) dests.set(s, ms.map(m => m.to));
@@ -106,9 +122,13 @@
 
     const doMove = async (move: CustomMove) => {
         moveSFX.play();
+
         try {
             // Move (throws exception if move is invalid)
             chess.move(move);
+
+            // This triggers svelte updates
+            chess = chess;
 
             // Rerender board
             chessBoard.set(getConfig(chess, chessGame));
@@ -153,7 +173,7 @@
     const cancelPromote = () => {
         promotionMove = null;
      
-        // Rerender board
+        // Rerender board otherwise pawn moves to promotion square without being promoted
         chessBoard.set(getConfig(chess, chessGame));
     }
 
@@ -167,10 +187,14 @@
             table: 'games',
         },
         (payload) => {
+
+            // Only play game sound when its a move that isnt in our pgn yet
             if (payload.new.pgn!==chess.pgn()) {
-                loadGame(payload.new as ChessGame);
                 moveSFX.play();
             }
+            
+            loadGame(payload.new as ChessGame);
+
             // If game is reloaded and still going on, play any remaining premoves
             chessBoard.playPremove();
         }
@@ -179,18 +203,22 @@
 
     const loadFirstMove = () => {
         if (!getLastMove()) return;
-        moveSFX.play();
         let undoneMove;
         while ((undoneMove = chess.undo())!==null) undoneMoveStack.push(undoneMove);
         chessBoard.set(getConfig(chess, chessGame));
+
+        // This triggers svelte updates
+        undoneMoveStack=undoneMoveStack;
     }
 
     const loadPreviousMove =() => {
         const move = chess.undo();
         if (move===null) return;
-        moveSFX.play();
         undoneMoveStack.push(move);
         chessBoard.set(getConfig(chess, chessGame));
+        
+        // This triggers svelte updates
+        undoneMoveStack=undoneMoveStack;
     }
 
     const loadNextMove = () => {
@@ -204,20 +232,18 @@
         }
         chess.move(move);
         chessBoard.set(getConfig(chess, chessGame));
+        
+        // This triggers svelte updates
+        undoneMoveStack=undoneMoveStack;
     }
     
     const loadLastMove = () => {
         if (undoneMoveStack.length===0) return;
-        let poppedMove;
-        while ((poppedMove = undoneMoveStack.pop())!==null) {
-            const move: CustomMove = {
-                from: poppedMove?.from as string,
-                to: poppedMove?.to as string,
-            }
-            chess.move(move);
-        }
-        moveSFX.play();
+        loadGame(chessGame);
         chessBoard.set(getConfig(chess, chessGame));
+        
+        // This triggers svelte updates
+        undoneMoveStack=undoneMoveStack;
     }
     
     onDestroy(() => {
@@ -276,19 +302,21 @@
                             <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
                         </svg>
                     </button>
-                    <button disabled={undoneMoveStack.length===0} on:click={loadNextMove} class="btn btn-sm variant-filled-primary">
-                        <svg class="w-8 h-8 rotate-180"  viewBox="0 0 1920 1920">
-                            <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
-                        </svg>
-                    </button>
-                    <button disabled={undoneMoveStack.length===0} on:click={loadLastMove} class="btn btn-sm variant-filled-primary">
-                        <svg class="w-8 h-8 rotate-180" viewBox="0 0 1920 1920">
-                            <g fill-rule="evenodd">
-                                <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
-                                <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
-                            </g>
-                        </svg>
-                    </button>
+                    {#key undoneMoveStack}
+                        <button disabled={undoneMoveStack.length===0} on:click={loadNextMove} class="btn btn-sm variant-filled-primary">
+                            <svg class="w-8 h-8 rotate-180"  viewBox="0 0 1920 1920">
+                                <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
+                            </svg>
+                        </button>
+                        <button disabled={undoneMoveStack.length===0} on:click={loadLastMove} class="btn btn-sm variant-filled-primary">
+                            <svg class="w-8 h-8 rotate-180" viewBox="0 0 1920 1920">
+                                <g fill-rule="evenodd">
+                                    <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
+                                    <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
+                                </g>
+                            </svg>
+                        </button>
+                    {/key}
                 </div>
                 <span class="relative">
                     <button class="btn btn-sm variant-filled-secondary">
