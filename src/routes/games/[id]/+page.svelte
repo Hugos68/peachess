@@ -247,7 +247,7 @@
 <div class="mx-auto flex flex-col lg:flex-row card variant-ghost-primary  overflow-hidden">
 
     <!-- BOARD-LEFT-PANEL -->
-    <div class="flex-1 flex flex-col gap-8 justify-between p-4">
+    <div class="flex-1 flex flex-col gap-8 justify-between p-4 min-w-[20rem]">
         {#if chess}
             <div class="flex flex-wrap gap-2 justify-between items-center">
                 <a class="btn variant-filled-primary w-fit" href="/games">Go back</a>
@@ -271,8 +271,8 @@
                 {/if}
                 </p>
             </div>
-            <div class="flex lg:flex-col gap-2 justify-between">
-                <div class="flex gap-1">
+            <div class="flex lg:flex-col lg:gap-2 justify-between">
+                <div class="mx-auto flex gap-2">
                     <button disabled={!getLastMove()} on:click={loadFirstMove} class="btn btn-sm variant-filled-primary w-min">
                         <svg class="w-8 h-8" viewBox="0 0 1920 1920">
                             <g fill-rule="evenodd">
