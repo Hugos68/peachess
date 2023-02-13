@@ -25,18 +25,45 @@
         loadGame(data.chessGame);
     });
 
+    const channel = supabase
+    .channel('table-db-changes')
+    .on(
+        'postgres_changes',
+        {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'games',
+        },
+        (payload) => {
+
+            // Only play game sound when its a move that isnt in our pgn yet
+            if (payload.new.pgn!==chess.pgn()) {
+                moveSFX.play();
+            }
+            
+            loadGame(payload.new as ChessGame);
+
+            // If game is reloaded and still going on, play any remaining premoves
+            chessBoard.playPremove();
+        }
+    )
+    .subscribe();
+
     const loadGame = (newChessGame: ChessGame) => {
+        chessGame = newChessGame;
+        chess.loadPgn(chessGame.pgn);
 
         // Clear the undone move stack since the chess object was resassigned
         undoneMoveStack = [];
-
-        // This triggers svelte updates
-        chessGame = newChessGame;
-        chess = chess;
-
-        chess.loadPgn(chessGame.pgn);
-        chessBoard.set(getConfig(chess, chessGame)); 
+        updateUI();
     } 
+
+    const updateUI = () => {
+        chess = chess;
+        chessGame = chessGame;
+        undoneMoveStack = undoneMoveStack;
+        chessBoard.set(getConfig(chess, chessGame));
+    }
     
     const getConfig = (chess: Chess, chessGame: ChessGame) => {
         return {
@@ -126,12 +153,8 @@
         try {
             // Move (throws exception if move is invalid)
             chess.move(move);
-
-            // This triggers svelte updates
-            chess = chess;
-
-            // Rerender board
-            chessBoard.set(getConfig(chess, chessGame));
+            
+            updateUI();
         } catch(error) {
             console.error(error);
             return;
@@ -172,53 +195,21 @@
     
     const cancelPromote = () => {
         promotionMove = null;
-     
-        // Rerender board otherwise pawn moves to promotion square without being promoted
-        chessBoard.set(getConfig(chess, chessGame));
+        updateUI();
     }
-
-    const channel = supabase
-    .channel('table-db-changes')
-    .on(
-        'postgres_changes',
-        {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'games',
-        },
-        (payload) => {
-
-            // Only play game sound when its a move that isnt in our pgn yet
-            if (payload.new.pgn!==chess.pgn()) {
-                moveSFX.play();
-            }
-            
-            loadGame(payload.new as ChessGame);
-
-            // If game is reloaded and still going on, play any remaining premoves
-            chessBoard.playPremove();
-        }
-    )
-    .subscribe();
 
     const loadFirstMove = () => {
         if (!getLastMove()) return;
         let undoneMove;
         while ((undoneMove = chess.undo())!==null) undoneMoveStack.push(undoneMove);
-        chessBoard.set(getConfig(chess, chessGame));
-
-        // This triggers svelte updates
-        undoneMoveStack=undoneMoveStack;
+        updateUI();
     }
 
     const loadPreviousMove =() => {
         const move = chess.undo();
         if (move===null) return;
         undoneMoveStack.push(move);
-        chessBoard.set(getConfig(chess, chessGame));
-        
-        // This triggers svelte updates
-        undoneMoveStack=undoneMoveStack;
+        updateUI();
     }
 
     const loadNextMove = () => {
@@ -231,19 +222,13 @@
             promotion: poppedMove?.promotion as 'q' | 'r' | 'n' | 'b' | undefined
         }
         chess.move(move);
-        chessBoard.set(getConfig(chess, chessGame));
-        
-        // This triggers svelte updates
-        undoneMoveStack=undoneMoveStack;
+        updateUI();
     }
     
     const loadLastMove = () => {
         if (undoneMoveStack.length===0) return;
         loadGame(chessGame);
-        chessBoard.set(getConfig(chess, chessGame));
-        
-        // This triggers svelte updates
-        undoneMoveStack=undoneMoveStack;
+        updateUI();
     }
     
     onDestroy(() => {
