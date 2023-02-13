@@ -272,35 +272,38 @@
         {#if chess}
             <div class="flex flex-wrap gap-2 justify-between items-center">
                 <a class="btn variant-filled-primary w-fit" href="/games">Go back</a>
-                <p
-                class:text-white={chess.turn()==='b'}
-                class:text-black={chess.turn()==='w'}
-                class:bg-white={chess.turn()==='w'} 
-                class:bg-black={chess.turn()==='b'}
-                class:bg-surface-300-600-token={chess.isGameOver()}
-                class="p-3 rounded-token font-semibold text-center">
+               
                 {#if chess.isGameOver()}
+                    <p  class="p-3 rounded-token font-semibold text-center bg-surface-300-600-token">
                     {#if chess.isCheckmate()}
-                        <p>{chess.turn() === 'w' ? 'Black' : 'White'} won with mate</p>
+                        {chess.turn() === 'w' ? 'Black' : 'White'} won with mate
                     {:else if chess.isStalemate()}
-                        <p>Stalemate</p>
+                        Stalemate
                     {:else if chess.isDraw()}
-                        <p>Draw</p>
+                        Draw
                     {/if}
+                    </p>
                 {:else}
+                    <p
+                    class="p-3 rounded-token font-semibold text-center"
+                    class:text-white={chess.turn()==='b'}
+                    class:text-black={chess.turn()==='w'}
+                    class:bg-white={chess.turn()==='w'} 
+                    class:bg-black={chess.turn()==='b'}>
                     {chess.turn()==='w' ? 'White' : 'Black'}'s turn
+                    </p>
                 {/if}
-                </p>
+
             </div>
             <div class="hidden lg:block">
-                <TabGroup flex="flex-1" regionPanel="flex-col justify-between">
+                <TabGroup flex="flex-1" regionPanel="flex flex-col gap-10">
                     <Tab bind:group={tabSet} name="game" value={0}>Game</Tab>
                     <Tab bind:group={tabSet} name="settings" value={1}>Settings</Tab>
                     <Tab bind:group={tabSet} name="share" value={2}>Share</Tab>
 
                     <svelte:fragment slot="panel">
                         {#if tabSet === 0}
-                            <div class="h-[50vh] overflow-y-scroll">
+                            <div class="h-[50vh] overflow-y-scroll rounded-token">
                                 {#each history as move, i} 
                                     {#if i%2===0}
                                         <div class="flex">
@@ -342,12 +345,20 @@
                             </div>
                         {:else if tabSet === 1}
                             <div class="flex flex-col">
-                                <SlideToggle name="animate" bind:checked={$settings.animate} on:input={updateUI}>Animate</SlideToggle>
-                                <SlideToggle name="sfx" bind:checked={$settings.sfx} on:input={updateUI} >SFX</SlideToggle>
-                                <SlideToggle name="premove" bind:checked={$settings.premove} on:input={updateUI}>Premove</SlideToggle>
+                                <SlideToggle name="animate" bind:checked={$settings.animate} on:input={() => setTimeout(() => {updateUI}, 3000)}>Animate</SlideToggle>
+                                <SlideToggle name="sfx" bind:checked={$settings.sfx} on:input={() => setTimeout(() => {updateUI}, 3000)} >SFX</SlideToggle>
+                                <SlideToggle name="premove" bind:checked={$settings.premove} on:input={() => setTimeout(() => {updateUI}, 3000)}>Premove</SlideToggle>
                             </div>
                         {:else if tabSet === 2}
-                            (tab panel 3 contents)
+                            <label>
+                                Fen:
+                                <input class="input" disabled value={chess.fen()} />
+                            </label>
+
+                            <label>
+                                Fen:
+                                <textarea contenteditable="false" class="input resize-none h-fit" disabled value={chess.pgn()} />
+                            </label>
                         {/if}
                     </svelte:fragment>
                 </TabGroup>
