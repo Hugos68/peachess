@@ -7,6 +7,7 @@
 	import { supabase } from "$lib/supabase";
 	import { page } from "$app/stores";
 	import { invalidateAll } from "$app/navigation";
+	import { Tab, TabGroup } from "@skeletonlabs/skeleton";
 
     export let data: PageData;
 
@@ -234,6 +235,8 @@
     onDestroy(() => {
         channel.unsubscribe();
     });
+
+    let tabSet: number = 0;
 </script>
 
 <svelte:window on:click={(event) => {
@@ -247,7 +250,7 @@
 <div class="mx-auto flex flex-col lg:flex-row card variant-ghost-primary  overflow-hidden">
 
     <!-- BOARD-LEFT-PANEL -->
-    <div class="flex-1 flex flex-col gap-8 justify-between p-4 min-w-[20rem]">
+    <div class="flex-1 flex flex-col gap-8 p-4 min-w-[20rem]">
         {#if chess}
             <div class="flex flex-wrap gap-2 justify-between items-center">
                 <a class="btn variant-filled-primary w-fit" href="/games">Go back</a>
@@ -271,43 +274,48 @@
                 {/if}
                 </p>
             </div>
-            <div class="flex lg:flex-col lg:gap-2 justify-between">
-                <div class="mx-auto flex gap-2">
-                    <button disabled={!getLastMove()} on:click={loadFirstMove} class="btn btn-sm variant-filled-primary w-min">
-                        <svg class="w-8 h-8" viewBox="0 0 1920 1920">
-                            <g fill-rule="evenodd">
-                                <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
-                                <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
-                            </g>
-                        </svg>
-                    </button>
-                    <button disabled={!getLastMove()} on:click={loadPreviousMove} class="btn btn-sm variant-filled-primary">
-                        <svg class="w-8 h-8"  viewBox="0 0 1920 1920">
-                            <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
-                        </svg>
-                    </button>
-                    {#key undoneMoveStack}
-                        <button disabled={undoneMoveStack.length===0} on:click={loadNextMove} class="btn btn-sm variant-filled-primary">
-                            <svg class="w-8 h-8 rotate-180"  viewBox="0 0 1920 1920">
-                                <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
-                            </svg>
-                        </button>
-                        <button disabled={undoneMoveStack.length===0} on:click={loadLastMove} class="btn btn-sm variant-filled-primary">
-                            <svg class="w-8 h-8 rotate-180" viewBox="0 0 1920 1920">
-                                <g fill-rule="evenodd">
-                                    <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
-                                    <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
-                                </g>
-                            </svg>
-                        </button>
-                    {/key}
-                </div>
-                <button class="btn btn-sm variant-filled-secondary">
-                    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none">
-                        <path d="M5 12V17C5 18.6569 6.34315 20 8 20H16C17.6569 20 19 18.6569 19 17V12M12 16V4M12 4L8 8M12 4L16 8" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
-            </div>
+            <TabGroup flex="flex-1">
+                <Tab bind:group={tabSet} name="game" value={0}>Game</Tab>
+                <Tab bind:group={tabSet} name="settings" value={1}>Settings</Tab>
+                <Tab bind:group={tabSet} name="share" value={2}>Share</Tab>
+
+                <svelte:fragment slot="panel">
+                    {#if tabSet === 0}
+                        <div class="flex items-end justify-evenly w-full h-full">
+                            <button disabled={chess.history().length===0} on:click={loadFirstMove} class="btn btn-sm variant-filled-primary w-min">
+                                <svg class="w-8 h-8" viewBox="0 0 1920 1920">
+                                    <g fill-rule="evenodd">
+                                        <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
+                                        <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
+                                    </g>
+                                </svg>
+                            </button>
+                            <button disabled={chess.history().length===0} on:click={loadPreviousMove} class="btn btn-sm variant-filled-primary">
+                                <svg class="w-8 h-8"  viewBox="0 0 1920 1920">
+                                    <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
+                                </svg>
+                            </button>
+                            <button disabled={undoneMoveStack.length===0} on:click={loadNextMove} class="btn btn-sm variant-filled-primary">
+                                <svg class="w-8 h-8 rotate-180"  viewBox="0 0 1920 1920">
+                                    <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
+                                </svg>
+                            </button>
+                            <button disabled={undoneMoveStack.length===0} on:click={loadLastMove} class="btn btn-sm variant-filled-primary">
+                                <svg class="w-8 h-8 rotate-180" viewBox="0 0 1920 1920">
+                                    <g fill-rule="evenodd">
+                                        <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
+                                        <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
+                                    </g>
+                                </svg>
+                            </button>
+                        </div>
+                    {:else if tabSet === 1}
+                        (tab panel 2 contents)
+                    {:else if tabSet === 2}
+                        (tab panel 3 contents)
+                    {/if}
+                </svelte:fragment>
+            </TabGroup>
         {/if}
     </div>
     
