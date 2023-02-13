@@ -34,16 +34,16 @@
             schema: 'public',
             table: 'games',
         },
+        // This callback is called whenever this game gets an update, payload contains the old and new version
         (payload) => {
+            const updatedGame: ChessGame = payload.new as ChessGame
 
             // Only play game sound when its a move that isnt in our pgn yet
-            if (payload.new.pgn!==chess.pgn()) {
-                moveSFX.play();
-            }
+            if (updatedGame.pgn!==chess.pgn()) moveSFX.play();
             
-            loadGame(payload.new as ChessGame);
+            loadGame(updatedGame);
 
-            // If game is reloaded and still going on, play any remaining premoves
+            // Once game is reloaded play premoves
             chessBoard.playPremove();
         }
     )
@@ -247,7 +247,7 @@
 <div class="mx-auto flex flex-col lg:flex-row card variant-ghost-primary  overflow-hidden">
 
     <!-- BOARD-LEFT-PANEL -->
-    <div class="flex-1 flex flex-col justify-between p-4">
+    <div class="flex-1 flex flex-col gap-8 justify-between p-4">
         {#if chess}
             <div class="flex flex-wrap gap-2 justify-between items-center">
                 <a class="btn variant-filled-primary w-fit" href="/games">Go back</a>
@@ -257,22 +257,21 @@
                 class:bg-white={chess.turn()==='w'} 
                 class:bg-black={chess.turn()==='b'}
                 class:bg-surface-300-600-token={chess.isGameOver()}
-                class="p-3 rounded-token font-semibold text-center !text-md lg:!text-xl">
+                class="p-3 rounded-token font-semibold text-center">
                 {#if chess.isGameOver()}
-                    Game ended:
-                {#if chess.isCheckmate()}
-                    <p>{chess.turn() === 'w' ? 'Black' : 'White'} won with checkmate</p>
-                {:else if chess.isStalemate()}
-                    <p>Stalemate</p>
-                {:else if chess.isDraw()}
-                    <p>Draw</p>
-                {/if}
+                    {#if chess.isCheckmate()}
+                        <p>{chess.turn() === 'w' ? 'Black' : 'White'} won with mate</p>
+                    {:else if chess.isStalemate()}
+                        <p>Stalemate</p>
+                    {:else if chess.isDraw()}
+                        <p>Draw</p>
+                    {/if}
                 {:else}
                     {chess.turn()==='w' ? 'White' : 'Black'}'s turn
                 {/if}
                 </p>
             </div>
-            <div class="flex justify-between">
+            <div class="flex lg:flex-col gap-2 justify-between">
                 <div class="flex gap-1">
                     <button disabled={!getLastMove()} on:click={loadFirstMove} class="btn btn-sm variant-filled-primary w-min">
                         <svg class="w-8 h-8" viewBox="0 0 1920 1920">
@@ -303,13 +302,11 @@
                         </button>
                     {/key}
                 </div>
-                <span class="relative">
-                    <button class="btn btn-sm variant-filled-secondary">
-                        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none">
-                            <path d="M5 12V17C5 18.6569 6.34315 20 8 20H16C17.6569 20 19 18.6569 19 17V12M12 16V4M12 4L8 8M12 4L16 8" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                </span>
+                <button class="btn btn-sm variant-filled-secondary">
+                    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none">
+                        <path d="M5 12V17C5 18.6569 6.34315 20 8 20H16C17.6569 20 19 18.6569 19 17V12M12 16V4M12 4L8 8M12 4L16 8" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
             </div>
         {/if}
     </div>
