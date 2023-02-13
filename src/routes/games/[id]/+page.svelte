@@ -61,8 +61,8 @@
 
     const loadGame = (newChessGame: ChessGame) => {
         chessGame = newChessGame;
-        
-        chess.loadPgn(chessGame.pgn);
+        console.log(chessGame.pgn.replace(' ', '\n'))
+        chess.loadPgn(chessGame.pgn.replace(' ', '\n'));
 
         // Clear the undone move stack since the chess object was resassigned
         undoneMoveStack = [];

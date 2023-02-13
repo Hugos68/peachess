@@ -7,7 +7,7 @@
             await applyAction(result);
             if (result.type==='redirect') {
                 const t: ToastSettings = {
-                    message: 'Successfully signed up',
+                    message: 'Singup success, please confirm your email',
                     preset: 'success',
                     autohide: true
                 }
@@ -24,8 +24,12 @@
     }
 </script>
 
-<form action="/?/signUp" method="post" class="mx-auto mt-[7.5vh] max-w-lg flex flex-col gap-12" use:enhance={submitSignUp}>
+<form action="/?/signUp" method="post" class="mx-auto mt-[7.5vh] max-w-lg flex flex-col gap-12 p-4" use:enhance={submitSignUp}>
     <h1 class="text-end">Sign Up</h1>
+    <label class="label-input input-label">
+        Display name:
+        <input class="input" type="text" name="displayName">
+    </label>
     <label class="label-input input-label">
         Email:
         <input class="input" type="email" name="email">
