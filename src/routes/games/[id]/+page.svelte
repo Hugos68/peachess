@@ -7,7 +7,7 @@
 	import { supabase } from "$lib/supabase";
 	import { page } from "$app/stores";
 	import { invalidateAll } from "$app/navigation";
-	import { Tab, TabGroup } from "@skeletonlabs/skeleton";
+	import { ProgressRadial, Tab, TabGroup } from "@skeletonlabs/skeleton";
 
     export let data: PageData;
 
@@ -21,7 +21,6 @@
     let promotionModal: HTMLElement;
     let undoneMoveStack: Move[] = [];
     onMount(() => {
-        moveSFX = new Audio('/sfx/move.mp3');
         chessBoard = Chessground(boardElement);
         loadGame(data.chessGame);
     });
@@ -245,6 +244,8 @@
     }
 }} />
 
+<audio preload="auto" bind:this={moveSFX} src="/sfx/move.mp3"></audio>
+
 
 
 <div class="mx-auto flex flex-col lg:flex-row card variant-ghost-primary  overflow-hidden">
@@ -320,9 +321,15 @@
     </div>
     
     <!-- BOARD-WRAPPER -->
-    <div class="w-[min(100%,calc(100vh-var(--header-height)))] aspect-square relative">
+    <div class="w-[min(100%,calc(100vh-var(--header-height)))] aspect-square relative flex justify-center items-center">
+
         <!-- BOARD -->
-        <div class:brightness-50={promotionMove!==null} bind:this={boardElement}></div>
+        <div class:brightness-50={promotionMove!==null} bind:this={boardElement}>
+            <p class="!text-[3rem] animate-bounce">
+                🍑
+                Loading board...
+            </p>
+        </div>
 
         <!-- PROMOTION-MODAL -->
         <div bind:this={promotionModal} class:hidden={promotionMove===null} class="absolute top-0 left-[50%] translate-x-[-50%] z-[999] card p-4 m-4 bg-surface-600-300-token flex flex-col gap-2">
