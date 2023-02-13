@@ -11,3 +11,9 @@ interface CustomMove {
     to: string
     promotion?: 'q' | 'r' | 'n' | 'b'
 }
+
+interface Settings {
+    animate: boolean
+    sfx: boolean
+    premove: boolean
+}

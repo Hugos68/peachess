@@ -7,19 +7,28 @@
 	import { supabase } from "$lib/supabase";
 	import { page } from "$app/stores";
 	import { invalidateAll } from "$app/navigation";
-	import { ProgressRadial, Tab, TabGroup } from "@skeletonlabs/skeleton";
+	import { localStorageStore, SlideToggle, Tab, TabGroup } from "@skeletonlabs/skeleton";
+    import type { Writable } from 'svelte/store';
 
     export let data: PageData;
 
     $: chessGame = data.chessGame;
 
-    let moveSFX: HTMLAudioElement;
-
     let chess: Chess = new Chess();
+    $: history = chess.history();
+    let undoneMoveStack: Move[] = [];
+
     let chessBoard: any;
+
+    const settings: Writable<Settings> = localStorageStore('settings',  {
+        animate: true,
+        sfx: true,
+        premove: false
+    });
+
     let boardElement: HTMLElement;
     let promotionModal: HTMLElement;
-    let undoneMoveStack: Move[] = [];
+    let moveSFX: HTMLAudioElement;
     onMount(() => {
         chessBoard = Chessground(boardElement);
         loadGame(data.chessGame);
@@ -39,7 +48,7 @@
             const updatedGame: ChessGame = payload.new as ChessGame
 
             // Only play game sound when its a move that isnt in our pgn yet
-            if (updatedGame.pgn!==chess.pgn()) moveSFX.play();
+            if (updatedGame.pgn!==chess.pgn()) playMoveSound()
             
             loadGame(updatedGame);
 
@@ -82,7 +91,10 @@
                 dests: getValidDestinations(chess)
             },
             premovable: {
-                enabled: false,
+                enabled: $settings.premove,
+            },
+            animation: {
+                enabled: $settings.animate,
             },
             draggable: {
                 enabled: false
@@ -148,7 +160,7 @@
     }
 
     const doMove = async (move: CustomMove) => {
-        moveSFX.play();
+        playMoveSound()
 
         try {
             // Move (throws exception if move is invalid)
@@ -214,7 +226,7 @@
 
     const loadNextMove = () => {
         if (undoneMoveStack.length===0) return;
-        moveSFX.play();
+        playMoveSound()
         const poppedMove = undoneMoveStack.pop();
         const move: CustomMove = {
             from: poppedMove?.from as string,
@@ -229,6 +241,11 @@
         if (undoneMoveStack.length===0) return;
         loadGame(chessGame);
         updateUI();
+    }
+
+    const playMoveSound = () => {
+        if (!$settings.sfx) return;
+        moveSFX.play();
     }
     
     onDestroy(() => {
@@ -275,48 +292,66 @@
                 {/if}
                 </p>
             </div>
-            <TabGroup flex="flex-1">
-                <Tab bind:group={tabSet} name="game" value={0}>Game</Tab>
-                <Tab bind:group={tabSet} name="settings" value={1}>Settings</Tab>
-                <Tab bind:group={tabSet} name="share" value={2}>Share</Tab>
+            <div class="hidden lg:block">
+                <TabGroup flex="flex-1" regionPanel="flex-col justify-between">
+                    <Tab bind:group={tabSet} name="game" value={0}>Game</Tab>
+                    <Tab bind:group={tabSet} name="settings" value={1}>Settings</Tab>
+                    <Tab bind:group={tabSet} name="share" value={2}>Share</Tab>
 
-                <svelte:fragment slot="panel">
-                    {#if tabSet === 0}
-                        <div class="flex items-end justify-evenly w-full h-full">
-                            <button disabled={chess.history().length===0} on:click={loadFirstMove} class="btn btn-sm variant-filled-primary w-min">
-                                <svg class="w-8 h-8" viewBox="0 0 1920 1920">
-                                    <g fill-rule="evenodd">
-                                        <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
-                                        <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
-                                    </g>
-                                </svg>
-                            </button>
-                            <button disabled={chess.history().length===0} on:click={loadPreviousMove} class="btn btn-sm variant-filled-primary">
-                                <svg class="w-8 h-8"  viewBox="0 0 1920 1920">
-                                    <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
-                                </svg>
-                            </button>
-                            <button disabled={undoneMoveStack.length===0} on:click={loadNextMove} class="btn btn-sm variant-filled-primary">
-                                <svg class="w-8 h-8 rotate-180"  viewBox="0 0 1920 1920">
-                                    <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
-                                </svg>
-                            </button>
-                            <button disabled={undoneMoveStack.length===0} on:click={loadLastMove} class="btn btn-sm variant-filled-primary">
-                                <svg class="w-8 h-8 rotate-180" viewBox="0 0 1920 1920">
-                                    <g fill-rule="evenodd">
-                                        <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
-                                        <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
-                                    </g>
-                                </svg>
-                            </button>
-                        </div>
-                    {:else if tabSet === 1}
-                        (tab panel 2 contents)
-                    {:else if tabSet === 2}
-                        (tab panel 3 contents)
-                    {/if}
-                </svelte:fragment>
-            </TabGroup>
+                    <svelte:fragment slot="panel">
+                        {#if tabSet === 0}
+                            <div class="h-[50vh] overflow-y-scroll">
+                                {#each history as move, i} 
+                                    {#if i%2===0}
+                                        <div class="flex">
+                                            <p class="bg-secondary-500 flex-1 text-center">Move {i/2+1}:</p>
+                                            <p class="bg-white text-black flex-1 text-center">{move}</p>
+                                            <p class="bg-black text-white flex-1 text-center">{#if history[i+1]} {history[i+1]} {/if}</p>
+                                        </div>
+                                    {/if}
+                                {/each}
+                            </div>
+            
+                            <div class="flex justify-center gap-2">
+                                <button disabled={history.length===0} on:click={loadFirstMove} class="btn btn-sm variant-filled-primary">
+                                    <svg class="w-8 h-8" viewBox="0 0 1920 1920">
+                                        <g fill-rule="evenodd">
+                                            <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
+                                            <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
+                                        </g>
+                                    </svg>
+                                </button>
+                                <button disabled={history.length===0} on:click={loadPreviousMove} class="btn btn-sm variant-filled-primary">
+                                    <svg class="w-8 h-8"  viewBox="0 0 1920 1920">
+                                        <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
+                                    </svg>
+                                </button>
+                                <button disabled={undoneMoveStack.length===0} on:click={loadNextMove} class="btn btn-sm variant-filled-primary">
+                                    <svg class="w-8 h-8 rotate-180"  viewBox="0 0 1920 1920">
+                                        <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
+                                    </svg>
+                                </button>
+                                <button disabled={undoneMoveStack.length===0} on:click={loadLastMove} class="btn btn-sm variant-filled-primary">
+                                    <svg class="w-8 h-8 rotate-180" viewBox="0 0 1920 1920">
+                                        <g fill-rule="evenodd">
+                                            <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
+                                            <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
+                                        </g>
+                                    </svg>
+                                </button>
+                            </div>
+                        {:else if tabSet === 1}
+                            <div class="flex flex-col">
+                                <SlideToggle name="animate" bind:checked={$settings.animate} on:input={updateUI}>Animate</SlideToggle>
+                                <SlideToggle name="sfx" bind:checked={$settings.sfx} on:input={updateUI} >SFX</SlideToggle>
+                                <SlideToggle name="premove" bind:checked={$settings.premove} on:input={updateUI}>Premove</SlideToggle>
+                            </div>
+                        {:else if tabSet === 2}
+                            (tab panel 3 contents)
+                        {/if}
+                    </svelte:fragment>
+                </TabGroup>
+            </div>
         {/if}
     </div>
     
@@ -342,6 +377,34 @@
                 <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('b')}>B</button>
             </div>
         </div>
+    </div>
+    <div class="flex lg:hidden justify-between">
+        <button disabled={history.length===0} on:click={loadFirstMove} class="btn btn-sm variant-filled-primary">
+            <svg class="w-8 h-8" viewBox="0 0 1920 1920">
+                <g fill-rule="evenodd">
+                    <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
+                    <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
+                </g>
+            </svg>
+        </button>
+        <button disabled={history.length===0} on:click={loadPreviousMove} class="btn btn-sm variant-filled-primary">
+            <svg class="w-8 h-8"  viewBox="0 0 1920 1920">
+                <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
+            </svg>
+        </button>
+        <button disabled={undoneMoveStack.length===0} on:click={loadNextMove} class="btn btn-sm variant-filled-primary">
+            <svg class="w-8 h-8 rotate-180"  viewBox="0 0 1920 1920">
+                <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
+            </svg>
+        </button>
+        <button disabled={undoneMoveStack.length===0} on:click={loadLastMove} class="btn btn-sm variant-filled-primary">
+            <svg class="w-8 h-8 rotate-180" viewBox="0 0 1920 1920">
+                <g fill-rule="evenodd">
+                    <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
+                    <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
+                </g>
+            </svg>
+        </button>
     </div>
 </div>
 
