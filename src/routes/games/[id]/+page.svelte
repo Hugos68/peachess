@@ -108,7 +108,8 @@
                 dests: getValidDestinations(chess)
             },
             premovable: {
-                enabled: $settings.premove
+                enabled: $settings.premove,
+                castle: true
             },
             animation: {
                 enabled: $settings.animate,

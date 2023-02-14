@@ -21,7 +21,7 @@
             <ProfileButton />
         {/if}
     </header>
-    <hr class="my-4" />
+    <hr class="my-4" /> 
     {#if !$page.data.session}
         <nav class="mx-auto mt-auto">
             <ul class="flex gap-8">
