@@ -110,7 +110,10 @@ serve(async (req) => {
                 player_id_black: playerBlack.id,
                 pgn: chess.toString("pgn")
             }
-        ]);
+        ])
+        .select()
+        .limit(1)
+        .single();
 
         if (error) {
             return new Response(JSON.stringify({ error: error.message }), {

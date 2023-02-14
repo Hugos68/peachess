@@ -9,7 +9,6 @@
             preset: 'error',
             message: $page.url.searchParams.get('message') || 'Something went wrong',
             autohide: true,
-            timeout: 3000
         }
         toastStore.trigger(t);
     }   
@@ -20,7 +19,15 @@
         const {data, error} = await supabase.functions.invoke('create_game',  {
             body: JSON.stringify({ opponentUsername: opponentUsername })
         });
-        if (data) await goto(`/games/${data.game.id}`)
+        if (data)  {
+            const t: ToastSettings = {
+                    message: 'Succesfully created game',
+                    preset: 'success',
+                    autohide: true
+                }
+                toastStore.trigger(t);
+            await goto(`/games/${data.game.id}`);
+        }
     }
 </script>
 
