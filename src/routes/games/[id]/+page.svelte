@@ -47,15 +47,10 @@
         // This callback is called whenever this game gets an update, payload contains the old and new version
         (payload) => {
             const updatedGame: ChessGame = payload.new as ChessGame
-
-            const before = chess;
             
             loadGame(updatedGame);
 
-            console.log(before);
-            console.log(chess);
-            if (before.history.length!==chess.history.length) playMoveSound();
-            // Only play game sound when its a move that we don't have on the client yet, we do this by comparing last move's
+            // TODO: Only play game sound when its a move that we don't have on the client yet
 
             // Once game is reloaded play premoves
             chessBoard.playPremove();
@@ -186,8 +181,8 @@
             }
         });
 
-        // Indalidate page data to retrigger populate chessGame with updated version from database
-        await invalidateAll();
+        // Reload to last known stable state if anything goes wrong
+        if (error) loadGame(chessGame);
     }
 
     const checkIfPromotion = (orig: Square, dest: Square): boolean => {

@@ -55,7 +55,7 @@ serve(async (req) => {
         }
 
         const chess = ChessGame.NewFromPGN(chessGame.pgn);
-
+        
         if (chess.isGameOver()) {
             return new Response(JSON.stringify({ error: 'Cannot move pieces of game that has ended' }), {
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -94,10 +94,14 @@ serve(async (req) => {
             promotion: move?.promotion
         });
 
+        // TODO: Set the 'Result' tag to 1-0 if white wins, 0-1 if black wins or else 1/2-1/2 
+        
         // The replaces call fixes bug where atrix gets placed after last move without a space between causing client side parsers to fail
+        const pgnFixed = chess.toString("pgn").replace(/[^\s][*]$/, ' $&');
+
         const updateChessGameRequest = await serviceRoleSupabaseClient
             .from("games")
-            .update({ pgn: chess.toString("pgn").replace(/.{1}$/, ' $&')})
+            .update({ pgn: pgnFixed })
             .eq('id', gameId);
 
         const updatedChessGameError = updateChessGameRequest.error;
