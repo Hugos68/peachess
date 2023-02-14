@@ -114,9 +114,10 @@
     display: flex;
     pointer-events: none;
     font-weight: bold;
-    line-height: ;
+    line-height: 1;
     line-width: 1;
     --coord-offset: 0.33rem;
+    font-size: clamp(0.75rem,3vw,1rem);
   }
   
   .cg-wrap coords.ranks {

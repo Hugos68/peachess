@@ -16,7 +16,7 @@
 
 <AppBar class="h-16 justify-center" padding="px-[4vw]">
     <svelte:fragment slot="lead">
-        <a class="font-bold text-3xl" href="/">🍑 Peachess</a>
+        <a class="font-bold text-2xl" href="/">Peachess</a>
     </svelte:fragment>
     <svelte:fragment slot="trail">
                 <LightSwitch />

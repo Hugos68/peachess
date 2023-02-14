@@ -311,7 +311,7 @@
  
 
 
- <div class="mx-auto flex justify-evenly">
+ <div class="mx-auto flex flex-col xl:flex-row justify-center items-center gap-12 px-[5vw]">
     <div class="flex flex-col gap-2 w-min">
         <header class="flex justify-between">
             <div class="flex gap-2">
@@ -408,17 +408,16 @@
             </p>
         </footer>
     </div>
-    <div class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] hidden lg:block">
-        <h2 class="font-bold"><span class="hidden xl:inline">Moves & </span>Settings</h2>
-        <hr class="my-4" />
-        <div class="flex gap-[7.5vw]">
-            <div class="hidden xl:block">
+    <div class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-full flex justify-evenly ">
+            <div>
+                <h2 class="font-bold">Moves</h2>
+                <hr class="my-4" />
                 <div class="w-full flex gap-2">
                     <span class="flex-1 p-1"><strong>No.</strong></span>
                     <span class="flex-1 p-1"><strong>White</strong></span>
                     <span class="flex-1 p-1"><strong>Black</strong></span>
                 </div>
-                <ul>
+                <ul class="overflow-scroll">
                     {#each totalMoveHistory as move, i} 
                         {#if i%2===0}
                             <li class="w-full flex gap-2">
@@ -435,6 +434,8 @@
                 </ul>
             </div>
             <div>
+                <h2 class="font-bold">Settings</h2>
+                <hr class="my-4" />
                 <!-- ON ANY OF THESE INPUTS UPDATE THE SETTINGS (WE DO A TIMEOUT FOR THE LOCALSTORAGE TO UPDATE) -->
                 <div class="flex flex-col flex-end gap-1" on:input={() => setTimeout(() => {
 
@@ -460,6 +461,5 @@
                     </label>
                 </div>
             </div>
-        </div>
     </div>
  </div>
