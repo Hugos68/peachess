@@ -3,7 +3,7 @@
 	import '@skeletonlabs/skeleton/styles/all.css';
 	import '../app.postcss';
 
-	import { AppShell, Toast } from "@skeletonlabs/skeleton";
+	import { AppShell, Modal, Toast } from "@skeletonlabs/skeleton";
 	import Header from '$lib/components/Header.svelte';
 	import SideBarLeft from '$lib/components/SideBarLeft.svelte';
 	import Footer from '$lib/components/Footer.svelte';
@@ -19,6 +19,7 @@
 </script>
 
 <Toast />
+<Modal />
 
 <AppShell>
 	<svelte:fragment slot="header">

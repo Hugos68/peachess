@@ -13,17 +13,12 @@ export const load = (async (event) => {
         }
     } 
 
-    console.log(user);
-
     const {data, error} = await supabaseClient
     .from("games")
     .select("*")
     .eq("player_id_black", user.data.user.id)
     .eq("player_id_white", user.data.user.id);
-
-    console.log(data);
     
-
     return {
         chessGames: data as ChessGame[]
     }
