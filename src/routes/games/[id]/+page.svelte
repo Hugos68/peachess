@@ -436,7 +436,12 @@
             </div>
             <div>
                 <!-- ON ANY OF THESE INPUTS UPDATE THE SETTINGS (WE DO A TIMEOUT FOR THE LOCALSTORAGE TO UPDATE) -->
-                <div class="flex flex-col flex-end gap-1" on:input={() => setTimeout(() => {updateUI()}, 100)}>
+                <div class="flex flex-col flex-end gap-1" on:input={() => setTimeout(() => {
+
+                        // If premove got turned off, cancel current premove if present
+                        if (!$settings.premove) chessBoard.cancelPremove();
+                        updateUI()
+                    }, 25)}>
                     <label class="flex items-center gap-2 justify-between">
                         Animate
                         <SlideToggle name="animate" bind:checked={$settings.animate}  />
