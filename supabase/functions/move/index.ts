@@ -94,7 +94,13 @@ serve(async (req) => {
             promotion: move?.promotion
         });
 
-        // TODO: Set the 'Result' tag to 1-0 if white wins, 0-1 if black wins or else 1/2-1/2 
+        // Set the corresponding Result tag when the game is over
+        if (chess.isGameOver()) {
+            const winner = chess.getStatus().winner;
+            if (winner === 'white') chess.setTag('Result', '1-0');
+            else if (winner === 'black') chess.setTag('Result', '0-1');
+            else chess.setTag('Result', '1/2-1/2');
+        }
         
         // The replaces call fixes bug where atrix gets placed after last move without a space between causing client side parsers to fail
         const pgnFixed = chess.toString("pgn").replace(/[^\s][*]$/, ' $&');
