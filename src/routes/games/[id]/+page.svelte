@@ -310,7 +310,7 @@
                     {/if}
                 {/if}
             </div>
-            <p class="font-semibold !text-lg">Player 2</p>
+            <p class="font-semibold !text-lg">{chess.header().Black}</p>
         </header>
     
         <!-- BOARD-WRAPPER -->
@@ -365,7 +365,7 @@
                     </svg>
                 </button>
             </div>
-            <p class="font-semibold !text-lg">Player 1</p>
+            <p class="font-semibold !text-lg">{chess.header().White}</p>
         </footer>
     </div>
     <div class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] hidden lg:block">
@@ -373,18 +373,18 @@
         <hr class="my-4" />
         <div class="flex gap-[7.5vw]">
             <div class="hidden xl:block">
-                <div class="w-full flex">
-                    <span class="w-[40%] p-1"><strong>Move</strong></span>
-                    <span class="w-[40%] p-1"><strong>White</strong></span>
-                    <span class="w-[40%] p-1"><strong>Black</strong></span>
+                <div class="w-full flex gap-2">
+                    <span class="flex-1 p-1"><strong>Move</strong></span>
+                    <span class="flex-1 p-1"><strong>White</strong></span>
+                    <span class="flex-1 p-1"><strong>Black</strong></span>
                 </div>
-                <ul class="overflow-scroll">
+                <ul>
                     {#each totalMoveHistory as move, i} 
                         {#if i%2===0}
-                            <li class="w-full flex">
-                                <span class="w-[40%] p-1">{i/2+1}</span>
-                                <span class="w-[40%] p-1 {0+currentMoveHistory.length-1===i ? "bg-primary-500/50" : ""}">{move}</span>
-                                <span class="w-[40%] p-1 {0+currentMoveHistory.length-1===i+1 ? "bg-primary-500/50" : ""}">{totalMoveHistory[i+1]}</span>
+                            <li class="w-full flex gap-2">
+                                <span class="flex-1 p-1">{i/2+1}</span>
+                                <span class="flex-1 p-1 rounded-token {0+currentMoveHistory.length-1===i ? "bg-primary-500/50" : ""}">{move}</span>
+                                <span class="flex-1 p-1 rounded-token {0+currentMoveHistory.length-1===i+1 ? "bg-primary-500/50" : ""}">{totalMoveHistory[i+1]}</span>
                             </li>
                         {/if}
                     {/each}
