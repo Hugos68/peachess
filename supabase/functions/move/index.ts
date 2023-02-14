@@ -103,7 +103,7 @@ serve(async (req) => {
         }
         
         // The replaces call fixes bug where atrix gets placed after last move without a space between causing client side parsers to fail
-        const pgnFixed = chess.toString("pgn").replace(/[^\s][*]$/, ' $&');
+        const pgnFixed = chess.toString("pgn").replace(/([^\s])([*])$/, '$1 $2');
 
         const updateChessGameRequest = await serviceRoleSupabaseClient
             .from("games")
