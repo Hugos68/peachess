@@ -384,7 +384,11 @@
                             <li class="w-full flex gap-2">
                                 <span class="flex-1 p-1">{i/2+1}</span>
                                 <span class="flex-1 p-1 rounded-token {0+currentMoveHistory.length-1===i ? "bg-primary-500/50" : ""}">{move}</span>
-                                <span class="flex-1 p-1 rounded-token {0+currentMoveHistory.length-1===i+1 ? "bg-primary-500/50" : ""}">{totalMoveHistory[i+1]}</span>
+                                <span class="flex-1 p-1 rounded-token {0+currentMoveHistory.length-1===i+1 ? "bg-primary-500/50" : ""}">
+                                    {#if totalMoveHistory[i+1]}
+                                        {totalMoveHistory[i+1]}
+                                    {/if}
+                                </span>
                             </li>
                         {/if}
                     {/each}
@@ -394,28 +398,22 @@
                 <div class="flex flex-col flex-end gap-1">
                     <label class="flex items-center gap-2 justify-between">
                         Animate
-                        <SlideToggle name="animate" bind:checked={$settings.animate} on:input={() => setTimeout(() => {updateUI}, 500)} />
+                        <SlideToggle name="animate" bind:checked={$settings.animate} on:change={() => setTimeout(() => {updateUI}, 500)} />
                     </label>
                     <label class="flex items-center gap-2 justify-between">
                         Premove
-                        <SlideToggle name="premove" bind:checked={$settings.premove} on:input={() => setTimeout(() => {updateUI}, 500)} />
+                        <SlideToggle name="premove" bind:checked={$settings.premove} on:change={() => setTimeout(() => {updateUI}, 500)} />
                     </label>
                     <label class="flex items-center gap-2 justify-between">
                         Drag
-                        <SlideToggle name="drag" bind:checked={$settings.drag} on:input={() => setTimeout(() => {updateUI}, 500)} />
+                        <SlideToggle name="drag" bind:checked={$settings.drag} on:change={() => setTimeout(() => {updateUI}, 500)} />
                     </label>
                     <label class="flex items-center gap-2 justify-between">
                         SFX
-                        <SlideToggle name="sfx" bind:checked={$settings.sfx} on:input={() => setTimeout(() => {updateUI}, 500)} />
+                        <SlideToggle name="sfx" bind:checked={$settings.sfx} on:change={() => setTimeout(() => {updateUI}, 500)} />
                     </label>
                 </div>
             </div>
         </div>
     </div>
  </div>
-
-
-
-
-
-<!-- TODO PREFERENCES MODAL -->

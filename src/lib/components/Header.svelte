@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from "$app/stores";
-	import { AppBar} from "@skeletonlabs/skeleton";
+	import { AppBar, LightSwitch} from "@skeletonlabs/skeleton";
 	import ProfileButton from "./ProfileButton.svelte";
 
     interface navItem {
@@ -19,6 +19,7 @@
         <a class="font-bold text-3xl" href="/">🍑 Peachess</a>
     </svelte:fragment>
     <svelte:fragment slot="trail">
+                <LightSwitch />
         {#if $page.data.session}
             <ProfileButton />
         {:else}
