@@ -262,11 +262,17 @@
     let tabSet: number = 0;
 </script>
 
-<svelte:window on:click={(event) => {
-    if (!promotionModal.contains(event.target) && promotionMove!==null) {
-        cancelPromote();
-    }
-}} />
+<svelte:window 
+    on:click={(event) => {
+        if (!promotionModal.contains(event.target) && promotionMove!==null) {
+            cancelPromote();
+        }
+    }}
+    on:keydown={(event) => {
+        if (event.key==='ArrowLeft') loadPreviousMove();
+        if (event.key==='ArrowRight') loadNextMove();
+    }} 
+ />
 
 <div class="mx-auto flex flex-col lg:flex-row card variant-ghost-primary  overflow-hidden">
 
@@ -406,7 +412,7 @@
             <svg class="w-8 h-8"  viewBox="0 0 1920 1920">
                 <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
             </svg>
-        </button>
+        </button>   
         <button disabled={undoneMoveStack.length===0} on:click={loadNextMove} class="btn btn-sm variant-filled-primary">
             <svg class="w-8 h-8 rotate-180"  viewBox="0 0 1920 1920">
                 <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
