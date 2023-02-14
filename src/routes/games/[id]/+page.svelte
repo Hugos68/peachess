@@ -374,7 +374,7 @@
         <div class="flex gap-[7.5vw]">
             <div class="hidden xl:block">
                 <div class="w-full flex gap-2">
-                    <span class="flex-1 p-1"><strong>Move</strong></span>
+                    <span class="flex-1 p-1"><strong>No.</strong></span>
                     <span class="flex-1 p-1"><strong>White</strong></span>
                     <span class="flex-1 p-1"><strong>Black</strong></span>
                 </div>
