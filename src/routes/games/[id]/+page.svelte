@@ -312,7 +312,7 @@
             <div class="flex gap-2">
                 {#if chess}
                     {#if chess.isGameOver()}
-                        <p  class="p-3 rounded-token font-semibold text-center bg-secondary-700">
+                        <p  class="p-2 rounded-token font-semibold text-center bg-secondary-700">
                         {#if chess.isCheckmate()}
                             {chess.turn() === 'w' ? 'Black' : 'White'} won with checkmate
                         {:else if chess.isStalemate()}
@@ -403,7 +403,7 @@
             </p>
         </footer>
     </div>
-    <div class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-full flex justify-evenly ">
+    <div class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-full flex gap-12 justify-evenly">
             <div>
                 <h2 class="font-bold">Moves</h2>
                 <hr class="my-4" />

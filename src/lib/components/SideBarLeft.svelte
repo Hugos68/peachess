@@ -11,10 +11,11 @@
     const navItems: navItem[] = [
         { label: 'Home', link: '/home' },
         { label: 'Games', link: '/games' },
+        { label: 'Social', link: '/social' }
     ];
 </script>
 
-<div class="min-h-screen w-[20rem] bg-surface-50-000-token p-4 flex flex-col">
+<div class="min-h-screen w-[20rem] bg-surface-50-000-token p-8 flex flex-col">
     <header class="flex justify-between items-center">
         <a class="unstyled font-bold text-3xl" href="/">Peachess</a>
         {#if $page.data.session}
@@ -35,9 +36,9 @@
         </ul>
     </nav>
  
-    <hr class="my-4 mt-auto" />
+    <hr class="my-8 mt-auto" />
     <footer class="flex items-center justify-evenly">
-        <p class="text-center">Peachess, All Rights Reserved</p>
+        <p class="text-center">All Rights Reserved.</p>
         <LightSwitch />
     </footer>
 </div>

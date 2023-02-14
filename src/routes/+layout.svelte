@@ -3,7 +3,7 @@
 	import '@skeletonlabs/skeleton/styles/all.css';
 	import '../app.postcss';
 
-	import { AppShell, Modal, Toast } from "@skeletonlabs/skeleton";
+	import { AppShell, Drawer, drawerStore, Modal, Toast } from "@skeletonlabs/skeleton";
 	import Header from '$lib/components/Header.svelte';
 	import SideBarLeft from '$lib/components/SideBarLeft.svelte';
 	import Footer from '$lib/components/Footer.svelte';
@@ -19,7 +19,11 @@
 </script>
 
 <Toast />
-<Modal />
+<Drawer>
+	{#if $drawerStore.id==='sideBarLeft'}
+		<SideBarLeft />
+	{/if}
+</Drawer>
 
 <AppShell>
 	<svelte:fragment slot="header">
