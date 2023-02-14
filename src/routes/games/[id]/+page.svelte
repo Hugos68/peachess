@@ -101,7 +101,8 @@
                 enabled: $settings.premove
             },
             animation: {
-                enabled: $settings.animate
+                enabled: $settings.animate,
+                duration: 100
             },
             draggable: {
                 enabled: $settings.drag
@@ -274,22 +275,24 @@
     }} 
  />
 
-<div class="mx-auto flex flex-col lg:flex-row card variant-ghost-primary  overflow-hidden">
 
-    <!-- BOARD-LEFT-PANEL -->
-    <div class="flex-1 flex flex-col gap-8 p-4 min-w-[20rem]">
+
+
+
+<div class="flex justify-between card p-4 gap-12">
+    <section class="hidden xl:flex flex-1 flex-col justify-between">
         {#if chess}
             <div class="flex flex-wrap gap-2 justify-between items-center">
                 <a class="btn variant-filled-primary w-fit" href="/games">Go back</a>
-               
+            
                 {#if chess.isGameOver()}
                     <p  class="p-3 rounded-token font-semibold text-center bg-surface-300-600-token">
                     {#if chess.isCheckmate()}
-                        {chess.turn() === 'w' ? 'Black' : 'White'} won with mate
+                        {chess.turn() === 'w' ? 'Black' : 'White'} won with checkmate
                     {:else if chess.isStalemate()}
                         Stalemate
                     {:else if chess.isDraw()}
-                        Draw
+                        Draw    
                     {/if}
                     </p>
                 {:else}
@@ -302,133 +305,75 @@
                     {chess.turn()==='w' ? 'White' : 'Black'}'s turn
                     </p>
                 {/if}
-
-            </div>
-            <div class="hidden lg:block">
-                <TabGroup flex="flex-1" regionPanel="flex flex-col gap-10">
-                    <Tab bind:group={tabSet} name="game" value={0}>Game</Tab>
-                    <Tab bind:group={tabSet} name="settings" value={1}>Settings</Tab>
-                    <Tab bind:group={tabSet} name="share" value={2}>Share</Tab>
-
-                    <svelte:fragment slot="panel">
-                        {#if tabSet === 0}
-                            <div class="h-[50vh] overflow-y-scroll rounded-token">
-                                {#each history as move, i} 
-                                    {#if i%2===0}
-                                        <div class="flex">
-                                            <p class="bg-secondary-500 flex-1 text-center">Move {i/2+1}:</p>
-                                            <p class="bg-white text-black flex-1 text-center">{move}</p>
-                                            <p class="bg-black text-white flex-1 text-center">{#if history[i+1]} {history[i+1]} {/if}</p>
-                                        </div>
-                                    {/if}
-                                {/each}
-                            </div>
-            
-                            <div class="flex justify-center gap-2">
-                                <button disabled={history.length===0} on:click={loadFirstMove} class="btn btn-sm variant-filled-primary">
-                                    <svg class="w-8 h-8" viewBox="0 0 1920 1920">
-                                        <g fill-rule="evenodd">
-                                            <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
-                                            <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
-                                        </g>
-                                    </svg>
-                                </button>
-                                <button disabled={history.length===0} on:click={loadPreviousMove} class="btn btn-sm variant-filled-primary">
-                                    <svg class="w-8 h-8"  viewBox="0 0 1920 1920">
-                                        <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
-                                    </svg>
-                                </button>
-                                <button disabled={undoneMoveStack.length===0} on:click={loadNextMove} class="btn btn-sm variant-filled-primary">
-                                    <svg class="w-8 h-8 rotate-180"  viewBox="0 0 1920 1920">
-                                        <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
-                                    </svg>
-                                </button>
-                                <button disabled={undoneMoveStack.length===0} on:click={loadLastMove} class="btn btn-sm variant-filled-primary">
-                                    <svg class="w-8 h-8 rotate-180" viewBox="0 0 1920 1920">
-                                        <g fill-rule="evenodd">
-                                            <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
-                                            <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
-                                        </g>
-                                    </svg>
-                                </button>
-                            </div>
-                        {:else if tabSet === 1}
-                            <div class="flex flex-col">
-                                <SlideToggle name="animate" bind:checked={$settings.animate} on:input={() => setTimeout(() => {updateUI}, 500)}>Animate</SlideToggle>
-                                <SlideToggle name="sfx" bind:checked={$settings.sfx} on:input={() => setTimeout(() => {updateUI}, 500)} >SFX</SlideToggle>
-                                <SlideToggle name="premove" bind:checked={$settings.premove} on:input={() => setTimeout(() => {updateUI}, 500)}>Premove</SlideToggle>
-                                <SlideToggle name="drag" bind:checked={$settings.drag} on:input={() => setTimeout(() => {updateUI}, 500)}>Drag</SlideToggle>
-                            </div>
-                        {:else if tabSet === 2}
-                            <label>
-                                Fen:
-                                <input class="input" disabled value={chess.fen()} />
-                            </label>
-
-                            <label>
-                                Fen:
-                                <textarea contenteditable="false" class="input resize-none h-fit" disabled value={chess.pgn()} />
-                            </label>
-                        {/if}
-                    </svelte:fragment>
-                </TabGroup>
             </div>
         {/if}
-    </div>
-    
-    <!-- BOARD-WRAPPER -->
-    <div class="w-[min(100%,calc(100vh-var(--header-height)))] aspect-square relative flex justify-center items-center">
-
-        <!-- BOARD -->
-        <div class:brightness-50={promotionMove!==null} bind:this={boardElement}>
-            <p class="!text-[3rem] animate-bounce">
-                🍑
-                Loading board...
-            </p>
+        <div class="flex gap-1">
+            <button disabled={history.length===0} on:click={loadFirstMove} class="btn btn-sm variant-filled-primary">
+                <svg class="w-8 h-8" viewBox="0 0 1920 1920">
+                    <g fill-rule="evenodd">
+                        <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
+                        <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
+                    </g>
+                </svg>
+            </button>
+            <button disabled={history.length===0} on:click={loadPreviousMove} class="btn btn-sm variant-filled-primary">
+                <svg class="w-8 h-8"  viewBox="0 0 1920 1920">
+                    <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
+                </svg>
+            </button>   
+            <button disabled={undoneMoveStack.length===0} on:click={loadNextMove} class="btn btn-sm variant-filled-primary">
+                <svg class="w-8 h-8 rotate-180"  viewBox="0 0 1920 1920">
+                    <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
+                </svg>
+            </button>
+            <button disabled={undoneMoveStack.length===0} on:click={loadLastMove} class="btn btn-sm variant-filled-primary">
+                <svg class="w-8 h-8 rotate-180" viewBox="0 0 1920 1920">
+                    <g fill-rule="evenodd">
+                        <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
+                        <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
+                    </g>
+                </svg>
+            </button>
         </div>
+    </section>
+    <section class="w-[min(100vw,47.5rem)]">
+        <div class="p-4 w-fit ml-auto">
+            <p class="font-semibold !text-lg">Player 2</p>
+        </div>
+        <!-- BOARD-WRAPPER -->
+        <div class="w-full aspect-square relative flex justify-center items-center">
 
-        <!-- PROMOTION-MODAL -->
-        <div bind:this={promotionModal} class:hidden={promotionMove===null} class="absolute top-0 left-[50%] translate-x-[-50%] z-[999] card p-4 m-4 bg-surface-600-300-token flex flex-col gap-2">
-            <div class="flex gap-2">
-                <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('q')}>Q</button>
-                <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('r')}>R</button>
+            <!-- BOARD -->
+            <div class:brightness-50={promotionMove!==null} bind:this={boardElement}>
+                <p class="!text-[3rem] animate-bounce">
+                    🍑
+                    Loading board...
+                </p>
             </div>
-            <div class="flex gap-2">
-                <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('n')}>K</button>
-                <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('b')}>B</button>
+
+            <!-- PROMOTION-MODAL -->
+            <div bind:this={promotionModal} class:hidden={promotionMove===null} class="absolute top-0 left-[50%] translate-x-[-50%] z-[999] card p-4 m-4 bg-surface-600-300-token flex flex-col gap-2">
+                <div class="flex gap-2">
+                    <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('q')}>Q</button>
+                    <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('r')}>R</button>
+                </div>
+                <div class="flex gap-2">
+                    <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('n')}>K</button>
+                    <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('b')}>B</button>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="flex lg:hidden justify-between">
-        <button disabled={history.length===0} on:click={loadFirstMove} class="btn btn-sm variant-filled-primary">
-            <svg class="w-8 h-8" viewBox="0 0 1920 1920">
-                <g fill-rule="evenodd">
-                    <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
-                    <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
-                </g>
-            </svg>
-        </button>
-        <button disabled={history.length===0} on:click={loadPreviousMove} class="btn btn-sm variant-filled-primary">
-            <svg class="w-8 h-8"  viewBox="0 0 1920 1920">
-                <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
-            </svg>
-        </button>   
-        <button disabled={undoneMoveStack.length===0} on:click={loadNextMove} class="btn btn-sm variant-filled-primary">
-            <svg class="w-8 h-8 rotate-180"  viewBox="0 0 1920 1920">
-                <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
-            </svg>
-        </button>
-        <button disabled={undoneMoveStack.length===0} on:click={loadLastMove} class="btn btn-sm variant-filled-primary">
-            <svg class="w-8 h-8 rotate-180" viewBox="0 0 1920 1920">
-                <g fill-rule="evenodd">
-                    <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
-                    <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
-                </g>
-            </svg>
-        </button>
-    </div>
+        <div class="p-4 w-fit ml-auto">
+            <p class="font-semibold !text-lg">Player 1</p>
+        </div>
+    </section>
 </div>
 
 
-
-
+<!-- TODO PREFERENCES MODAL -->
+<!-- <div class="flex flex-col">
+    <SlideToggle name="animate" bind:checked={$settings.animate} on:input={() => setTimeout(() => {updateUI}, 500)}>Animate</SlideToggle>
+    <SlideToggle name="sfx" bind:checked={$settings.sfx} on:input={() => setTimeout(() => {updateUI}, 500)} >SFX</SlideToggle>
+    <SlideToggle name="premove" bind:checked={$settings.premove} on:input={() => setTimeout(() => {updateUI}, 500)}>Premove</SlideToggle>
+    <SlideToggle name="drag" bind:checked={$settings.drag} on:input={() => setTimeout(() => {updateUI}, 500)}>Drag</SlideToggle>
+</div> -->

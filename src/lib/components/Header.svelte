@@ -43,7 +43,7 @@
         {#if $page.data.session}
             <span class="relative">
                 <button class="btn" use:menu={{ menu: 'avatar-dropdown' }}>
-                    <Avatar initials={$page.data.session.user.email} />
+                    <Avatar width="w-10" initials={$page.data.session.user.email} />
                 </button>
                 <nav class="list-nav card p-4 shadow-xl flex flex-col gap-4" data-menu="avatar-dropdown">
                     <ul>
