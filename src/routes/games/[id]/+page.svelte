@@ -297,19 +297,13 @@
 
 <svelte:window 
     on:click={(event) => {
-        if (!promotionModal.contains(event.target) && promotionMove!==null) {
-            cancelPromote();
-        }
+        if (!promotionModal.contains(event.target) && promotionMove!==null) cancelPromote();
     }}
     on:keydown={(event) => {
         if (event.key==='ArrowLeft') loadPreviousMove();
         if (event.key==='ArrowRight') loadNextMove();
     }} 
  />
-
-
- 
-
 
  <div class="mx-auto flex flex-col xl:flex-row justify-center items-center gap-12 px-[5vw]">
     <div class="flex flex-col gap-2 w-min">
@@ -417,7 +411,7 @@
                     <span class="flex-1 p-1"><strong>White</strong></span>
                     <span class="flex-1 p-1"><strong>Black</strong></span>
                 </div>
-                <ul class="overflow-scroll">
+                <ul class="overflow-scroll max-h-[50vh]">
                     {#each totalMoveHistory as move, i} 
                         {#if i%2===0}
                             <li class="w-full flex gap-2">
