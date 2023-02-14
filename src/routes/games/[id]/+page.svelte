@@ -94,7 +94,7 @@
     const getConfig = (chess: Chess, chessGame: ChessGame) => {
         return {
             fen: chess.fen(),
-            orientation: getPlayingColor(chessGame),
+            orientation: getOrientation(chessGame),
             turnColor: getTurnColor(chess), 
             lastMove: getLastMoveHighlight(),
             viewOnly: getViewOnly(),
@@ -125,6 +125,14 @@
                 move: moveCallback
             }
         }
+    }
+
+    const getOrientation = (chessGame: ChessGame) => {
+        const playingColor = getPlayingColor(chessGame);
+        if (playingColor==='black') return playingColor;
+
+        // Default the orientation to white unless the client is playing black
+        return 'white'
     }
 
     const getPlayingColor = (chessGame: ChessGame) => {
@@ -331,7 +339,13 @@
                     {/if}
                 {/if}
             </div>
-            <p class="font-semibold !text-lg">{chess.header().Black}</p>
+            <p class="font-semibold !text-lg">
+                {#if getOrientation(chessGame)==='white'}
+                    {chess.header().Black}
+                {:else} 
+                    {chess.header().White}
+                {/if}
+            </p>
         </header>
     
         <!-- BOARD-WRAPPER -->
@@ -386,7 +400,13 @@
                     </svg>
                 </button>
             </div>
-            <p class="font-semibold !text-lg">{chess.header().White}</p>
+            <p class="font-semibold !text-lg">
+            {#if getOrientation(chessGame)==='black'}
+                {chess.header().Black}
+            {:else} 
+                {chess.header().White}
+            {/if}
+            </p>
         </footer>
     </div>
     <div class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] hidden lg:block">
