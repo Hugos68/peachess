@@ -18,6 +18,7 @@
 		"@tailwindcss/forms": "^0.5.3",
 		"@tailwindcss/line-clamp": "^0.4.2",
 		"@tailwindcss/typography": "^0.5.9",
+		"@types/howler": "^2.2.7",
 		"@typescript-eslint/eslint-plugin": "^5.45.0",
 		"@typescript-eslint/parser": "^5.45.0",
 		"autoprefixer": "^10.4.13",
@@ -40,6 +41,7 @@
 		"@supabase/auth-helpers-sveltekit": "^0.8.7",
 		"@supabase/supabase-js": "^2.7.1",
 		"chess.js": "^1.0.0-beta.3",
-		"chessground": "^8.3.7"
+		"chessground": "^8.3.7",
+		"howler": "^2.2.3"
 	}
 }

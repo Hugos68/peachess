@@ -6,9 +6,9 @@
     import '../../../chessground.css';
 	import { supabase } from "$lib/supabase";
 	import { page } from "$app/stores";
-	import { invalidateAll } from "$app/navigation";
 	import { localStorageStore, SlideToggle, Tab, TabGroup } from "@skeletonlabs/skeleton";
     import type { Writable } from 'svelte/store';
+    import { Howl, Howler } from 'howler';
 
     export let data: PageData;
 
@@ -29,7 +29,9 @@
 
     let boardElement: HTMLElement;
     let promotionModal: HTMLElement;
-    let moveSFX: HTMLAudioElement;
+    let moveSFX = new Howl({
+        src: '/sfx/move.mp3'
+    });
     onMount(() => {
         chessBoard = Chessground(boardElement);
         loadGame(data.chessGame);
@@ -47,10 +49,17 @@
         // This callback is called whenever this game gets an update, payload contains the old and new version
         (payload) => {
             const updatedGame: ChessGame = payload.new as ChessGame
-            
-            loadGame(updatedGame);
 
-            // TODO: Only play game sound when its a move that we don't have on the client yet
+            const before = getLastMove();
+
+            loadGame(updatedGame);  
+            
+            const after = getLastMove();
+
+            // Check if moves are different, if they aren't it means we already have done this move (by playing it ourselves) and dont need the move sound effect
+            if (before[0] !== after[0] || before[1] !== after[1]) {
+                playMoveSound();
+            } 
 
             // Once game is reloaded play premoves
             chessBoard.playPremove();
@@ -143,7 +152,8 @@
 
     let promotionMove: CustomMove | null = null;
     const moveCallback = async (orig: Square, dest: Square) => {        
-
+        playMoveSound();
+        
         // If there is a promotion set the promotionMove and return so that the move doesn't get played yet (in case of a promotion cancel)
         const promotion = checkIfPromotion(orig, dest);
         if (promotion) {
@@ -161,8 +171,7 @@
     }
 
     const doMove = async (move: CustomMove) => {
-        playMoveSound()
-
+        
         try {
             // Move (throws exception if move is invalid)
             chess.move(move);
@@ -261,10 +270,6 @@
         cancelPromote();
     }
 }} />
-
-<audio preload="auto" bind:this={moveSFX} src="/sfx/move.mp3"></audio>
-
-
 
 <div class="mx-auto flex flex-col lg:flex-row card variant-ghost-primary  overflow-hidden">
 
