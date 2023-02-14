@@ -262,6 +262,8 @@
     }
 
     const playMoveSound = () => {
+        console.log(getLastMove());
+        
         if (!$settings.sfx) return;
         moveSFX.play();
     }
@@ -269,8 +271,6 @@
     onDestroy(() => {
         channel.unsubscribe();
     });
-
-    let tabSet: number = 0;
 </script>
 
 <svelte:window 
