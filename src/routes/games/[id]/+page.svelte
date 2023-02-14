@@ -129,15 +129,14 @@
 
     const getOrientation = (chessGame: ChessGame) => {
         const playingColor = getPlayingColor(chessGame);
-        if (playingColor==='black') return playingColor;
-
-        // Default the orientation to white unless the client is playing black
-        return 'white'
+        
+        // Default to white (for spectators)
+        return playingColor || 'white';
     }
 
     const getPlayingColor = (chessGame: ChessGame) => {
         if (!$page.data.session) return undefined;
-        return $page.data.session.user.id === chessGame.player_id_white ? 'white' : 'black';
+        return $page.data.session.user.id === chessGame.player_id_black ? 'black' : 'white';
     }
 
     const getTurnColor = (chess: Chess) => {
@@ -352,8 +351,8 @@
         <div class="relative h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
     
             <!-- BOARD -->
-            <div class="flex justify-center items-center rounded-token" class:brightness-50={promotionMove!==null} bind:this={boardElement}>
-                <p class="!text-[vw] animate-bounce">
+            <div class="flex justify-center items-center rounded-token w-full h-full" class:brightness-50={promotionMove!==null} bind:this={boardElement}>
+                <p class="!text-[2rem] animate-bounce">
                     🍑
                     Loading board...
                 </p>

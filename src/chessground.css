@@ -99,6 +99,7 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
+    color: black;
   }
   .cg-wrap .cg-shapes {
     opacity: 0.6;
@@ -112,36 +113,32 @@
     position: absolute;
     display: flex;
     pointer-events: none;
-    font-size: 1rem;
     font-weight: bold;
+    line-height: ;
+    line-width: 1;
+    --coord-offset: 0.33rem;
   }
+  
   .cg-wrap coords.ranks {
-    right: 2px;
+    top: var(--coord-offset);
+    right: var(--coord-offset);
     flex-flow: column-reverse;
     height: 100%;
-    width: 12px;
   }
-  .cg-wrap coords.ranks.black {
-    flex-flow: column;
 
-  }
   .cg-wrap coords.files {
-    bottom: 6px;  
-    left: -5%;
     flex-flow: row;
     width: 100%;
-    height: 16px;
+    bottom: var(--coord-offset);
+    left: var(--coord-offset);
     text-transform: uppercase;
-    text-align: center;
   }
-  .cg-wrap coords.files.black {
-    flex-flow: row-reverse;
-  }
+
   .cg-wrap coords coord {
     flex: 1 1 auto;
   }
   cg-board {
-    background-color: #f0d9b5;
+    @apply bg-surface-300-600-token;
     background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4PSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIgogICAgIHZpZXdCb3g9IjAgMCA4IDgiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyI+CjxnIGlkPSJhIj4KICA8ZyBpZD0iYiI+CiAgICA8ZyBpZD0iYyI+CiAgICAgIDxnIGlkPSJkIj4KICAgICAgICA8cmVjdCB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBpZD0iZSIgb3BhY2l0eT0iMCIvPgogICAgICAgIDx1c2UgeD0iMSIgeT0iMSIgaHJlZj0iI2UiIHg6aHJlZj0iI2UiLz4KICAgICAgICA8cmVjdCB5PSIxIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBpZD0iZiIgb3BhY2l0eT0iMC4yIi8+CiAgICAgICAgPHVzZSB4PSIxIiB5PSItMSIgaHJlZj0iI2YiIHg6aHJlZj0iI2YiLz4KICAgICAgPC9nPgogICAgICA8dXNlIHg9IjIiIGhyZWY9IiNkIiB4OmhyZWY9IiNkIi8+CiAgICA8L2c+CiAgICA8dXNlIHg9IjQiIGhyZWY9IiNjIiB4OmhyZWY9IiNjIi8+CiAgPC9nPgogIDx1c2UgeT0iMiIgaHJlZj0iI2IiIHg6aHJlZj0iI2IiLz4KPC9nPgo8dXNlIHk9IjQiIGhyZWY9IiNhIiB4OmhyZWY9IiNhIi8+Cjwvc3ZnPg==');
   }
   
@@ -188,14 +185,14 @@
   .cg-wrap.orientation-white coords.files coord:nth-child(2n),
   .cg-wrap.orientation-black coords.ranks coord:nth-child(2n + 1),
   .cg-wrap.orientation-black coords.files coord:nth-child(2n + 1) {
-    color: white;
+    @apply text-token;
   }
   
   .cg-wrap.orientation-black coords.ranks coord:nth-child(2n),
   .cg-wrap.orientation-black coords.files coord:nth-child(2n),
   .cg-wrap.orientation-white coords.ranks coord:nth-child(2n + 1),
   .cg-wrap.orientation-white coords.files coord:nth-child(2n + 1) {
-    color: rgba(255, 255, 255, 0.8);
+    @apply text-token;
   }
 
   .cg-wrap piece.pawn.white {
