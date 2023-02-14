@@ -297,7 +297,7 @@
 </script>
 
 <svelte:window 
-    on:click={(event) => {
+    on:mousedown={(event) => {
         if (!promotionModal.contains(event.target) && promotionMove!==null) cancelPromote();
     }}
     on:keydown={(event) => {
@@ -354,14 +354,14 @@
             </div>
     
             <!-- PROMOTION-MODAL -->
-            <div bind:this={promotionModal} class:hidden={promotionMove===null} class="absolute top-0 left-[50%] translate-x-[-50%] z-[999] card p-4 m-4 bg-surface-600-300-token flex flex-col gap-2">
+            <div bind:this={promotionModal} class:hidden={promotionMove===null} class="z-[50] absolute top-0 left-[50%] translate-x-[-50%] z-[999] card p-4 m-4 bg-surface-600-300-token flex flex-col gap-2">
                 <div class="flex gap-2">
                     <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('q')}>Q</button>
                     <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('r')}>R</button>
                 </div>
                 <div class="flex gap-2">
-                        <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('n')}>K</button>
-                        <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('b')}>B</button>
+                    <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('n')}>K</button>
+                    <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('b')}>B</button>
                 </div>
             </div>
         </div>
@@ -412,7 +412,7 @@
                     <span class="flex-1 p-1"><strong>White</strong></span>
                     <span class="flex-1 p-1"><strong>Black</strong></span>
                 </div>
-                <ul class="overflow-scroll max-h-[50vh]">
+                <ul class="overflow-scroll max-h-[50vh] border-b-2">
                     {#each totalMoveHistory as move, i} 
                         {#if i%2===0}
                             <li class="w-full flex gap-2">

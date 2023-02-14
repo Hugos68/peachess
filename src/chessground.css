@@ -21,7 +21,7 @@
     user-select: none;
     line-height: 0;
     background-size: cover;
-    cursor: pointer;
+
   }
   cg-board square {
     position: absolute;
@@ -41,11 +41,13 @@
     background-size: cover;
     z-index: 2;
     will-change: transform;
-    pointer-events: none;
     @apply drop-shadow-lg;
   }
+  cg-board piece:hover {
+    cursor: grab;
+  }
   cg-board piece.dragging {
-    cursor: move;
+    cursor: grabbing;
     z-index: 10;
   }
   cg-board piece.anim {
