@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from "$app/navigation";
 	import { page } from "$app/stores";
 	import { supabase } from "$lib/supabase";
 	import { toastStore, type ToastSettings } from "@skeletonlabs/skeleton";
@@ -19,6 +20,7 @@
         const {data, error} = await supabase.functions.invoke('create_game',  {
             body: JSON.stringify({ opponentUsername: opponentUsername })
         });
+        if (data) await goto(`/games/${data.game.id}`)
     }
 </script>
 
