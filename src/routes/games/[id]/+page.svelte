@@ -31,8 +31,14 @@
 
     let boardElement: HTMLElement;
     let promotionModal: HTMLElement;
-    let moveSFX = new Howl({
+    const moveSFX = new Howl({
         src: '/sfx/move.mp3'
+    });
+    const captureSFX = new Howl({
+        src: '/sfx/capture.mp3'
+    });
+    const checkSFX = new Howl({
+        src: '/sfx/check.mp3'
     });
     onMount(() => {
         chessBoard = Chessground(boardElement);
@@ -91,7 +97,7 @@
             orientation: getPlayingColor(chessGame),
             turnColor: getTurnColor(chess), 
             lastMove: getLastMoveHighlight(),
-            viewOnly: undoneMoveStack.length!==0,
+            viewOnly: getViewOnly(),
             check: chess.inCheck(),
             highlight: {
                 lastMove: true,  
@@ -136,6 +142,14 @@
         return [move.from, move.to];
     }
 
+    const getViewOnly = () => {
+		if (undoneMoveStack.length!==0) return true;
+        const session = $page.data.session;
+        if (!session) return true;
+        if (session.user.id !== chessGame.player_id_white && session.user.id !== chessGame.player_id_black) return true;
+        return false;
+	}
+
     const getLastMove = (): Move | undefined => {
         const undoneMove = chess.undo();
         if (undoneMove===null) return;
@@ -161,7 +175,6 @@
 
     let promotionMove: CustomMove | null = null;
     const moveCallback = async (orig: Square, dest: Square) => {        
-        playMoveSound();
         
         // If there is a promotion set the promotionMove and return so that the move doesn't get played yet (in case of a promotion cancel)
         const promotion = checkIfPromotion(orig, dest);
@@ -184,6 +197,7 @@
         try {
             // Move (throws exception if move is invalid)
             chess.move(move);
+            playMoveSound();
             
             updateUI();
         } catch(error) {
@@ -262,10 +276,11 @@
     }
 
     const playMoveSound = () => {
-        console.log(getLastMove());
-        
         if (!$settings.sfx) return;
-        moveSFX.play();
+        const move = getLastMove();
+        if (move?.san.includes('+')) checkSFX.play();
+        else if (move?.san.includes('x'))captureSFX.play();
+        else moveSFX.play();
     }
     
     onDestroy(() => {
