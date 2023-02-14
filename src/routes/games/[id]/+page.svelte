@@ -56,7 +56,7 @@
             
             const after = getLastMove();
 
-            // Check if moves are different, if they aren't it means we already have done this move (by playing it ourselves) and dont need the move sound effect
+            // Check if moves before and after game update are different, if they aren't it means we've done this move (by playing it ourselves) and dont need the move sound effect
             if (before[0] !== after[0] || before[1] !== after[1]) playMoveSound();
 
             // Once game is reloaded play any premoves the player might have
