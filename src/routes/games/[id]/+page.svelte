@@ -6,16 +6,18 @@
     import '../../../chessground.css';
 	import { supabase } from "$lib/supabase";
 	import { page } from "$app/stores";
-	import { localStorageStore, SlideToggle, Tab, TabGroup } from "@skeletonlabs/skeleton";
+	import { localStorageStore } from "@skeletonlabs/skeleton";
     import type { Writable } from 'svelte/store';
-    import { Howl, Howler } from 'howler';
+    import { Howl } from 'howler';
 
     export let data: PageData;
 
     $: chessGame = data.chessGame;
 
     let chess: Chess = new Chess();
-    $: history = chess.history();
+
+    let totalMoveHistory: string[] = [];
+    $: currentMoveHistory = chess.history();
     let undoneMoveStack: Move[] = [];
 
     let chessBoard: any;
@@ -68,6 +70,8 @@
     const loadGame = (newChessGame: ChessGame) => {
         chessGame = newChessGame;
         chess.loadPgn(chessGame.pgn);
+
+        totalMoveHistory = chess.history();
 
         // Clear the undone move stack since the chess object was resassigned
         undoneMoveStack = [];
@@ -276,81 +280,50 @@
  />
 
 
+ 
 
 
-
-<div class="flex justify-between card p-4 gap-12">
-    <section class="hidden xl:flex flex-1 flex-col justify-between">
-        {#if chess}
-            <div class="flex flex-wrap gap-2 justify-between items-center">
-                <a class="btn variant-filled-primary w-fit" href="/games">Go back</a>
-            
-                {#if chess.isGameOver()}
-                    <p  class="p-3 rounded-token font-semibold text-center bg-surface-300-600-token">
-                    {#if chess.isCheckmate()}
-                        {chess.turn() === 'w' ? 'Black' : 'White'} won with checkmate
-                    {:else if chess.isStalemate()}
-                        Stalemate
-                    {:else if chess.isDraw()}
-                        Draw    
+ <div class="mx-auto flex justify-evenly">
+    <div class="flex flex-col gap-2 w-min">
+        <header class="flex justify-between">
+            <div class="flex gap-2">
+                {#if chess}
+                    {#if chess.isGameOver()}
+                        <p  class="p-3 rounded-token font-semibold text-center bg-surface-300-600-token">
+                        {#if chess.isCheckmate()}
+                            {chess.turn() === 'w' ? 'Black' : 'White'} won with checkmate
+                        {:else if chess.isStalemate()}
+                            Stalemate
+                        {:else if chess.isDraw()}
+                            Draw    
+                        {/if}
+                        </p>
+                    {:else}
+                        <p
+                        class="p-3 rounded-token font-semibold text-center"
+                        class:text-white={chess.turn()==='b'}
+                        class:text-black={chess.turn()==='w'}
+                        class:bg-white={chess.turn()==='w'} 
+                        class:bg-black={chess.turn()==='b'}>
+                        {chess.turn()==='w' ? 'White' : 'Black'}'s turn
+                        </p>
                     {/if}
-                    </p>
-                {:else}
-                    <p
-                    class="p-3 rounded-token font-semibold text-center"
-                    class:text-white={chess.turn()==='b'}
-                    class:text-black={chess.turn()==='w'}
-                    class:bg-white={chess.turn()==='w'} 
-                    class:bg-black={chess.turn()==='b'}>
-                    {chess.turn()==='w' ? 'White' : 'Black'}'s turn
-                    </p>
                 {/if}
             </div>
-        {/if}
-        <div class="flex gap-1">
-            <button disabled={history.length===0} on:click={loadFirstMove} class="btn btn-sm variant-filled-primary">
-                <svg class="w-8 h-8" viewBox="0 0 1920 1920">
-                    <g fill-rule="evenodd">
-                        <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
-                        <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
-                    </g>
-                </svg>
-            </button>
-            <button disabled={history.length===0} on:click={loadPreviousMove} class="btn btn-sm variant-filled-primary">
-                <svg class="w-8 h-8"  viewBox="0 0 1920 1920">
-                    <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
-                </svg>
-            </button>   
-            <button disabled={undoneMoveStack.length===0} on:click={loadNextMove} class="btn btn-sm variant-filled-primary">
-                <svg class="w-8 h-8 rotate-180"  viewBox="0 0 1920 1920">
-                    <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
-                </svg>
-            </button>
-            <button disabled={undoneMoveStack.length===0} on:click={loadLastMove} class="btn btn-sm variant-filled-primary">
-                <svg class="w-8 h-8 rotate-180" viewBox="0 0 1920 1920">
-                    <g fill-rule="evenodd">
-                        <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
-                        <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
-                    </g>
-                </svg>
-            </button>
-        </div>
-    </section>
-    <section class="w-[min(100vw,47.5rem)]">
-        <div class="p-4 w-fit ml-auto">
             <p class="font-semibold !text-lg">Player 2</p>
-        </div>
+        </header>
+    
         <!-- BOARD-WRAPPER -->
-        <div class="w-full aspect-square relative flex justify-center items-center">
-
+        <div class="relative h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
+    
             <!-- BOARD -->
-            <div class:brightness-50={promotionMove!==null} bind:this={boardElement}>
-                <p class="!text-[3rem] animate-bounce">
+            <div class="flex justify-center items-center rounded-token" class:brightness-50={promotionMove!==null} bind:this={boardElement}>
+                <p class="!text-[vw] animate-bounce">
                     🍑
                     Loading board...
                 </p>
             </div>
-
+    
             <!-- PROMOTION-MODAL -->
             <div bind:this={promotionModal} class:hidden={promotionMove===null} class="absolute top-0 left-[50%] translate-x-[-50%] z-[999] card p-4 m-4 bg-surface-600-300-token flex flex-col gap-2">
                 <div class="flex gap-2">
@@ -358,16 +331,61 @@
                     <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('r')}>R</button>
                 </div>
                 <div class="flex gap-2">
-                    <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('n')}>K</button>
-                    <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('b')}>B</button>
+                        <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('n')}>K</button>
+                        <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('b')}>B</button>
                 </div>
             </div>
         </div>
-        <div class="p-4 w-fit ml-auto">
+        <footer class="flex justify-between items-end">
+            <div class="flex gap-1">
+                <button disabled={currentMoveHistory.length===0} on:click={loadFirstMove} class="btn btn-sm variant-filled-primary">
+                    <svg class="w-8 h-8" viewBox="0 0 1920 1920">
+                        <g fill-rule="evenodd">
+                            <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
+                            <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
+                        </g>
+                    </svg>
+                </button>
+                <button disabled={currentMoveHistory.length===0} on:click={loadPreviousMove} class="btn btn-sm variant-filled-primary">
+                    <svg class="w-8 h-8"  viewBox="0 0 1920 1920">
+                        <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
+                    </svg>
+                </button>   
+                <button disabled={undoneMoveStack.length===0} on:click={loadNextMove} class="btn btn-sm variant-filled-primary">
+                    <svg class="w-8 h-8 rotate-180"  viewBox="0 0 1920 1920">
+                        <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
+                    </svg>
+                </button>
+                <button disabled={undoneMoveStack.length===0} on:click={loadLastMove} class="btn btn-sm variant-filled-primary">
+                    <svg class="w-8 h-8 rotate-180" viewBox="0 0 1920 1920">
+                        <g fill-rule="evenodd">
+                            <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
+                            <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
+                        </g>
+                    </svg>
+                </button>
+            </div>
             <p class="font-semibold !text-lg">Player 1</p>
-        </div>
-    </section>
-</div>
+        </footer>
+    </div>
+    <div class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] p-4">
+        <h2 class="font-bold">Analysis</h2>
+        <hr class="my-4" />
+        <ul class="overflow-scroll h-full">
+            {#each totalMoveHistory as move, i} 
+            {#if i%2===0}
+                <li class="w-full flex">    
+                    <span class="w-[50%] p-1" class:bg-red-600={0+currentMoveHistory.length-1===i}>{move}</span>
+                    <span class="w-[50%] p-1" class:bg-red-600={0+currentMoveHistory.length-1===i+1}>{totalMoveHistory[i+1]}</span>
+                </li>
+            {/if}
+        {/each}
+        </ul>
+    </div>
+ </div>
+
+
+
 
 
 <!-- TODO PREFERENCES MODAL -->

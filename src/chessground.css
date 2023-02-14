@@ -5,7 +5,9 @@
     box-sizing: content-box;
     position: relative;
     display: block;
+    overflow: hidden;
   }
+
 
   cg-board {
     position: absolute;
@@ -125,7 +127,7 @@
   }
   .cg-wrap coords.files {
     bottom: 6px;
-    left: -4.5%;
+    left: 0;
     flex-flow: row;
     width: 100%;
     height: 16px;
