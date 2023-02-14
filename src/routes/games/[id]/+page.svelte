@@ -289,7 +289,7 @@
             <div class="flex gap-2">
                 {#if chess}
                     {#if chess.isGameOver()}
-                        <p  class="p-3 rounded-token font-semibold text-center bg-surface-300-600-token">
+                        <p  class="p-3 rounded-token font-semibold text-center bg-secondary-700">
                         {#if chess.isCheckmate()}
                             {chess.turn() === 'w' ? 'Black' : 'White'} won with checkmate
                         {:else if chess.isStalemate()}
@@ -369,16 +369,16 @@
         </footer>
     </div>
     <div class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] hidden lg:block">
-        <h2 class="font-bold">Moves & Settings</h2>
+        <h2 class="font-bold"><span class="hidden xl:inline">Moves & </span>Settings</h2>
         <hr class="my-4" />
         <div class="flex gap-[7.5vw]">
-            <div>
+            <div class="hidden xl:block">
                 <div class="w-full flex">
-                    <span class="w-[40%] p-1">Move</span>
-                    <span class="w-[40%] p-1">White</span>
-                    <span class="w-[40%] p-1">Black</span>
+                    <span class="w-[40%] p-1"><strong>Move</strong></span>
+                    <span class="w-[40%] p-1"><strong>White</strong></span>
+                    <span class="w-[40%] p-1"><strong>Black</strong></span>
                 </div>
-                <ul class="!overflow-scroll">
+                <ul class="overflow-scroll">
                     {#each totalMoveHistory as move, i} 
                         {#if i%2===0}
                             <li class="w-full flex">
