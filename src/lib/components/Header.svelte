@@ -14,7 +14,7 @@
     ];
 </script>
 
-<AppBar class="h-[var(--header-height)] justify-center" padding="px-[4vw]">
+<AppBar class="h-16 justify-center" padding="px-[4vw]">
     <svelte:fragment slot="lead">
         <a class="font-bold text-3xl" href="/">🍑 Peachess</a>
     </svelte:fragment>

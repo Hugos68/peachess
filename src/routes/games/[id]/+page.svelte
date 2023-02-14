@@ -50,23 +50,23 @@
         },
         // This callback is called whenever this game gets an update, payload contains the old and new version
         (payload) => {
-            const updatedGame: ChessGame = payload.new as ChessGame
+            const updatedChessGame: ChessGame = payload.new as ChessGame
 
-            const before = getLastMove();
+            const lastMovebefore = getLastMove();
 
-            loadGame(updatedGame);  
+            loadGame(updatedChessGame);  
             
-            const after = getLastMove();
+            const lastMoveafter = getLastMove();
 
             // Check if moves before and after game update are different, if they aren't it means we've done this move (by playing it ourselves) and dont need the move sound effect
-            if (before[0] !== after[0] || before[1] !== after[1]) playMoveSound();
+            if (lastMovebefore?.from !== lastMoveafter?.from || lastMovebefore?.to !== lastMoveafter?.to) playMoveSound();
 
             // Once game is reloaded play any premoves the player might have
             chessBoard.playPremove();
         }
     )
     .subscribe();
-
+        
     const loadGame = (newChessGame: ChessGame) => {
         chessGame = newChessGame;
         chess.loadPgn(chessGame.pgn);
@@ -90,7 +90,7 @@
             fen: chess.fen(),
             orientation: getPlayingColor(chessGame),
             turnColor: getTurnColor(chess), 
-            lastMove: getLastMove(),
+            lastMove: getLastMoveHighlight(),
             viewOnly: undoneMoveStack.length!==0,
             check: chess.inCheck(),
             highlight: {
@@ -130,15 +130,21 @@
         return (chess.turn() === 'w') ? 'white' : 'black';
     }
 
-    const getLastMove = () => {
+    const getLastMoveHighlight = () => {
+        const move = getLastMove();
+        if (!move) return [];
+        return [move.from, move.to];
+    }
+
+    const getLastMove = (): Move | undefined => {
         const undoneMove = chess.undo();
-        if (undoneMove===null) return [];
+        if (undoneMove===null) return;
         chess.move({
             from: undoneMove.from,
             to: undoneMove.to,
             promotion: undoneMove.promotion
         });
-        return [undoneMove.from, undoneMove.to];
+        return undoneMove;
     }
 
     const getValidDestinations = (chess: Chess) => {
