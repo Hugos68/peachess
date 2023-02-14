@@ -250,7 +250,6 @@
     const loadLastMove = () => {
         if (undoneMoveStack.length===0) return;
         loadGame(chessGame);
-        updateUI();
     }
 
     const playMoveSound = () => {
