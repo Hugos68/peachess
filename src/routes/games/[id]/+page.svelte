@@ -6,7 +6,7 @@
     import '../../../chessground.css';
 	import { supabase } from "$lib/supabase";
 	import { page } from "$app/stores";
-	import { localStorageStore } from "@skeletonlabs/skeleton";
+	import { localStorageStore, SlideToggle } from "@skeletonlabs/skeleton";
     import type { Writable } from 'svelte/store';
     import { Howl } from 'howler';
 
@@ -368,19 +368,49 @@
             <p class="font-semibold !text-lg">Player 1</p>
         </footer>
     </div>
-    <div class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] p-4">
-        <h2 class="font-bold">Analysis</h2>
+    <div class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] hidden lg:block">
+        <h2 class="font-bold">Moves & Settings</h2>
         <hr class="my-4" />
-        <ul class="overflow-scroll h-full">
-            {#each totalMoveHistory as move, i} 
-            {#if i%2===0}
-                <li class="w-full flex">    
-                    <span class="w-[50%] p-1" class:bg-red-600={0+currentMoveHistory.length-1===i}>{move}</span>
-                    <span class="w-[50%] p-1" class:bg-red-600={0+currentMoveHistory.length-1===i+1}>{totalMoveHistory[i+1]}</span>
-                </li>
-            {/if}
-        {/each}
-        </ul>
+        <div class="flex gap-[7.5vw]">
+            <div>
+                <div class="w-full flex">
+                    <span class="w-[40%] p-1">Move</span>
+                    <span class="w-[40%] p-1">White</span>
+                    <span class="w-[40%] p-1">Black</span>
+                </div>
+                <ul class="!overflow-scroll">
+                    {#each totalMoveHistory as move, i} 
+                        {#if i%2===0}
+                            <li class="w-full flex">
+                                <span class="w-[40%] p-1">{i/2+1}</span>
+                                <span class="w-[40%] p-1 {0+currentMoveHistory.length-1===i ? "bg-primary-500/50" : ""}">{move}</span>
+                                <span class="w-[40%] p-1 {0+currentMoveHistory.length-1===i+1 ? "bg-primary-500/50" : ""}">{totalMoveHistory[i+1]}</span>
+                            </li>
+                        {/if}
+                    {/each}
+                </ul>
+            </div>
+            <div>
+                <div class="flex flex-col flex-end gap-1">
+                    <label class="flex items-center gap-2 justify-between">
+                        Animate
+                        <SlideToggle name="animate" bind:checked={$settings.animate} on:input={() => setTimeout(() => {updateUI}, 500)} />
+                    </label>
+                    <label class="flex items-center gap-2 justify-between">
+                        Premove
+                        <SlideToggle name="premove" bind:checked={$settings.premove} on:input={() => setTimeout(() => {updateUI}, 500)} />
+                    </label>
+                    <label class="flex items-center gap-2 justify-between">
+                        Drag
+                        <SlideToggle name="drag" bind:checked={$settings.drag} on:input={() => setTimeout(() => {updateUI}, 500)} />
+                    </label>
+                    <label class="flex items-center gap-2 justify-between">
+                        SFX
+                        <SlideToggle name="sfx" bind:checked={$settings.sfx} on:input={() => setTimeout(() => {updateUI}, 500)} />
+                    </label>
+                </div>
+            </div>
+        </div>
     </div>
  </div>
 
@@ -389,9 +419,3 @@
 
 
 <!-- TODO PREFERENCES MODAL -->
-<!-- <div class="flex flex-col">
-    <SlideToggle name="animate" bind:checked={$settings.animate} on:input={() => setTimeout(() => {updateUI}, 500)}>Animate</SlideToggle>
-    <SlideToggle name="sfx" bind:checked={$settings.sfx} on:input={() => setTimeout(() => {updateUI}, 500)} >SFX</SlideToggle>
-    <SlideToggle name="premove" bind:checked={$settings.premove} on:input={() => setTimeout(() => {updateUI}, 500)}>Premove</SlideToggle>
-    <SlideToggle name="drag" bind:checked={$settings.drag} on:input={() => setTimeout(() => {updateUI}, 500)}>Drag</SlideToggle>
-</div> -->
