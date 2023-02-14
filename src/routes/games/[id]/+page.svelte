@@ -259,7 +259,6 @@
 
     const loadNextMove = () => {
         if (undoneMoveStack.length===0) return;
-        playMoveSound()
         const poppedMove = undoneMoveStack.pop();
         const move: CustomMove = {
             from: poppedMove?.from as string,
@@ -267,6 +266,7 @@
             promotion: poppedMove?.promotion as 'q' | 'r' | 'n' | 'b' | undefined
         }
         chess.move(move);
+        playMoveSound()
         updateUI();
     }
     
