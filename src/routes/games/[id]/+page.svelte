@@ -435,22 +435,23 @@
                 </ul>
             </div>
             <div>
-                <div class="flex flex-col flex-end gap-1">
+                <!-- ON ANY OF THESE INPUTS UPDATE THE SETTINGS (WE DO A TIMEOUT FOR THE LOCALSTORAGE TO UPDATE) -->
+                <div class="flex flex-col flex-end gap-1" on:input={() => setTimeout(() => {updateUI()}, 100)}>
                     <label class="flex items-center gap-2 justify-between">
                         Animate
-                        <SlideToggle name="animate" bind:checked={$settings.animate} on:change={() => setTimeout(() => {updateUI}, 500)} />
+                        <SlideToggle name="animate" bind:checked={$settings.animate}  />
                     </label>
                     <label class="flex items-center gap-2 justify-between">
                         Premove
-                        <SlideToggle name="premove" bind:checked={$settings.premove} on:change={() => setTimeout(() => {updateUI}, 500)} />
+                        <SlideToggle name="premove" bind:checked={$settings.premove} />
                     </label>
                     <label class="flex items-center gap-2 justify-between">
                         Drag
-                        <SlideToggle name="drag" bind:checked={$settings.drag} on:change={() => setTimeout(() => {updateUI}, 500)} />
+                        <SlideToggle name="drag" bind:checked={$settings.drag} />
                     </label>
                     <label class="flex items-center gap-2 justify-between">
                         SFX
-                        <SlideToggle name="sfx" bind:checked={$settings.sfx} on:change={() => setTimeout(() => {updateUI}, 500)} />
+                        <SlideToggle name="sfx" bind:checked={$settings.sfx} />
                     </label>
                 </div>
             </div>
