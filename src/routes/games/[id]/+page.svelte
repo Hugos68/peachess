@@ -336,7 +336,7 @@
                         </p>
                     {:else}
                         <p
-                        class="p-3 rounded-token font-semibold text-center"
+                        class="p-2 rounded-token font-semibold text-center"
                         class:text-white={chess.turn()==='b'}
                         class:text-black={chess.turn()==='w'}
                         class:bg-white={chess.turn()==='w'} 
@@ -430,24 +430,23 @@
                         <span class="flex-1 p-1"><strong>White</strong></span>
                         <span class="flex-1 p-1"><strong>Black</strong></span>
                     </div>
-                    <div class="!overflow-scroll">
-                        <ul>
-                            {#each totalMoveHistory as move, i} 
-                                {#if i%2===0}
-                                    <li class="w-full flex gap-2">
-                                        <span class="flex-1 p-1">{i/2+1}</span>
-                                        <span class="flex-1 p-1 rounded-token {0+currentMoveHistory.length-1===i ? "bg-primary-500/50" : ""}">{move}</span>
-                                        <span class="flex-1 p-1 rounded-token {0+currentMoveHistory.length-1===i+1 ? "bg-primary-500/50" : ""}">
-                                            {#if totalMoveHistory[i+1]}
-                                                {totalMoveHistory[i+1]}
-                                            {/if}
-                                        </span>
-                                    </li>
-                                {/if}
-                            {/each}
-                        </ul>
-                    </div>
-     
+          
+                    <ul class="bg-red overflow-y-auto">
+                        {#each totalMoveHistory as move, i} 
+                            {#if i%2===0}
+                                <li class="w-full flex gap-2">
+                                    <span class="flex-1 p-1">{i/2+1}</span>
+                                    <span class="flex-1 p-1 rounded-token {0+currentMoveHistory.length-1===i ? "bg-primary-500/50" : ""}">{move}</span>
+                                    <span class="flex-1 p-1 rounded-token {0+currentMoveHistory.length-1===i+1 ? "bg-primary-500/50" : ""}">
+                                        {#if totalMoveHistory[i+1]}
+                                            {totalMoveHistory[i+1]}
+                                        {/if}
+                                    </span>
+                                </li>
+                            {/if}
+                        {/each}
+                    </ul>
+               
                 {:else if tabSet === 1}
                     
                 {:else if tabSet === 2}
