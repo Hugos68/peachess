@@ -183,13 +183,13 @@
     }
 
     let promotionMove: CustomMove | null = null;
-    let promotionOffsetPercentage: number;
+    let promotionOffset: string;
     const moveCallback = async (orig: Square, dest: Square) => {        
         
         // If there is a promotion set the promotionMove and return so that the move doesn't get played yet (in case of a promotion cancel)
         const promotion = checkIfPromotion(orig, dest);
-        if (promotion) {
-            promotionOffsetPercentage = getPromotionModalOffsetPercentage(dest);
+        if (promotion) { 
+            promotionOffset = `left-[${getPromotionModalOffsetPercentage(dest).toString()}%]`;
             promotionMove = {
                 from: orig,
                 to: dest
@@ -366,7 +366,7 @@
             <!-- PROMOTION-MODAL -->
             {#key promotionMove}
             <!-- TODO SET LEFT VALUE TO (ABC -> 123) * 12.5% -->
-                <div in:fly={{y: 50, duration: 150}} class:hidden={!promotionMove} bind:this={promotionModal} class="absolute top-0 left-[{promotionOffsetPercentage}%] w-[12.5%] h-[50%] z-[50] card">
+                <div in:fly={{y: 50, duration: 150}} class:hidden={!promotionMove} bind:this={promotionModal} class="absolute top-0 {promotionOffset} w-[12.5%] h-[50%] z-[50] card">
                     <button class="btn variant-ghost-surface w-full h-[25%] promo-queen-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('q')}></button>
                     <button class="btn variant-ghost-surface w-full h-[25%] promo-rook-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('r')}></button>
                     <button class="btn variant-ghost-surface w-full h-[25%] promo-knight-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('n')}></button>
