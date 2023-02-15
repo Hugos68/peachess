@@ -370,13 +370,15 @@
             <!-- PROMOTION-MODAL -->
             {#key promotionMove}
             <!-- TODO SET LEFT VALUE TO (ABC -> 123) * 12.5% -->
-                <div in:fly={{y: 50, duration: 150}} class:hidden={!promotionMove} bind:this={promotionModal} class="absolute top-0 w-[12.5%] h-[50%] z-[50] card" style="left: {promotionModalOffsetPercentage}%;">
-                    <button class="btn variant-ghost-surface w-full h-[25%] promo-queen-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('q')}></button>
-                    <button class="btn variant-ghost-surface w-full h-[25%] promo-rook-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('r')}></button>
-                    <button class="btn variant-ghost-surface w-full h-[25%] promo-knight-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('n')}></button>
-                    <button class="btn variant-ghost-surface w-full h-[25%] promo-bischop-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('b')}></button>
+                <div in:fly={{y: 50, duration: 150}} class:hidden={!promotionMove} bind:this={promotionModal} class="absolute top-0 w-[12.5%] h-[50%] z-[50] variant-glass-secondary" style="left: {promotionModalOffsetPercentage}%;">
+                    <button class="btn w-full h-[25%] promo-queen-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('q')}></button>
+                    <button class="btn w-full h-[25%] promo-rook-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('r')}></button>
+                    <button class="btn w-full h-[25%] promo-knight-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('n')}></button>
+                    <button class="btn w-full h-[25%] promo-bischop-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('b')}></button>
                 </div>
             {/key}
+
+            
         </div>
         <footer class="flex justify-between items-end">
             <div class="flex gap-1">
