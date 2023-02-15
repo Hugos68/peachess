@@ -48,7 +48,7 @@ serve(async (req) => {
         const selectOpponentError = selectOpponentRequest.error;
 
         if (selectOpponentError) {
-            return new Response(JSON.stringify({ error: selectOpponentError.message }), {
+            return new Response(JSON.stringify({ error: 'User not found' }), {
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
                 status: 400,
             });

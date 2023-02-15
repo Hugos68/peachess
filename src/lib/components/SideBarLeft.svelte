@@ -14,7 +14,7 @@
     ];
 </script>
 
-<div class="min-h-screen w-[min(30rem,80vw]  p-8 flex flex-col">
+<div class="h-screen !w-[min(30rem,80vw] p-8 flex flex-col bg-surface-50-900-token">
     <header class="flex justify-between items-center">
         <a class="unstyled font-bold text-3xl" href="/">Peachess</a>
         {#if $page.data.session}

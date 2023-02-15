@@ -25,6 +25,7 @@
 		<SideBarLeft />
 	{/if}
 </Drawer>
+<Modal />
 
 <AppShell>
 	<svelte:fragment slot="header">

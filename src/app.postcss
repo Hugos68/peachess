@@ -1,5 +1,9 @@
 /*place global styles here */
-html, body { @apply h-full overflow-hidden; }
+html, body { 
+    @apply h-full overflow-hidden; 
+    background-color: #27282e;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cg fill='%231f3674' fill-opacity='0.14'%3E%3Cpath fill-rule='evenodd' d='M0 0h4v4H0V0zm4 4h4v4H4V4z'/%3E%3C/g%3E%3C/svg%3E");
+}
 
 :root {
     --chess-light-tile-color: #dad9b5;
@@ -7,5 +11,5 @@ html, body { @apply h-full overflow-hidden; }
 }
 
 .base-page-container {
-    @apply container mx-auto px-4 py-8;
+    @apply container mx-auto p-4;
 }
