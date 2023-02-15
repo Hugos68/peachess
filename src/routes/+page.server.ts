@@ -58,7 +58,7 @@ export const actions: Actions = {
             return fail(500, { message: err.message });
         }
         
-        throw redirect(303, '/home');
+        throw redirect(303, '/games');
     },
     signOut: async(event) => {
         const {supabaseClient} = await getSupabase(event);

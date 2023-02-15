@@ -1,16 +1,6 @@
 <script lang="ts">
 	import { AppBar, drawerStore, type DrawerSettings } from "@skeletonlabs/skeleton";
 
-    interface navItem {
-        label: string
-        link: string
-    }
-    
-    const navItems: navItem[] = [
-        { label: 'Home', link: '/home' },
-        { label: 'Games', link: '/games' },
-    ];
-
 	const openLeftSideBar = (): void => {
         const settings: DrawerSettings = { 
             id: 'sideBarLeft',

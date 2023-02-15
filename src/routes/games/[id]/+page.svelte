@@ -6,7 +6,7 @@
     import '../../../chessground.css';
 	import { supabase } from "$lib/supabase";
 	import { page } from "$app/stores";
-	import { localStorageStore, SlideToggle } from "@skeletonlabs/skeleton";
+	import { localStorageStore, SlideToggle, Tab, TabGroup } from "@skeletonlabs/skeleton";
     import type { Writable } from 'svelte/store';
     import { Howl } from 'howler';
 	import { fly } from "svelte/transition";
@@ -304,6 +304,8 @@
     onDestroy(() => {
         channel.unsubscribe();
     });
+
+    let tabSet: number = 0;
 </script>
 
 <svelte:window 
@@ -314,10 +316,10 @@
         if (event.key==='ArrowLeft') loadPreviousMove();
         if (event.key==='ArrowRight') loadNextMove();
     }} 
- />
+ /> 
 
- <div class="mx-auto flex flex-col xl:flex-row justify-center items-center gap-12 px-[5vw]">
-    <div class="flex flex-col gap-2 w-min">
+ <div class="mx-auto flex flex-col xl:flex-row justify-center items-center gap-12 ">
+    <div class="flex flex-col gap-4">
         <header class="flex justify-between">
             <div class="flex gap-2">
                 {#if chess}
@@ -412,58 +414,66 @@
             </p>
         </footer>
     </div>
-    <div class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-full flex gap-12 justify-evenly">
-            <div>
-                <h2 class="font-bold">Moves</h2>
-                <hr class="my-4" />
-                <div class="w-full flex gap-2">
-                    <span class="flex-1 p-1"><strong>No.</strong></span>
-                    <span class="flex-1 p-1"><strong>White</strong></span>
-                    <span class="flex-1 p-1"><strong>Black</strong></span>
-                </div>
-                <ul class="overflow-scroll max-h-[50vh] border-b-2">
-                    {#each totalMoveHistory as move, i} 
-                        {#if i%2===0}
-                            <li class="w-full flex gap-2">
-                                <span class="flex-1 p-1">{i/2+1}</span>
-                                <span class="flex-1 p-1 rounded-token {0+currentMoveHistory.length-1===i ? "bg-primary-500/50" : ""}">{move}</span>
-                                <span class="flex-1 p-1 rounded-token {0+currentMoveHistory.length-1===i+1 ? "bg-primary-500/50" : ""}">
-                                    {#if totalMoveHistory[i+1]}
-                                        {totalMoveHistory[i+1]}
-                                    {/if}
-                                </span>
-                            </li>
-                        {/if}
-                    {/each}
-                </ul>
-            </div>
-            <div>
-                <h2 class="font-bold">Settings</h2>
-                <hr class="my-4" />
-                <!-- ON ANY OF THESE INPUTS UPDATE THE SETTINGS (WE DO A TIMEOUT FOR THE LOCALSTORAGE TO UPDATE) -->
-                <div class="flex flex-col flex-end gap-1" on:input={() => setTimeout(() => {
 
-                        // If premove got turned off, cancel current premove if present
-                        if (!$settings.premove) chessBoard.cancelPremove();
-                        updateUI()
-                    }, 25)}>
-                    <label class="flex items-center gap-2 justify-between">
-                        Animate
-                        <SlideToggle name="animate" bind:checked={$settings.animate}  />
-                    </label>
-                    <label class="flex items-center gap-2 justify-between">
-                        Premove
-                        <SlideToggle name="premove" bind:checked={$settings.premove} />
-                    </label>
-                    <label class="flex items-center gap-2 justify-between">
-                        Drag
-                        <SlideToggle name="drag" bind:checked={$settings.drag} />
-                    </label>
-                    <label class="flex items-center gap-2 justify-between">
-                        SFX
-                        <SlideToggle name="sfx" bind:checked={$settings.sfx} />
-                    </label>
-                </div>
-            </div>
-    </div>
+        <TabGroup class="w-full h-[min(calc(100vw)-1rem,calc(95vh-12rem))] card !bg-secondary-500 p-4 overflow-hidden">
+            <Tab bind:group={tabSet} name="tab1" value={0}>Moves</Tab>
+            <Tab bind:group={tabSet} name="tab2" value={1}>Chat</Tab>
+            <Tab bind:group={tabSet} name="tab3" value={2}>Settings</Tab>
+    
+            <svelte:fragment slot="panel">
+                {#if tabSet === 0}
+                    <div class="flex gap-2">
+                        <span class="flex-1 p-1"><strong>No.</strong></span>
+                        <span class="flex-1 p-1"><strong>White</strong></span>
+                        <span class="flex-1 p-1"><strong>Black</strong></span>
+                    </div>
+                    <div class="!overflow-scroll">
+                        <ul>
+                            {#each totalMoveHistory as move, i} 
+                                {#if i%2===0}
+                                    <li class="w-full flex gap-2">
+                                        <span class="flex-1 p-1">{i/2+1}</span>
+                                        <span class="flex-1 p-1 rounded-token {0+currentMoveHistory.length-1===i ? "bg-primary-500/50" : ""}">{move}</span>
+                                        <span class="flex-1 p-1 rounded-token {0+currentMoveHistory.length-1===i+1 ? "bg-primary-500/50" : ""}">
+                                            {#if totalMoveHistory[i+1]}
+                                                {totalMoveHistory[i+1]}
+                                            {/if}
+                                        </span>
+                                    </li>
+                                {/if}
+                            {/each}
+                        </ul>
+                    </div>
+     
+                {:else if tabSet === 1}
+                    
+                {:else if tabSet === 2}
+                        <!-- ON ANY OF THESE INPUTS UPDATE THE SETTINGS (WE DO A TIMEOUT FOR THE LOCALSTORAGE TO UPDATE) -->
+                        <div class="flex flex-col" on:input={() => setTimeout(() => {
+    
+                            // If premove got turned off, cancel current premove if present
+                            if (!$settings.premove) chessBoard.cancelPremove();
+                            updateUI()
+                        }, 25)}>
+                        <label class="flex items-center gap-2 justify-between">
+                            Animate
+                            <SlideToggle name="animate" bind:checked={$settings.animate}  />
+                        </label>
+                        <label class="flex items-center gap-2 justify-between">
+                            Premove
+                            <SlideToggle name="premove" bind:checked={$settings.premove} />
+                        </label>
+                        <label class="flex items-center gap-2 justify-between">
+                            Drag
+                            <SlideToggle name="drag" bind:checked={$settings.drag} />
+                        </label>
+                        <label class="flex items-center gap-2 justify-between">
+                            SFX
+                            <SlideToggle name="sfx" bind:checked={$settings.sfx} />
+                        </label>
+                    </div>
+                {/if}
+            </svelte:fragment>
+        </TabGroup>
+  
  </div>
