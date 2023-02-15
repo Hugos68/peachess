@@ -9,6 +9,7 @@
 	import { localStorageStore, SlideToggle } from "@skeletonlabs/skeleton";
     import type { Writable } from 'svelte/store';
     import { Howl } from 'howler';
+	import { fly } from "svelte/transition";
 
     export let data: PageData;
 
@@ -182,19 +183,20 @@
     }
 
     let promotionMove: CustomMove | null = null;
+    let promotionOffsetPercentage: number;
     const moveCallback = async (orig: Square, dest: Square) => {        
         
         // If there is a promotion set the promotionMove and return so that the move doesn't get played yet (in case of a promotion cancel)
         const promotion = checkIfPromotion(orig, dest);
         if (promotion) {
+            promotionOffsetPercentage = getPromotionModalOffsetPercentage(dest);
             promotionMove = {
                 from: orig,
                 to: dest
             }
             return;
         }
-
-        await doMove({
+        doMove({
             from: orig as string,
             to: dest as string
         });
@@ -236,17 +238,17 @@
         return true;
     }
 
-    const getPromotionModalOffsetPercentage = (): string => {
-        const letter = promotionMove?.to.charAt(0) || 'a';
+    const getPromotionModalOffsetPercentage = (toSquare: Square)=> {
+        const letter = toSquare.charAt(0) || 'a';
         const number = parseInt(letter, 36) - 9;
         const percentage = number * 12.5;
         const returnValue = percentage-12.5;
-        return returnValue.toString();
+        return returnValue;
     }
 
     const promote = async (promotion: 'q' | 'r' | 'n' | 'b') => {
         if (!promotionMove) return;
-        await doMove({
+        doMove({
             from: promotionMove.from,
             to: promotionMove.to,
             promotion: promotion
@@ -364,11 +366,11 @@
             <!-- PROMOTION-MODAL -->
             {#key promotionMove}
             <!-- TODO SET LEFT VALUE TO (ABC -> 123) * 12.5% -->
-                <div bind:this={promotionModal} class:hidden={promotionMove===null} class="absolute top-0 left-[{getPromotionModalOffsetPercentage()}%] w-[12.5%] h-[50%] z-[50] card">
-                    <button class="btn variant-ghost-surface w-full h-[25%] promo-queen-{getTurnColor(chess)}" on:click={async () => await promote('q')}></button>
-                    <button class="btn variant-ghost-surface w-full h-[25%] promo-rook-{getTurnColor(chess)}" on:click={async () => await promote('r')}></button>
-                    <button class="btn variant-ghost-surface w-full h-[25%] promo-knight-{getTurnColor(chess)}" on:click={async () => await promote('n')}></button>
-                    <button class="btn variant-ghost-surface w-full h-[25%] promo-bischop-{getTurnColor(chess)}" on:click={async () => await promote('b')}></button>
+                <div in:fly={{y: 50, duration: 150}} class:hidden={!promotionMove} bind:this={promotionModal} class="absolute top-0 left-[{promotionOffsetPercentage}%] w-[12.5%] h-[50%] z-[50] card">
+                    <button class="btn variant-ghost-surface w-full h-[25%] promo-queen-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('q')}></button>
+                    <button class="btn variant-ghost-surface w-full h-[25%] promo-rook-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('r')}></button>
+                    <button class="btn variant-ghost-surface w-full h-[25%] promo-knight-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('n')}></button>
+                    <button class="btn variant-ghost-surface w-full h-[25%] promo-bischop-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('b')}></button>
                 </div>
             {/key}
         </div>
