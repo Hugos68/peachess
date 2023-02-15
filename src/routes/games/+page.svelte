@@ -56,6 +56,12 @@
     }
 </script>
 <h1 class="my-[5vh]">Games</h1>
+
+<div class="input-group input-group-divider grid-cols-[1fr_auto] max-w-[30rem] my-4">
+
+    <input class="input" type="text" placeholder="Enter opponents username" bind:value={opponentUsername} />
+    <button class="variant-filled-primary" on:click={createGame}>Start game</button>
+</div>
 <div class="mx-auto flex flex-wrap gap-8">
     {#each data.chessGames as chessGame}
         <a class="card card-hover w-full h-full max-w-[30rem] p-2" href="/games/{chessGame.id}">
@@ -66,7 +72,3 @@
         </a>
     {/each}
 </div>
-
-
-<input class="input" type="text" bind:value={opponentUsername} />
-<button class="btn variant-filled-primary" on:click={createGame}>Make game</button>
