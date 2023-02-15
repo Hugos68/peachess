@@ -4,7 +4,7 @@
 
 import { serve } from 'https://deno.land/std@0.131.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { ChessGame } from "https://deno.land/x/chess@0.5.0/mod.ts";
+import { Chess } from "https://esm.sh/chess.js@1.0.0-beta.3";
 
 export const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -92,15 +92,15 @@ serve(async (req) => {
             playerBlack = invoker;
         }
 
-        const chess = ChessGame.NewStandardGame();
+        const chess = new Chess();
 
-        chess.setTag('Event', 'Chess Game');
-        chess.setTag('Site', 'https://peachess.vercel.app/');
-        chess.setTag('Date', new Date());
-        chess.setTag('Round', null)
-        chess.setTag('White', playerWhite.user_name);
-        chess.setTag('Black', playerBlack.user_name);
-        chess.setTag('Result', '*');
+        chess.header('Event', 'Chess Game');
+        chess.header('Site', 'https://peachess.vercel.app/');
+        chess.header('Date', new Date());
+        chess.header('Round', null)
+        chess.header('White', playerWhite.user_name);
+        chess.header('Black', playerBlack.user_name);
+        chess.header('Result', '*');
 
         const {data, error} = await serviceRoleSupabaseClient
         .from('games')
@@ -108,7 +108,7 @@ serve(async (req) => {
             {
                 player_id_white: playerWhite.id,
                 player_id_black: playerBlack.id,
-                pgn: chess.toString("pgn")
+                pgn: chess.pgn()
             }
         ])
         .select()

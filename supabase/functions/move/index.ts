@@ -4,7 +4,7 @@
 
 import { serve } from 'https://deno.land/std@0.131.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { ChessGame } from "https://deno.land/x/chess@0.5.0/mod.ts";
+import { Chess } from "https://esm.sh/chess.js@1.0.0-beta.3";
 
 export const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -54,8 +54,10 @@ serve(async (req) => {
             });
         }
 
-        const chess = ChessGame.NewFromPGN(chessGame.pgn);
-        
+        const chess = new Chess();
+
+        chess.loadPgn(chessGame.pgn);
+
         if (chess.isGameOver()) {
             return new Response(JSON.stringify({ error: 'Cannot move pieces of game that has ended' }), {
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -76,38 +78,27 @@ serve(async (req) => {
             });
         }
 
-        const playingColor = isPlayingWhite ? 'white' : 'black';
-        const status = chess.getStatus();
-
-        const hasTurn = playingColor === status.turn;
-        if (!hasTurn) {
+        const playingColor = isPlayingWhite ? 'w' : 'b';
+   
+        if (chess.turn() !== playingColor) {
             return new Response(JSON.stringify({ error: 'Cannot move pieces when it is not your turn' }), {
                 headers: { ...corsHeaders, 'Content-Type': 'application/json'},
                 status: 400,
             });
         }
 
-        // Throw error if move is illegal so we don't do any other checks here besides calling the function
-        chess.move({
-            from: move.from,
-            dest: move.to,
-            promotion: move?.promotion
-        });
+        // Throws error if move is illegal
+        chess.move(move);
 
-        // Set the corresponding Result tag when the game is over
+        // Set the result header when the game is over
         if (chess.isGameOver()) {
-            const winner = chess.getStatus().winner;
-            if (winner === 'white') chess.setTag('Result', '1-0');
-            else if (winner === 'black') chess.setTag('Result', '0-1');
-            else chess.setTag('Result', '1/2-1/2');
+            if (chess.isCheckmate()) chess.turn() === 'w' ? chess.header('Result', '1-0') : chess.header('Result', '0-1');
+            else chess.header('Result', '1/2-1/2');
         }
-        
-        // The replaces call fixes bug where atrix gets placed after last move without a space between causing client side parsers to fail
-        const pgnFixed = chess.toString("pgn").replace(/([^\s])(\*)$/, '$1 $2');
 
         const updateChessGameRequest = await serviceRoleSupabaseClient
             .from("games")
-            .update({ pgn: pgnFixed })
+            .update({ pgn: chess.pgn() })
             .eq('id', gameId);
 
         const updatedChessGameError = updateChessGameRequest.error;
