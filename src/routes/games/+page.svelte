@@ -9,17 +9,18 @@
 	import type { PageData } from "./$types";
 
     export let data: PageData;
-    const chessGameChessObjects: Map<number, Chess> = new Map();
+    const chessGameChessMap: Map<number, Chess> = new Map();
     let mounted: boolean = false;
     onMount(() => {
-        data.chessGames.forEach(chessGame => {
+        const chessGames: ChessGame[] = data.chessGames;
+        chessGames.forEach(chessGame => {
             const chess: Chess = new Chess();
             chess.loadPgn(chessGame.pgn);
             Chessground(document.getElementById(`board${chessGame.id}`) as HTMLElement, {
                 fen: chess.fen(),
                 viewOnly: true
             });
-            chessGameChessObjects.set(chessGame.id, chess);
+            chessGameChessMap.set(chessGame.id, chess);
         });
         mounted = true;
     })
@@ -51,7 +52,7 @@
     }
 
     const getPlayerNameByGameAndColor = (id: number, color: 'White' | 'Black') => {
-        const chess: Chess | undefined = chessGameChessObjects.get(id)
+        const chess: Chess | undefined = chessGameChessMap.get(id)
         return chess?.header()[color];
     }
 </script>
