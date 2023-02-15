@@ -2,6 +2,7 @@
 	import '../theme.postcss';
 	import '@skeletonlabs/skeleton/styles/all.css';
 	import '../app.postcss';
+	import '../chessground.css';
 
 	import { AppShell, Drawer, drawerStore, Modal, Toast } from "@skeletonlabs/skeleton";
 	import Header from '$lib/components/Header.svelte';

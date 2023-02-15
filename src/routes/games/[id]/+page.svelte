@@ -3,7 +3,6 @@
     import type { PageData } from "./$types";
     import { Chessground } from 'chessground';
 	import { onMount, onDestroy } from "svelte";
-    import '../../../chessground.css';
 	import { supabase } from "$lib/supabase";
 	import { page } from "$app/stores";
 	import { localStorageStore, SlideToggle, Tab, TabGroup } from "@skeletonlabs/skeleton";
