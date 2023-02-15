@@ -418,7 +418,7 @@
         </footer>
     </div>
 
-        <TabGroup class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))] card !bg-secondary-500 p-4 overflow-hidden">
+        <TabGroup class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))] card !bg-secondary-700 p-4 overflow-hidden">
             <Tab bind:group={tabSet} name="tab1" value={0}>Moves</Tab>
             <Tab bind:group={tabSet} name="tab2" value={1}>Chat</Tab>
             <Tab bind:group={tabSet} name="tab3" value={2}>Settings</Tab>
@@ -448,7 +448,7 @@
                     </ul>
                
                 {:else if tabSet === 1}
-                    
+                        <p>Coming soon</p>
                 {:else if tabSet === 2}
                         <!-- ON ANY OF THESE INPUTS UPDATE THE SETTINGS (WE DO A TIMEOUT FOR THE LOCALSTORAGE TO UPDATE) -->
                         <div class="flex flex-col" on:input={() => setTimeout(() => {
@@ -457,21 +457,21 @@
                             if (!$settings.premove) chessBoard.cancelPremove();
                             updateUI()
                         }, 25)}>
-                        <label class="flex items-center gap-2 justify-between">
+                        <label class="flex items-center gap-2 justify-between" for="animate">
                             Animate
-                            <SlideToggle name="animate" bind:checked={$settings.animate}  />
+                            <SlideToggle class="variant-ghost-secondary" name="animate" bind:checked={$settings.animate}  />
                         </label>
-                        <label class="flex items-center gap-2 justify-between">
-                            Premove
-                            <SlideToggle name="premove" bind:checked={$settings.premove} />
-                        </label>
-                        <label class="flex items-center gap-2 justify-between">
+                        <label class="flex items-center gap-2 justify-between" for="drag">
                             Drag
                             <SlideToggle name="drag" bind:checked={$settings.drag} />
                         </label>
-                        <label class="flex items-center gap-2 justify-between">
-                            SFX
+                        <label class="flex items-center gap-2 justify-between" for="sfx">
+                            Sound Effects
                             <SlideToggle name="sfx" bind:checked={$settings.sfx} />
+                        </label>
+                        <label class="flex items-center gap-2 justify-between" for="premove">
+                            Premove
+                            <SlideToggle name="premove" bind:checked={$settings.premove} />
                         </label>
                     </div>
                 {/if}

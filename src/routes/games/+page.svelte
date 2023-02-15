@@ -58,17 +58,18 @@
 </script>
 
 
-<h1 class="mt-[5vh]">Games</h1>
-<button class="my-[2.5vh] btn btn-sm variant-filled-primary" on:click={createGame}>+</button>
-
-
-<div class="mx-auto flex flex-wrap gap-8">
-    {#each data.chessGames as chessGame}
-        <a class="card card-hover w-full h-full max-w-[30rem] p-2" href="/games/{chessGame.id}">
-            {#if mounted}
-                <p class="font-bold">Game {chessGame.id}: {getPlayerNameByGameAndColor(chessGame.id, 'White')} VS {getPlayerNameByGameAndColor(chessGame.id, 'Black')}</p>
-            {/if}
-            <div class="pointer-events-none" id="board{chessGame.id}"></div>
-        </a>
-    {/each}
+<div class="mt-[5vh] flex flex-col gap-8">
+    <h1 >Games</h1>
+    <button class="ml-auto w-min btn btn-sm variant-filled-primary" on:click={createGame}>+ New Game</button>
+    
+    <div class="mx-auto flex flex-wrap gap-8">
+        {#each data.chessGames as chessGame}
+            <a class="card card-hover w-full h-full max-w-[30rem] p-2" href="/games/{chessGame.id}">
+                {#if mounted}
+                    <p class="font-bold p-3">Game {chessGame.id}: {getPlayerNameByGameAndColor(chessGame.id, 'White')} VS {getPlayerNameByGameAndColor(chessGame.id, 'Black')}</p>
+                {/if}
+                <div class="pointer-events-none" id="board{chessGame.id}"></div>
+            </a>
+        {/each}
+    </div>
 </div>
