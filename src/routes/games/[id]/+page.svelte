@@ -183,13 +183,12 @@
     }
 
     let promotionMove: CustomMove | null = null;
-    let promotionOffset: string;
     const moveCallback = async (orig: Square, dest: Square) => {        
         
         // If there is a promotion set the promotionMove and return so that the move doesn't get played yet (in case of a promotion cancel)
         const promotion = checkIfPromotion(orig, dest);
         if (promotion) { 
-            promotionOffset = `left-[${getPromotionModalOffsetPercentage(dest).toString()}%]`;
+            promotionModalOffsetPercentage = getPromotionModalOffsetPercentage(dest);
             promotionMove = {
                 from: orig,
                 to: dest
@@ -238,12 +237,15 @@
         return true;
     }
 
+    let promotionModalOffsetPercentage: number;
+
     const getPromotionModalOffsetPercentage = (toSquare: Square)=> {
         const letter = toSquare.charAt(0) || 'a';
         const number = parseInt(letter, 36) - 9;
-        const percentage = number * 12.5;
-        const returnValue = percentage-12.5;
-        return returnValue;
+        const percentage = (number-1) * 12.5;
+
+        // We check color here to deal with the board orientation
+        return getOrientation(chessGame) === 'white' ? percentage : 87.5-percentage;
     }
 
     const promote = async (promotion: 'q' | 'r' | 'n' | 'b') => {
@@ -318,7 +320,7 @@
     }} 
  /> 
 
- <div class="mx-auto flex flex-col xl:flex-row justify-center items-center gap-12 ">
+ <div class="mx-auto flex flex-col xl:flex-row justify-center items-center gap-12">
     <div class="flex flex-col gap-4">
         <header class="flex justify-between">
             <div class="flex gap-2">
@@ -368,7 +370,7 @@
             <!-- PROMOTION-MODAL -->
             {#key promotionMove}
             <!-- TODO SET LEFT VALUE TO (ABC -> 123) * 12.5% -->
-                <div in:fly={{y: 50, duration: 150}} class:hidden={!promotionMove} bind:this={promotionModal} class="absolute top-0 {promotionOffset} w-[12.5%] h-[50%] z-[50] card">
+                <div in:fly={{y: 50, duration: 150}} class:hidden={!promotionMove} bind:this={promotionModal} class="absolute top-0 w-[12.5%] h-[50%] z-[50] card" style="left: {promotionModalOffsetPercentage}%;">
                     <button class="btn variant-ghost-surface w-full h-[25%] promo-queen-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('q')}></button>
                     <button class="btn variant-ghost-surface w-full h-[25%] promo-rook-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('r')}></button>
                     <button class="btn variant-ghost-surface w-full h-[25%] promo-knight-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('n')}></button>
@@ -415,7 +417,7 @@
         </footer>
     </div>
 
-        <TabGroup class="w-full h-[min(calc(100vw)-1rem,calc(95vh-12rem))] card !bg-secondary-500 p-4 overflow-hidden">
+        <TabGroup class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))] card !bg-secondary-500 p-4 overflow-hidden">
             <Tab bind:group={tabSet} name="tab1" value={0}>Moves</Tab>
             <Tab bind:group={tabSet} name="tab2" value={1}>Chat</Tab>
             <Tab bind:group={tabSet} name="tab3" value={2}>Settings</Tab>
