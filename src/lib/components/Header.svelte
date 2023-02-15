@@ -1,7 +1,5 @@
 <script lang="ts">
-	import { page } from "$app/stores";
-	import { AppBar, drawerStore, LightSwitch, type DrawerSettings, type ModalSettings} from "@skeletonlabs/skeleton";
-	import ProfileButton from "./ProfileButton.svelte";
+	import { AppBar, drawerStore, type DrawerSettings } from "@skeletonlabs/skeleton";
 
     interface navItem {
         label: string
@@ -17,7 +15,7 @@
         const settings: DrawerSettings = { 
             id: 'sideBarLeft',
             position: 'left',
-            width: 'w-[20rem]'
+            width: 'w-[min(30rem,80vw]'
         };
 	    drawerStore.open(settings);
 	}
