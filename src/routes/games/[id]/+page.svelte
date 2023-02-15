@@ -236,6 +236,14 @@
         return true;
     }
 
+    const getPromotionModalOffsetPercentage = (): string => {
+        const letter = promotionMove?.to.charAt(0) || 'a';
+        const number = parseInt(letter, 36) - 9;
+        const percentage = number * 12.5;
+        const returnValue = percentage-12.5;
+        return returnValue.toString();
+    }
+
     const promote = async (promotion: 'q' | 'r' | 'n' | 'b') => {
         if (!promotionMove) return;
         await doMove({
@@ -354,16 +362,15 @@
             </div>
     
             <!-- PROMOTION-MODAL -->
-            <div bind:this={promotionModal} class:hidden={promotionMove===null} class="z-[50] absolute top-0 left-[50%] translate-x-[-50%] z-[999] card p-4 m-4 bg-surface-600-300-token flex flex-col gap-2">
-                <div class="flex gap-2">
-                    <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('q')}>Q</button>
-                    <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('r')}>R</button>
+            {#key promotionMove}
+            <!-- TODO SET LEFT VALUE TO (ABC -> 123) * 12.5% -->
+                <div bind:this={promotionModal} class:hidden={promotionMove===null} class="absolute top-0 left-[{getPromotionModalOffsetPercentage()}%] w-[12.5%] h-[50%] z-[50] card">
+                    <button class="btn variant-ghost-surface w-full h-[25%] promo-queen-{getTurnColor(chess)}" on:click={async () => await promote('q')}></button>
+                    <button class="btn variant-ghost-surface w-full h-[25%] promo-rook-{getTurnColor(chess)}" on:click={async () => await promote('r')}></button>
+                    <button class="btn variant-ghost-surface w-full h-[25%] promo-knight-{getTurnColor(chess)}" on:click={async () => await promote('n')}></button>
+                    <button class="btn variant-ghost-surface w-full h-[25%] promo-bischop-{getTurnColor(chess)}" on:click={async () => await promote('b')}></button>
                 </div>
-                <div class="flex gap-2">
-                    <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('n')}>K</button>
-                    <button class="btn variant-filled-secondary flex-1" on:click={async () => await promote('b')}>B</button>
-                </div>
-            </div>
+            {/key}
         </div>
         <footer class="flex justify-between items-end">
             <div class="flex gap-1">
