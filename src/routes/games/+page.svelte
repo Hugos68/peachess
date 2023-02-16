@@ -9,6 +9,7 @@
 	import type { PageData } from "./$types";
 
     export let data: PageData;
+    
     const chessGameChessMap: Map<number, Chess> = new Map();
     let mounted: boolean = false;
     onMount(() => {

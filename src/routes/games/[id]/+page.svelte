@@ -64,14 +64,13 @@
         (payload) => {
             const updatedChessGame: ChessGame = payload.new as ChessGame
 
-            const lastMovebefore = getLastMove();
+            // Check if the pgn is different, if they aren't it means we've done this move (by playing it ourselves) and dont need the move sound effect
+            if (updatedChessGame.pgn!==chess.pgn()) {
+                const move = getLastMove();
+                if (move) playMoveSound(move);
+            } 
 
             loadGame(updatedChessGame);
-            
-            const lastMoveafter = getLastMove();
-
-            // Check if moves before and after game update are different, if they aren't it means we've done this move (by playing it ourselves) and dont need the move sound effect
-            if (lastMovebefore?.from !== lastMoveafter?.from || lastMovebefore?.to !== lastMoveafter?.to) playMoveSound();
 
             if (chess.isGameOver()) {
                 handleGameOver();
@@ -194,30 +193,24 @@
     }
 
     let promotionMove: CustomMove | null = null;
-    const moveCallback = async (orig: Square, dest: Square) => {        
-        
+    const moveCallback = async (from: Square, to: Square) => {        
+
         // If there is a promotion set the promotionMove and return so that the move doesn't get played yet (in case of a promotion cancel)
-        const promotion = checkIfPromotion(orig, dest);
+        const promotion = checkIfPromotion(from, to);
         if (promotion) { 
-            promotionModalOffsetPercentage = getPromotionModalOffsetPercentage(dest);
-            promotionMove = {
-                from: orig,
-                to: dest
-            }
+            promotionModalOffsetPercentage = getPromotionModalOffsetPercentage(to);
+            promotionMove = { from, to };
             return;
         }
-        doMove({
-            from: orig as string,
-            to: dest as string
-        });
+        doMove(from, to);
     }
 
-    const doMove = async (move: CustomMove) => {
+    const doMove = async (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b') => {
         
         try {
             // Move (throws exception if move is invalid)
-            chess.move(move);
-            playMoveSound();
+            const move = chess.move({from, to, promotion});
+            playMoveSound(move);
             
             updateUI();
         } catch(error) {
@@ -229,7 +222,10 @@
         const {error, data} = await supabase.functions.invoke('move', {
             body : {
                 gameId: chessGame.id,
-                move
+                move: {
+                    from, 
+                    to
+                }
             }
         });
 
@@ -237,9 +233,9 @@
         if (error) loadGame(chessGame);
     }
 
-    const checkIfPromotion = (orig: Square, dest: Square): boolean => {
-        const {type, color} = chess.get(orig);
-        const rankNumber =  Number.parseInt(dest.charAt(1));
+    const checkIfPromotion = (from: Square, to: Square): boolean => {
+        const {type, color} = chess.get(from);
+        const rankNumber =  Number.parseInt(to.charAt(1));
 
         if (type!==PAWN) return false;
         if (color===WHITE && rankNumber!==8) return false;
@@ -261,11 +257,7 @@
 
     const promote = async (promotion: 'q' | 'r' | 'n' | 'b') => {
         if (!promotionMove) return;
-        doMove({
-            from: promotionMove.from,
-            to: promotionMove.to,
-            promotion: promotion
-        });
+        doMove(promotionMove.from as Square, promotionMove.to as Square, promotion);
         promotionMove = null;
     }
     
@@ -302,15 +294,15 @@
     }
 
     const loadNextMove = () => {
-    if (undoneMoveStack.length===0) return;
+        if (undoneMoveStack.length===0) return;
         const poppedMove = undoneMoveStack.pop();
-        const move: CustomMove = {
-            from: poppedMove?.from as string,
-            to: poppedMove?.to as string,
-            promotion: poppedMove?.promotion as 'q' | 'r' | 'n' | 'b' | undefined
-        }
-        chess.move(move);
-        playMoveSound();
+        if (!poppedMove) return;
+        const move = chess.move({
+            from: poppedMove.from,
+            to: poppedMove.to,
+            promotion: poppedMove.promotion
+        });
+        playMoveSound(move);
         updateUI();
     }
     
@@ -319,10 +311,8 @@
         loadGame(chessGame);
     }
 
-    const playMoveSound = () => {
+    const playMoveSound = (move: Move) => {
         if (!$settings.sfx) return;
-        const move: Move | undefined = getLastMove();
-        if (!move) return;
 
         // '+' is when a piece checks the opponents king
         else if (move.san.includes('+')) checkSFX.play();
