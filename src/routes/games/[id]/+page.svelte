@@ -422,7 +422,7 @@
         </footer>
     </div>
 
-        <TabGroup regionPanel="flex-1 flex flex-col overflow-hidden" class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-full card !bg-secondary-700 p-4 flex flex-col">
+        <TabGroup regionPanel="flex-1 flex flex-col overflow-hidden" class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))] card !bg-secondary-700 p-4 flex flex-col">
             <Tab bind:group={tabSet} name="tab1" value={0}>Moves</Tab>
             <Tab bind:group={tabSet} name="tab2" value={1}>Chat</Tab>
             <Tab bind:group={tabSet} name="tab3" value={2}>Settings</Tab>
