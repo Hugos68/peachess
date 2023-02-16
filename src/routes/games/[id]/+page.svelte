@@ -437,8 +437,8 @@
                             {#if i%2===0}
                                 <li class="w-full flex gap-2">
                                     <span class="flex-1 p-1">{i/2+1}</span>
-                                    <span class="flex-1 p-1 rounded-token {moveStack.concat(undoneMoveStack.slice().reverse()).length-1===i ? "bg-primary-500/50" : ""}">{move.san}</span>
-                                    <span class="flex-1 p-1 rounded-token {moveStack.concat(undoneMoveStack.slice().reverse()).length-1===i+1 ? "bg-primary-500/50" : ""}">
+                                    <span class="flex-1 p-1 rounded-token {moveStack.length-1===i ? "bg-primary-500/50" : ""}">{move.san}</span>
+                                    <span class="flex-1 p-1 rounded-token {moveStack.length-1===i+1 ? "bg-primary-500/50" : ""}">
                                         {#if moveStack.concat(undoneMoveStack.slice().reverse())[i+1]}
                                             {moveStack.concat(undoneMoveStack.slice().reverse())[i+1].san}
                                         {/if}
