@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Chess, SQUARES, type Move, type Square } from "chess.js";
+	import { BLACK, Chess, PAWN, SQUARES, WHITE, type Move, type Square } from "chess.js";
     import type { PageData } from "./$types";
     import { Chessground } from 'chessground';
 	import { onMount, onDestroy } from "svelte";
@@ -37,8 +37,14 @@
     const captureSFX = new Howl({
         src: '/sfx/capture.mp3'
     });
+    const castleSFX = new Howl({
+        src: '/sfx/castle.mp3'
+    });
     const checkSFX = new Howl({
         src: '/sfx/check.mp3'
+    });
+    const checkmateSFX = new Howl({
+        src: '/sfx/checkmate.mp3'
     });
     onMount(() => {
         chessBoard = Chessground(boardElement);
@@ -141,7 +147,7 @@
     }
 
     const getTurnColor = (chess: Chess) => {
-        return (chess.turn() === 'w') ? 'white' : 'black';
+        return (chess.turn() === WHITE) ? 'white' : 'black';
     }
 
     const getLastMoveHighlight = () => {
@@ -229,9 +235,9 @@
         const {type, color} = chess.get(orig);
         const rankNumber =  Number.parseInt(dest.charAt(1));
 
-        if (type!=='p') return false;
-        if (color==='w' && rankNumber!==8) return false;
-        if (color==='b' && rankNumber!==1) return false;
+        if (type!==PAWN) return false;
+        if (color===WHITE && rankNumber!==8) return false;
+        if (color===BLACK && rankNumber!==1) return false;
 
         return true;
     }
@@ -282,7 +288,7 @@
         const move: CustomMove = {
             from: poppedMove?.from as string,
             to: poppedMove?.to as string,
-            promotion: poppedMove?.promotion as 'q' | 'r' | 'n' | 'b' | undefined
+            promotion: poppedMove?.promotion as 'q' | 'r' | 'n' | BLACK | undefined
         }
         chess.move(move);
         playMoveSound()
@@ -296,9 +302,12 @@
 
     const playMoveSound = () => {
         if (!$settings.sfx) return;
-        const move = getLastMove();
-        if (move?.san.includes('+')) checkSFX.play();
-        else if (move?.san.includes('x'))captureSFX.play();
+        const move: Move | undefined = getLastMove();
+        if (!move) return;
+        else if (move.san.includes('#')) checkmateSFX.play();
+        else if (move.san.includes('+')) checkSFX.play();
+        else if (move.flags.includes('k') || move.flags.includes('q')) castleSFX.play();
+        else if (move.flags.includes('c')) captureSFX.play();
         else moveSFX.play();
     }
     
@@ -320,6 +329,7 @@
  /> 
 
  <div class="mx-auto flex flex-col xl:flex-row justify-center items-center gap-12">
+
     <div class="flex flex-col gap-4">
         <header class="flex justify-between">
             <div class="flex gap-2">
@@ -327,7 +337,7 @@
                     {#if chess.isGameOver()}
                         <p  class="p-2 rounded-token font-semibold text-center bg-secondary-700">
                         {#if chess.isCheckmate()}
-                            {chess.turn() === 'w' ? 'Black' : 'White'} won with checkmate
+                            {chess.turn() === WHITE ? 'Black' : 'White'} won with checkmate
                         {:else if chess.isStalemate()}
                             Stalemate
                         {:else if chess.isDraw()}
@@ -337,11 +347,11 @@
                     {:else}
                         <p
                         class="p-2 rounded-token font-semibold text-center"
-                        class:text-white={chess.turn()==='b'}
-                        class:text-black={chess.turn()==='w'}
-                        class:bg-white={chess.turn()==='w'} 
-                        class:bg-black={chess.turn()==='b'}>
-                        {chess.turn()==='w' ? 'White' : 'Black'}'s turn
+                        class:text-white={chess.turn()===BLACK}
+                        class:text-black={chess.turn()===WHITE}
+                        class:bg-white={chess.turn()===WHITE} 
+                        class:bg-black={chess.turn()===BLACK}>
+                        {chess.turn()===WHITE ? 'White' : 'Black'}'s turn
                         </p>
                     {/if}
                 {/if}
@@ -361,7 +371,6 @@
             <!-- BOARD -->
             <div class="flex justify-center items-center rounded-token w-full h-full" class:brightness-50={promotionMove!==null} bind:this={boardElement}>
                 <p class="!text-[2rem] animate-bounce">
-                    🍑
                     Loading board...
                 </p>
             </div>
@@ -369,11 +378,11 @@
             <!-- PROMOTION-MODAL -->
             {#key promotionMove}
             <!-- TODO SET LEFT VALUE TO (ABC -> 123) * 12.5% -->
-                <div in:fly={{y: 50, duration: 150}} class:hidden={!promotionMove} bind:this={promotionModal} class="absolute top-0 w-[12.5%] h-[50%] z-[50] variant-glass-secondary" style="left: {promotionModalOffsetPercentage}%;">
-                    <button class="btn w-full h-[25%] promo-queen-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('q')}></button>
-                    <button class="btn w-full h-[25%] promo-rook-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('r')}></button>
-                    <button class="btn w-full h-[25%] promo-knight-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('n')}></button>
-                    <button class="btn w-full h-[25%] promo-bischop-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('b')}></button>
+                <div in:fly={{y: 50, duration: 150}} class:hidden={!promotionMove} bind:this={promotionModal} class="absolute top-0 w-[12.5%] h-[50%] z-[50]" style="left: {promotionModalOffsetPercentage}%;">
+                    <button class="btn w-full variant-glass-secondary h-[25%] promo-queen-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('q')}></button>
+                    <button class="btn w-full variant-glass-secondary h-[25%] promo-rook-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('r')}></button>
+                    <button class="btn w-full variant-glass-secondary h-[25%] promo-knight-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('n')}></button>
+                    <button class="btn w-full variant-glass-secondary h-[25%] promo-bischop-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote(BLACK)}></button>
                 </div>
             {/key}
 
