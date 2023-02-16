@@ -75,8 +75,6 @@
         chessGame = newChessGame;
 
         chess.loadPgn(chessGame.pgn);
-
-        if (chess.isGameOver()) handleGameOver();
         
         updateUI();
     
@@ -244,18 +242,6 @@
     const cancelPromotion = () => {
         promotionMove = null;
         updateUI();
-    }
-
-    const handleGameOver = () => {
-        const alert: ModalSettings = {
-            type: 'alert',
-            title: 'Example Alert',
-            body: 'This is an example modal.',
-            // Optionally override buttont text
-         buttonTextCancel: 'Dismiss'
-        };
-        modalStore.clear();
-        modalStore.trigger(alert);
     }
 
     const loadFirstMove = () => {
@@ -435,7 +421,7 @@
         </footer>
     </div>
 
-        <TabGroup regionPanel="flex-1 flex flex-col overflow-hidden" class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))] card !bg-secondary-700 p-4 flex flex-col flex-1">
+        <TabGroup regionPanel="flex-1 flex flex-col overflow-hidden" class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))] card !bg-secondary-700 p-4 flex flex-col">
             <Tab bind:group={tabSet} name="moves" value={0}>Moves</Tab>
             <Tab bind:group={tabSet} name="chat" value={1}>Chat</Tab>
             <Tab bind:group={tabSet} name="settings" value={2}>Settings</Tab>
@@ -495,6 +481,7 @@
                         </label>
                     </div>
                 {:else if tabSet === 3}
+                    <p class="text-xl font-bold text-center">Click to copy</p>
                     <div class="flex flex-col gap-8">
                         <label use:clipboard={$page.url} on:click={() => triggerCopiedToast('Link')}>
                             Link:
