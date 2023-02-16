@@ -81,7 +81,10 @@
         
     const loadGame = (newChessGame: ChessGame) => {
         chessGame = newChessGame;
+
         chess.loadPgn(chessGame.pgn);
+
+        if (chess.isGameOver()) handleGameOver();
 
         totalMoveHistory = chess.history();
 
@@ -266,6 +269,10 @@
     const cancelPromote = () => {
         promotionMove = null;
         updateUI();
+    }
+
+    const handleGameOver = () => {
+        // TODO
     }
 
     const loadFirstMove = () => {
