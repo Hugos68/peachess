@@ -286,6 +286,7 @@
     }
 
     const scrollSelectedMoveIntoView = () => {
+        
         // Doing setTimeout without any time fixes the race condition between the elements loading and setting the scroll position
         setTimeout(() => {
             const li = document.getElementById('move'+(moveStack.length-1));
