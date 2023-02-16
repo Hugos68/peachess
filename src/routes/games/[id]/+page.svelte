@@ -85,7 +85,7 @@
     const updateUI = () => {
         chessGame = chessGame;
         chess = chess;
-        moveStack = moveStack;
+        moveStack = chess.history({verbose: true});
         undoneMoveStack = undoneMoveStack;
         chessBoard.set(getConfig(chess, chessGame));
         scrollSelectedMoveIntoView();
@@ -159,7 +159,7 @@
 	}
 
     const getLastMove = (): Move | undefined => {
-        return undoneMoveStack[undoneMoveStack.length-1];
+        return moveStack[moveStack.length-1];
     }
 
     const getValidDestinations = (chess: Chess) => {
