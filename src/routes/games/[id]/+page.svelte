@@ -13,13 +13,10 @@
     export let data: PageData;
 
     $: chessGame = data.chessGame;
-
-    let chess: Chess = new Chess();
-
-    let totalMoveHistory: string[] = [];
-    $: currentMoveHistory = chess.history();
-    let undoneMoveStack: Move[] = [];
-
+    $: chess = new Chess();
+    $: moveStack = chess.history({verbose: true}) as Move[];
+    $: undoneMoveStack = [] as Move[];
+    
     let chessBoard: any;
 
     const settings: Writable<Settings> = localStorageStore('settings',  {
@@ -64,40 +61,34 @@
         (payload) => {
             const updatedChessGame: ChessGame = payload.new as ChessGame
 
-            // Check if the pgn is different, if they aren't it means we've done this move (by playing it ourselves) and dont need the move sound effect
-            if (updatedChessGame.pgn!==chess.pgn()) {
-                const move = getLastMove();
-                if (move) playMoveSound(move);
-            } 
-
             loadGame(updatedChessGame);
-
-            if (chess.isGameOver()) {
-                handleGameOver();
-                return;
-            }
-
-            // Once game is reloaded play any premoves the player might have
-            chessBoard.playPremove();
         }
     )
     .subscribe();
         
     const loadGame = (newChessGame: ChessGame) => {
+
+        // Check if the pgn is different, if they aren't it means we've done this move (by playing it ourselves) and dont need the move sound effect
+        if (newChessGame.pgn!==chess.pgn()) {
+            const move = getLastMove();
+            if (move) playMoveSound(move);
+        } 
         chessGame = newChessGame;
 
         chess.loadPgn(chessGame.pgn);
 
-        totalMoveHistory = chess.history();
-
-        // Clear the undone move stack since the chess object was resassigned
-        undoneMoveStack = [];
+        if (chess.isGameOver()) handleGameOver();
+        
         updateUI();
+    
+        // Once game is reloaded play any premoves the player might have
+        chessBoard.playPremove();
     } 
 
     const updateUI = () => {
-        chess = chess;
         chessGame = chessGame;
+        chess = chess;
+        moveStack = moveStack;
         undoneMoveStack = undoneMoveStack;
         chessBoard.set(getConfig(chess, chessGame));
     }
@@ -182,9 +173,6 @@
 
     const getValidDestinations = (chess: Chess) => {
         const dests = new Map();
-
-        // // When the undoneMovestack
-        // if (undoneMoveStack.length!==0) return dests;
         SQUARES.forEach(s => {
             const ms = chess.moves({square: s, verbose: true});
             if (ms.length) dests.set(s, ms.map(m => m.to));
@@ -273,42 +261,36 @@
             title: 'Example Alert',
             body: 'This is an example modal.',
             // Optionally override buttont text
-                buttonTextCancel: 'Cancel'
+         buttonTextCancel: 'Dismiss'
         };
+        modalStore.clear();
         modalStore.trigger(alert);
-        
     }
 
     const loadFirstMove = () => {
-        if (!getLastMove()) return;
-        let undoneMove;
-        while ((undoneMove = chess.undo())!==null) undoneMoveStack.push(undoneMove);
+        let move;
+        while (move = chess.undo()) undoneMoveStack.push(move);
         updateUI();
     }
 
     const loadPreviousMove =() => {
         const move = chess.undo();
-        if (move===null) return;
+        if (!move) return;
         undoneMoveStack.push(move);
         updateUI();
     }
 
     const loadNextMove = () => {
-        if (undoneMoveStack.length===0) return;
-        const poppedMove = undoneMoveStack.pop();
-        if (!poppedMove) return;
-        const move = chess.move({
-            from: poppedMove.from,
-            to: poppedMove.to,
-            promotion: poppedMove.promotion
-        });
-        playMoveSound(move);
+        const move = undoneMoveStack.pop();
+        if (!move) return;
+        playMoveSound(chess.move(move));
         updateUI();
     }
     
     const loadLastMove = () => {
-        if (undoneMoveStack.length===0) return;
-        loadGame(chessGame);
+        let move;
+        while (move = undoneMoveStack.pop()) chess.move(move);
+        updateUI();
     }
 
     const playMoveSound = (move: Move) => {
@@ -406,15 +388,13 @@
         </div>
         <footer class="flex justify-between items-end">
             <div class="flex gap-1">
-                <button disabled={currentMoveHistory.length===0} on:click={loadFirstMove} class="btn btn-sm variant-filled-primary">
+                <button disabled={moveStack.length===0} on:click={loadFirstMove} class="btn btn-sm variant-filled-primary">
                     <svg class="w-8 h-8" viewBox="0 0 1920 1920">
-                        <g fill-rule="evenodd">
-                            <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
-                            <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
-                        </g>
+                        <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
+                        <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
                     </svg>
                 </button>
-                <button disabled={currentMoveHistory.length===0} on:click={loadPreviousMove} class="btn btn-sm variant-filled-primary">
+                <button disabled={moveStack.length===0} on:click={loadPreviousMove} class="btn btn-sm variant-filled-primary">
                     <svg class="w-8 h-8" viewBox="0 0 1920 1920">
                         <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
                     </svg>
@@ -426,10 +406,8 @@
                 </button>
                 <button disabled={undoneMoveStack.length===0} on:click={loadLastMove} class="btn btn-sm variant-filled-primary">
                     <svg class="w-8 h-8 rotate-180" viewBox="0 0 1920 1920">
-                        <g fill-rule="evenodd">
-                            <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
-                            <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
-                        </g>
+                        <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
+                        <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
                     </svg>
                 </button>
             </div>
@@ -457,14 +435,14 @@
                     </div>
           
                     <ul class="bg-red overflow-y-auto">
-                        {#each totalMoveHistory as move, i} 
+                        {#each moveStack.concat(undoneMoveStack.slice().reverse()) as move, i} 
                             {#if i%2===0}
                                 <li class="w-full flex gap-2">
                                     <span class="flex-1 p-1">{i/2+1}</span>
-                                    <span class="flex-1 p-1 rounded-token {0+currentMoveHistory.length-1===i ? "bg-primary-500/50" : ""}">{move}</span>
-                                    <span class="flex-1 p-1 rounded-token {0+currentMoveHistory.length-1===i+1 ? "bg-primary-500/50" : ""}">
-                                        {#if totalMoveHistory[i+1]}
-                                            {totalMoveHistory[i+1]}
+                                    <span class="flex-1 p-1 rounded-token {moveStack.concat(undoneMoveStack.slice().reverse()).length-1===i ? "bg-primary-500/50" : ""}">{move.san}</span>
+                                    <span class="flex-1 p-1 rounded-token {moveStack.concat(undoneMoveStack.slice().reverse()).length-1===i+1 ? "bg-primary-500/50" : ""}">
+                                        {#if moveStack.concat(undoneMoveStack.slice().reverse())[i+1]}
+                                            {moveStack.concat(undoneMoveStack.slice().reverse())[i+1].san}
                                         {/if}
                                     </span>
                                 </li>
