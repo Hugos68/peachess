@@ -5,7 +5,7 @@
 	import { onMount, onDestroy } from "svelte";
 	import { supabase } from "$lib/supabase";
 	import { page } from "$app/stores";
-	import { clipboard, localStorageStore, modalStore, SlideToggle, Tab, TabGroup, toastStore, type ModalSettings, type ToastSettings } from "@skeletonlabs/skeleton";
+	import { clipboard, localStorageStore, SlideToggle, Tab, TabGroup, toastStore, type ToastSettings } from "@skeletonlabs/skeleton";
     import type { Writable } from 'svelte/store';
     import { Howl } from 'howler';
 	import { fly } from "svelte/transition";
