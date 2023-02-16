@@ -5,7 +5,7 @@
 	import { onMount, onDestroy } from "svelte";
 	import { supabase } from "$lib/supabase";
 	import { page } from "$app/stores";
-	import { localStorageStore, modalStore, SlideToggle, Tab, TabGroup, type ModalSettings } from "@skeletonlabs/skeleton";
+	import { clipboard, localStorageStore, modalStore, SlideToggle, Tab, TabGroup, toastStore, type ModalSettings, type ToastSettings } from "@skeletonlabs/skeleton";
     import type { Writable } from 'svelte/store';
     import { Howl } from 'howler';
 	import { fly } from "svelte/transition";
@@ -247,7 +247,6 @@
     }
 
     const handleGameOver = () => {
-        gameOverSFX.play();
         const alert: ModalSettings = {
             type: 'alert',
             title: 'Example Alert',
@@ -286,11 +285,11 @@
     }
 
     const scrollSelectedMoveIntoView = () => {
-        
+
         // Doing setTimeout without any time fixes the race condition between the elements loading and setting the scroll position
         setTimeout(() => {
             const li = document.getElementById('move'+(moveStack.length-1));
-            if (li) li.scrollIntoView();
+            if (li) li.scrollIntoView({behavior: 'smooth', block: "center"});
         });
     }
 
@@ -308,7 +307,20 @@
 
         // 'n' is when a piece moves, 'b' is when a pawn moves 2 squares
         else if (move.flags.includes('n') || move.flags.includes('b')) moveSFX.play();
+
+        // '#' is when a piece checkmates the opponents king
+        if (move.san.includes('#')) gameOverSFX.play();
     }
+
+    
+	function triggerCopiedToast(type: 'Link' | 'FEN' | 'PGN') {
+        const t: ToastSettings = {
+            message: 'Successfully copied: '+type,
+            preset: 'success',
+            autohide: true
+        }
+        toastStore.trigger(t);
+	}
 
     onMount(() => {
         chessBoard = Chessground(boardElement);
@@ -330,7 +342,7 @@
     }} 
  /> 
 
- <div class="mx-auto flex flex-col xl:flex-row justify-center items-center gap-12">
+ <div class="mt-[5vh] mx-auto flex flex-col xl:flex-row justify-center items-center gap-12">
 
     <div class="flex flex-col gap-4">
         <header class="flex justify-between">
@@ -423,10 +435,11 @@
         </footer>
     </div>
 
-        <TabGroup regionPanel="flex-1 flex flex-col overflow-hidden" class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))] card !bg-secondary-700 p-4 flex flex-col">
-            <Tab bind:group={tabSet} name="tab1" value={0}>Moves</Tab>
-            <Tab bind:group={tabSet} name="tab2" value={1}>Chat</Tab>
-            <Tab bind:group={tabSet} name="tab3" value={2}>Settings</Tab>
+        <TabGroup regionPanel="flex-1 flex flex-col overflow-hidden" class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))] card !bg-secondary-700 p-4 flex flex-col flex-1">
+            <Tab bind:group={tabSet} name="moves" value={0}>Moves</Tab>
+            <Tab bind:group={tabSet} name="chat" value={1}>Chat</Tab>
+            <Tab bind:group={tabSet} name="settings" value={2}>Settings</Tab>
+            <Tab bind:group={tabSet} name="share" value={3}>Share</Tab>
     
             <svelte:fragment slot="panel">
                 {#if tabSet === 0}
@@ -481,6 +494,22 @@
                             <SlideToggle name="premove" bind:checked={$settings.premove} />
                         </label>
                     </div>
+                {:else if tabSet === 3}
+                    <div class="flex flex-col gap-8">
+                        <label use:clipboard={$page.url} on:click={() => triggerCopiedToast('Link')}>
+                            Link:
+                            <input class="input" type="text" readonly value={$page.url} />
+                        </label>
+                        <label use:clipboard={chess.fen()} on:click={() => triggerCopiedToast('FEN')}>
+                            FEN:
+                            <input class="input" type="text" readonly value={chess.fen()} />
+                        </label>
+                        <label use:clipboard={chess.pgn()} on:click={() => triggerCopiedToast('PGN')}>
+                            PGN:
+                            <textarea class="input resize-none" rows=10 readonly value={chess.pgn()} />
+                        </label>
+                    </div>
+ 
                 {/if}
             </svelte:fragment>
         </TabGroup>
