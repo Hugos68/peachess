@@ -5,7 +5,7 @@
 	import { onMount, onDestroy } from "svelte";
 	import { supabase } from "$lib/supabase";
 	import { page } from "$app/stores";
-	import { localStorageStore, SlideToggle, Tab, TabGroup } from "@skeletonlabs/skeleton";
+	import { localStorageStore, modalStore, SlideToggle, Tab, TabGroup, type ModalSettings } from "@skeletonlabs/skeleton";
     import type { Writable } from 'svelte/store';
     import { Howl } from 'howler';
 	import { fly } from "svelte/transition";
@@ -43,8 +43,8 @@
     const checkSFX = new Howl({
         src: '/sfx/check.mp3'
     });
-    const checkmateSFX = new Howl({
-        src: '/sfx/checkmate.mp3'
+    const gameOverSFX = new Howl({
+        src: '/sfx/gameover.mp3'
     });
     onMount(() => {
         chessBoard = Chessground(boardElement);
@@ -66,12 +66,17 @@
 
             const lastMovebefore = getLastMove();
 
-            loadGame(updatedChessGame);  
+            loadGame(updatedChessGame);
             
             const lastMoveafter = getLastMove();
 
             // Check if moves before and after game update are different, if they aren't it means we've done this move (by playing it ourselves) and dont need the move sound effect
             if (lastMovebefore?.from !== lastMoveafter?.from || lastMovebefore?.to !== lastMoveafter?.to) playMoveSound();
+
+            if (chess.isGameOver()) {
+                handleGameOver();
+                return;
+            }
 
             // Once game is reloaded play any premoves the player might have
             chessBoard.playPremove();
@@ -83,8 +88,6 @@
         chessGame = newChessGame;
 
         chess.loadPgn(chessGame.pgn);
-
-        if (chess.isGameOver()) handleGameOver();
 
         totalMoveHistory = chess.history();
 
@@ -272,7 +275,16 @@
     }
 
     const handleGameOver = () => {
-        // TODO
+        gameOverSFX.play();
+        const alert: ModalSettings = {
+            type: 'alert',
+            title: 'Example Alert',
+            body: 'This is an example modal.',
+            // Optionally override buttont text
+                buttonTextCancel: 'Cancel'
+        };
+        modalStore.trigger(alert);
+        
     }
 
     const loadFirstMove = () => {
@@ -298,7 +310,7 @@
             promotion: poppedMove?.promotion as 'q' | 'r' | 'n' | BLACK | undefined
         }
         chess.move(move);
-        playMoveSound()
+        playMoveSound();
         updateUI();
     }
     
@@ -311,11 +323,10 @@
         if (!$settings.sfx) return;
         const move: Move | undefined = getLastMove();
         if (!move) return;
-        else if (move.san.includes('#')) checkmateSFX.play();
         else if (move.san.includes('+')) checkSFX.play();
         else if (move.flags.includes('k') || move.flags.includes('q')) castleSFX.play();
         else if (move.flags.includes('c')) captureSFX.play();
-        else moveSFX.play();
+        else if (move.flags.includes('n')) moveSFX.play();
     }
     
     onDestroy(() => {
