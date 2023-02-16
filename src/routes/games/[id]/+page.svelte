@@ -450,9 +450,6 @@
                             {/if}
                         {/each}
                     </ul>
-              
-            
- 
                 {:else if tabSet === 1}
                         <p>Coming soon</p>
                 {:else if tabSet === 2}
@@ -496,9 +493,7 @@
                             <textarea class="input resize-none" rows=10 readonly value={chess.pgn()} />
                         </label>
                     </div>
- 
                 {/if}
             </svelte:fragment>
         </TabGroup>
-  
  </div>
