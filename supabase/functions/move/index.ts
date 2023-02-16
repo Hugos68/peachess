@@ -4,7 +4,7 @@
 
 import { serve } from 'https://deno.land/std@0.131.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { Chess } from "https://esm.sh/chess.js@1.0.0-beta.3";
+import { Chess, BLACK, WHITE } from "https://esm.sh/chess.js@1.0.0-beta.3";
 
 export const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -78,7 +78,7 @@ serve(async (req) => {
             });
         }
 
-        const playingColor = isPlayingWhite ? 'w' : 'b';
+        const playingColor = isPlayingWhite ? WHITE : BLACK;
    
         if (chess.turn() !== playingColor) {
             return new Response(JSON.stringify({ error: 'Cannot move pieces when it is not your turn' }), {
@@ -92,7 +92,7 @@ serve(async (req) => {
 
         // Set the result header when the game is over
         if (chess.isGameOver()) {
-            if (chess.isCheckmate()) chess.turn() === 'w' ? chess.header('Result', '1-0') : chess.header('Result', '0-1');
+            if (chess.isCheckmate()) chess.turn() === BLACK ? chess.header('Result', '1-0') : chess.header('Result', '0-1');
             else chess.header('Result', '1/2-1/2');
         }
 
