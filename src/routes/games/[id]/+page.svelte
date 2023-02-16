@@ -152,9 +152,9 @@
 
     const getViewOnly = () => {
 		if (undoneMoveStack.length!==0) return true;
-        const session = $page.data.session;
-        if (!session) return true;
-        if (session.user.id !== chessGame.player_id_white && session.user.id !== chessGame.player_id_black) return true;
+        if (!$page.data.session) return true;
+        if ($page.data.session.user.id !== chessGame.player_id_white && $page.data.session.user.id !== chessGame.player_id_black) return true;
+        if (chess.isGameOver()) return true;
         return false;
 	}
 
