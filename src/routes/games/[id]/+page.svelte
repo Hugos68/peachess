@@ -302,12 +302,12 @@
     }
 
     const loadNextMove = () => {
-        if (undoneMoveStack.length===0) return;
+    if (undoneMoveStack.length===0) return;
         const poppedMove = undoneMoveStack.pop();
         const move: CustomMove = {
             from: poppedMove?.from as string,
             to: poppedMove?.to as string,
-            promotion: poppedMove?.promotion as 'q' | 'r' | 'n' | BLACK | undefined
+            promotion: poppedMove?.promotion as 'q' | 'r' | 'n' | 'b' | undefined
         }
         chess.move(move);
         playMoveSound();
@@ -323,10 +323,18 @@
         if (!$settings.sfx) return;
         const move: Move | undefined = getLastMove();
         if (!move) return;
+
+        // '+' is when a piece checks the opponents king
         else if (move.san.includes('+')) checkSFX.play();
+
+        // 'k' is when castling kingside, 'q' is when castling queenside
         else if (move.flags.includes('k') || move.flags.includes('q')) castleSFX.play();
+
+        // 'c' is when a piece captures
         else if (move.flags.includes('c')) captureSFX.play();
-        else if (move.flags.includes('n')) moveSFX.play();
+
+        // 'n' is when a piece moves, 'b' is when a pawn moves 2 squares
+        else if (move.flags.includes('n') || move.flags.includes('b')) moveSFX.play();
     }
     
     onDestroy(() => {

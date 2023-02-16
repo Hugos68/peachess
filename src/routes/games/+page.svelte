@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { goto } from "$app/navigation";
+	import { goto, invalidate } from "$app/navigation";
 	import { page } from "$app/stores";
 	import { supabase } from "$lib/supabase";
 	import { toastStore, type ToastSettings } from "@skeletonlabs/skeleton";
@@ -51,6 +51,10 @@
         }
     }
 
+    const refreshGames = () => {
+        invalidate('app:games');
+    }
+
     const getPlayerNameByGameAndColor = (id: number, color: 'White' | 'Black') => {
         const chess: Chess | undefined = chessGameChessMap.get(id)
         return chess?.header()[color];
@@ -60,8 +64,11 @@
 
 <div class="mt-[5vh] flex flex-col gap-8">
     <h1 >Games</h1>
-    <button class="ml-auto w-min btn btn-sm variant-filled-primary" on:click={createGame}>+ New Game</button>
-    
+    <div class="ml-auto w-min flex gap-4">
+        <button class=" btn btn-sm variant-filled-primary" on:click={createGame}>+ New Game</button>
+        <button class="btn btn-sm variant-filled-tertiary" on:click={refreshGames}>Refresh</button>
+    </div>
+
     <div class="mx-auto flex flex-wrap gap-8">
         {#each data.chessGames as chessGame}
             <a class="card card-hover w-full h-full max-w-[30rem] p-2" href="/games/{chessGame.id}">
