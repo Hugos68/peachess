@@ -184,9 +184,8 @@
     const moveCallback = async (from: Square, to: Square) => {        
 
         // If there is a promotion set the promotionMove and return so that the move doesn't get played yet (in case of a promotion cancel)
-        const promotion = checkIfPromotion(from, to);
+        const promotion = isMovePromotion(from, to);
         if (promotion) { 
-            promotionModalOffsetPercentage = getPromotionModalOffsetPercentage(to);
             promotionMove = { from, to };
             return;
         }
@@ -212,7 +211,8 @@
                 gameId: chessGame.id,
                 move: {
                     from, 
-                    to
+                    to,
+                    promotion
                 }
             }
         });
@@ -221,7 +221,7 @@
         if (error) loadGame(chessGame);
     }
 
-    const checkIfPromotion = (from: Square, to: Square): boolean => {
+    const isMovePromotion = (from: Square, to: Square): boolean => {
         const {type, color} = chess.get(from);
         const rankNumber =  Number.parseInt(to.charAt(1));
 
@@ -229,10 +229,10 @@
         if (color===WHITE && rankNumber!==8) return false;
         if (color===BLACK && rankNumber!==1) return false;
 
+        // Set the modal offset the correct amount so that the modal appears in the right spot
+        promotionModal.style.left = getPromotionModalOffsetPercentage(to) + "%";
         return true;
     }
-
-    let promotionModalOffsetPercentage: number;
 
     const getPromotionModalOffsetPercentage = (toSquare: Square)=> {
         const letter = toSquare.charAt(0) || 'a';
@@ -243,13 +243,13 @@
         return getOrientation(chessGame) === 'white' ? percentage : 87.5-percentage;
     }
 
-    const promote = async (promotion: 'q' | 'r' | 'n' | 'b') => {
+    const doPromotion = async (promotion: 'q' | 'r' | 'n' | 'b') => {
         if (!promotionMove) return;
         doMove(promotionMove.from as Square, promotionMove.to as Square, promotion);
         promotionMove = null;
     }
     
-    const cancelPromote = () => {
+    const cancelPromotion = () => {
         promotionMove = null;
         updateUI();
     }
@@ -318,7 +318,7 @@
 
 <svelte:window 
     on:mousedown={(event) => {
-        if (!promotionModal.contains(event.target) && promotionMove!==null) cancelPromote();
+        if (!promotionModal.contains(event.target) && promotionMove!==null) cancelPromotion();
     }}
     on:keydown={(event) => {
         if (event.key==='ArrowLeft') loadPreviousMove();
@@ -374,17 +374,15 @@
             </div>
     
             <!-- PROMOTION-MODAL -->
-            {#key promotionMove}
-            <!-- TODO SET LEFT VALUE TO (ABC -> 123) * 12.5% -->
-                <div in:fly={{y: 50, duration: 150}} class:hidden={!promotionMove} bind:this={promotionModal} class="absolute top-0 w-[12.5%] h-[50%] z-[50]" style="left: {promotionModalOffsetPercentage}%;">
-                    <button class="btn w-full variant-glass-secondary h-[25%] promo-queen-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('q')}></button>
-                    <button class="btn w-full variant-glass-secondary h-[25%] promo-rook-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('r')}></button>
-                    <button class="btn w-full variant-glass-secondary h-[25%] promo-knight-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote('n')}></button>
-                    <button class="btn w-full variant-glass-secondary h-[25%] promo-bischop-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await promote(BLACK)}></button>
-                </div>
-            {/key}
-
-            
+            <div in:fly={{y: 50, duration: 150}} bind:this={promotionModal} class="absolute top-0 w-[12.5%] h-[50%] z-[50]">
+                {#if promotionMove}
+                    <button class="btn w-full variant-glass-secondary h-[25%] promo-queen-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await doPromotion('q')}></button>
+                    <button class="btn w-full variant-glass-secondary h-[25%] promo-rook-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await doPromotion('r')}></button>
+                    <button class="btn w-full variant-glass-secondary h-[25%] promo-knight-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await doPromotion('n')}></button>
+                    <button class="btn w-full variant-glass-secondary h-[25%] promo-bischop-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await doPromotion(BLACK)}></button>
+                {/if}
+            </div>
+    
         </div>
         <footer class="flex justify-between items-end">
             <div class="flex gap-1">
