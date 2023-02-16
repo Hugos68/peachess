@@ -370,7 +370,7 @@
                     {/if}
                 {/if}
             </div>
-            <p class="font-semibold !text-lg">
+            <p class="font-bold !text-xl">
                 {#if getOrientation(chessGame)==='white'}
                     {chess.header().Black}
                 {:else} 
@@ -425,7 +425,7 @@
                     </svg>
                 </button>
             </div>
-            <p class="font-semibold !text-lg">
+            <p class="font-bold !text-xl">
             {#if getOrientation(chessGame)==='black'}
                 {chess.header().Black}
             {:else} 
