@@ -16,7 +16,10 @@
     $: chess = new Chess();
     $: moveStack = chess.history({verbose: true}) as Move[];
     $: undoneMoveStack = [] as Move[];
-    
+
+    let tabSet: number = 0;
+    let promotionMove: CustomMove | null = null;
+
     let chessBoard: any;
 
     const settings: Writable<Settings> = localStorageStore('settings',  {
@@ -42,10 +45,6 @@
     });
     const gameOverSFX = new Howl({
         src: '/sfx/gameover.mp3'
-    });
-    onMount(() => {
-        chessBoard = Chessground(boardElement);
-        loadGame(data.chessGame);
     });
 
     const channel = supabase
@@ -91,6 +90,7 @@
         moveStack = moveStack;
         undoneMoveStack = undoneMoveStack;
         chessBoard.set(getConfig(chess, chessGame));
+        scrollSelectedMoveIntoView();
     }
     
     const getConfig = (chess: Chess, chessGame: ChessGame) => {
@@ -161,14 +161,7 @@
 	}
 
     const getLastMove = (): Move | undefined => {
-        const undoneMove = chess.undo();
-        if (undoneMove===null) return;
-        chess.move({
-            from: undoneMove.from,
-            to: undoneMove.to,
-            promotion: undoneMove.promotion
-        });
-        return undoneMove;
+        return undoneMoveStack[undoneMoveStack.length-1];
     }
 
     const getValidDestinations = (chess: Chess) => {
@@ -180,7 +173,6 @@
         return dests;
     }
 
-    let promotionMove: CustomMove | null = null;
     const moveCallback = async (from: Square, to: Square) => {        
 
         // If there is a promotion set the promotionMove and return so that the move doesn't get played yet (in case of a promotion cancel)
@@ -293,6 +285,14 @@
         updateUI();
     }
 
+    const scrollSelectedMoveIntoView = () => {
+        // Doing setTimeout without any time fixes the race condition between the elements loading and setting the scroll position
+        setTimeout(() => {
+            const li = document.getElementById('move'+(moveStack.length-1));
+            if (li) li.scrollIntoView();
+        });
+    }
+
     const playMoveSound = (move: Move) => {
         if (!$settings.sfx) return;
 
@@ -308,12 +308,15 @@
         // 'n' is when a piece moves, 'b' is when a pawn moves 2 squares
         else if (move.flags.includes('n') || move.flags.includes('b')) moveSFX.play();
     }
+
+    onMount(() => {
+        chessBoard = Chessground(boardElement);
+        loadGame(data.chessGame);
+    });
     
     onDestroy(() => {
         channel.unsubscribe();
     });
-
-    let tabSet: number = 0;
 </script>
 
 <svelte:window 
@@ -419,7 +422,7 @@
         </footer>
     </div>
 
-        <TabGroup class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))] card !bg-secondary-700 p-4 overflow-hidden">
+        <TabGroup regionPanel="flex-1 flex flex-col overflow-hidden" class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-full card !bg-secondary-700 p-4 flex flex-col">
             <Tab bind:group={tabSet} name="tab1" value={0}>Moves</Tab>
             <Tab bind:group={tabSet} name="tab2" value={1}>Chat</Tab>
             <Tab bind:group={tabSet} name="tab3" value={2}>Settings</Tab>
@@ -431,11 +434,11 @@
                         <span class="flex-1 p-1"><strong>White</strong></span>
                         <span class="flex-1 p-1"><strong>Black</strong></span>
                     </div>
-          
-                    <ul class="bg-red overflow-y-auto">
+             
+                    <ul id="moveList" class="overflow-scroll flex-1">
                         {#each moveStack.concat(undoneMoveStack.slice().reverse()) as move, i} 
                             {#if i%2===0}
-                                <li class="w-full flex gap-2">
+                                <li id="move{i}" class="w-full flex gap-2">
                                     <span class="flex-1 p-1">{i/2+1}</span>
                                     <span class="flex-1 p-1 rounded-token {moveStack.length-1===i ? "bg-primary-500/50" : ""}">{move.san}</span>
                                     <span class="flex-1 p-1 rounded-token {moveStack.length-1===i+1 ? "bg-primary-500/50" : ""}">
@@ -447,7 +450,9 @@
                             {/if}
                         {/each}
                     </ul>
-               
+              
+            
+ 
                 {:else if tabSet === 1}
                         <p>Coming soon</p>
                 {:else if tabSet === 2}
