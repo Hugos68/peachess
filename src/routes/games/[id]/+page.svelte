@@ -16,6 +16,7 @@
     $: moveStack = chess.history({verbose: true}) as Move[];
     $: undoneMoveStack = [] as Move[];
     $: if (chessBoard) {
+        undoneMoveStack = undoneMoveStack;
         chessBoard.set(getConfig(chess, data.chessGame));
         scrollSelectedMoveIntoView();
     }
@@ -70,6 +71,7 @@
     const loadGame = (newChessGame: ChessGame) => {
         chess.loadPgn(newChessGame.pgn);
         chess = chess;
+        undoneMoveStack = [] as Move[];
 
         // Once game is reloaded play any premoves the player might have
         chessBoard.playPremove();
