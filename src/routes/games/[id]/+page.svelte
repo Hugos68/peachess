@@ -12,22 +12,19 @@
 
     export let data: PageData;
 
-    $: chessGame = data.chessGame;
     $: chess = new Chess();
     $: moveStack = chess.history({verbose: true}) as Move[];
     $: undoneMoveStack = [] as Move[];
     $: if (chessBoard) {
-        chessGame = chessGame;
-        moveStack = chess.history({verbose: true});
-        undoneMoveStack = undoneMoveStack;
-        chessBoard.set(getConfig(chess, chessGame));
+        chessBoard.set(getConfig(chess, data.chessGame));
         scrollSelectedMoveIntoView();
     }
 
-    let tabSet: number = 0;
-    let promotionMove: CustomMove | null = null;
-
+    let tabSet: number = 0
     let chessBoard: any;
+    let boardElement: HTMLElement;
+    let promotionModal: HTMLElement;
+    let promotionMove: CustomMove | null = null;
 
     const settings: Writable<Settings> = localStorageStore('settings',  {
         animate: true,
@@ -36,8 +33,6 @@
         drag: true
     });
 
-    let boardElement: HTMLElement;
-    let promotionModal: HTMLElement;
     const moveSFX = new Howl({
         src: '/sfx/move.mp3'
     });
@@ -73,33 +68,20 @@
     .subscribe();
         
     const loadGame = (newChessGame: ChessGame) => {
-
-        // Check if the pgn is different, if they aren't it means we've done this move (by playing it ourselves) and dont need the move sound effect
-        if (newChessGame.pgn!==chess.pgn()) {
-            const move = getLastMove();
-            if (move) playMoveSound(move);
-        } 
-        chessGame = newChessGame;
-
-        chess.loadPgn(chessGame.pgn);
-        
+        chess.loadPgn(newChessGame.pgn);
         chess = chess;
-    
+
         // Once game is reloaded play any premoves the player might have
         chessBoard.playPremove();
     } 
 
-    const updateUI = () => {
-
-    }
-    
     const getConfig = (chess: Chess, chessGame: ChessGame) => {
         return {
             fen: chess.fen(),
             orientation: getOrientation(chessGame),
             turnColor: getTurnColor(chess), 
             lastMove: getLastMoveHighlight(),
-            viewOnly: getViewOnly(),
+            viewOnly: getViewOnly(chessGame),
             check: chess.inCheck(),
             highlight: {
                 lastMove: true,  
@@ -152,7 +134,7 @@
         return [move.from, move.to];
     }
 
-    const getViewOnly = () => {
+    const getViewOnly = (chessGame: ChessGame) => {
 		if (undoneMoveStack.length!==0) return true;
         if (!$page.data.session) return true;
         if ($page.data.session.user.id !== chessGame.player_id_white && $page.data.session.user.id !== chessGame.player_id_black) return true;
@@ -198,9 +180,9 @@
         }
         
         // Execute the move to the database
-        const {error, data} = await supabase.functions.invoke('move', {
+        const {error} = await supabase.functions.invoke('move', {
             body : {
-                gameId: chessGame.id,
+                gameId: data.chessGame.id,
                 move: {
                     from, 
                     to,
@@ -210,7 +192,7 @@
         });
 
         // Reload to last known stable state if anything goes wrong
-        if (error) loadGame(chessGame);
+        if (error) loadGame(data.chessGame);
     }
 
     const isMovePromotion = (from: Square, to: Square): boolean => {
@@ -232,7 +214,7 @@
         const percentage = (number-1) * 12.5;
 
         // We check color here to deal with the board orientation
-        return getOrientation(chessGame) === 'white' ? percentage : 87.5-percentage;
+        return getOrientation(data.chessGame) === 'white' ? percentage : 87.5-percentage;
     }
 
     const doPromotion = async (promotion: 'q' | 'r' | 'n' | 'b') => {
@@ -359,7 +341,7 @@
        
             </div>
             <p class="font-bold !text-xl">
-                {#if getOrientation(chessGame)==='white'}
+                {#if getOrientation(data.chessGame)==='white'}
                     {chess.header().Black}
                 {:else} 
                     {chess.header().White}
@@ -380,10 +362,10 @@
             <!-- PROMOTION-MODAL -->
             <div in:fly={{y: 50, duration: 150}} bind:this={promotionModal} class="absolute top-0 w-[12.5%] h-[50%] z-[50]">
                 {#if promotionMove}
-                    <button class="btn w-full variant-glass-secondary h-[25%] promo-queen-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await doPromotion('q')}></button>
-                    <button class="btn w-full variant-glass-secondary h-[25%] promo-rook-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await doPromotion('r')}></button>
-                    <button class="btn w-full variant-glass-secondary h-[25%] promo-knight-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await doPromotion('n')}></button>
-                    <button class="btn w-full variant-glass-secondary h-[25%] promo-bischop-{getPlayingColor(chessGame) || 'white'}" on:click={async () => await doPromotion(BLACK)}></button>
+                    <button class="btn w-full variant-glass-secondary h-[25%] promo-queen-{getPlayingColor(data.chessGame) || 'white'}" on:click={async () => await doPromotion('q')}></button>
+                    <button class="btn w-full variant-glass-secondary h-[25%] promo-rook-{getPlayingColor(data.chessGame) || 'white'}" on:click={async () => await doPromotion('r')}></button>
+                    <button class="btn w-full variant-glass-secondary h-[25%] promo-knight-{getPlayingColor(data.chessGame) || 'white'}" on:click={async () => await doPromotion('n')}></button>
+                    <button class="btn w-full variant-glass-secondary h-[25%] promo-bischop-{getPlayingColor(data.chessGame) || 'white'}" on:click={async () => await doPromotion(BLACK)}></button>
                 {/if}
             </div>
     
@@ -414,7 +396,7 @@
                 </button>
             </div>
             <p class="font-bold !text-xl">
-            {#if getOrientation(chessGame)==='black'}
+            {#if getOrientation(data.chessGame)==='black'}
                 {chess.header().Black}
             {:else} 
                 {chess.header().White}
