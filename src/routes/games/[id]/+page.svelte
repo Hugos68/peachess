@@ -16,6 +16,13 @@
     $: chess = new Chess();
     $: moveStack = chess.history({verbose: true}) as Move[];
     $: undoneMoveStack = [] as Move[];
+    $: if (chessBoard) {
+        chessGame = chessGame;
+        moveStack = chess.history({verbose: true});
+        undoneMoveStack = undoneMoveStack;
+        chessBoard.set(getConfig(chess, chessGame));
+        scrollSelectedMoveIntoView();
+    }
 
     let tabSet: number = 0;
     let promotionMove: CustomMove | null = null;
@@ -76,19 +83,14 @@
 
         chess.loadPgn(chessGame.pgn);
         
-        updateUI();
+        chess = chess;
     
         // Once game is reloaded play any premoves the player might have
         chessBoard.playPremove();
     } 
 
     const updateUI = () => {
-        chessGame = chessGame;
-        chess = chess;
-        moveStack = chess.history({verbose: true});
-        undoneMoveStack = undoneMoveStack;
-        chessBoard.set(getConfig(chess, chessGame));
-        scrollSelectedMoveIntoView();
+
     }
     
     const getConfig = (chess: Chess, chessGame: ChessGame) => {
@@ -189,7 +191,7 @@
             const move = chess.move({from, to, promotion});
             playMoveSound(move);
             
-            updateUI();
+            chess = chess;
         } catch(error) {
             console.error(error);
             return;
@@ -241,33 +243,33 @@
     
     const cancelPromotion = () => {
         promotionMove = null;
-        updateUI();
+        chess = chess;
     }
 
     const loadFirstMove = () => {
         let move;
         while (move = chess.undo()) undoneMoveStack.push(move);
-        updateUI();
+        chess = chess;
     }
 
     const loadPreviousMove =() => {
         const move = chess.undo();
         if (!move) return;
         undoneMoveStack.push(move);
-        updateUI();
+        chess = chess;
     }
 
     const loadNextMove = () => {
         const move = undoneMoveStack.pop();
         if (!move) return;
         playMoveSound(chess.move(move));
-        updateUI();
+        chess = chess;
     }
     
     const loadLastMove = () => {
         let move;
         while (move = undoneMoveStack.pop()) chess.move(move);
-        updateUI();
+        chess = chess;
     }
 
     const scrollSelectedMoveIntoView = () => {
@@ -333,28 +335,28 @@
     <div class="flex flex-col gap-4">
         <header class="flex justify-between">
             <div class="flex gap-2">
-                {#if chess}
-                    {#if chess.isGameOver()}
-                        <p  class="p-2 rounded-token font-semibold text-center bg-secondary-700">
-                        {#if chess.isCheckmate()}
-                            {chess.turn() === WHITE ? 'Black' : 'White'} won with checkmate
-                        {:else if chess.isStalemate()}
-                            Stalemate
-                        {:else if chess.isDraw()}
-                            Draw    
-                        {/if}
-                        </p>
-                    {:else}
-                        <p
-                        class="p-2 rounded-token font-semibold text-center"
-                        class:text-white={chess.turn()===BLACK}
-                        class:text-black={chess.turn()===WHITE}
-                        class:bg-white={chess.turn()===WHITE} 
-                        class:bg-black={chess.turn()===BLACK}>
-                        {chess.turn()===WHITE ? 'White' : 'Black'}'s turn
-                        </p>
+    
+            {#if chess.isGameOver()}
+                <p  class="p-2 rounded-token font-semibold text-center bg-secondary-700">
+                    {#if chess.isCheckmate()}
+                        {chess.turn() === WHITE ? 'Black' : 'White'} won with checkmate
+                    {:else if chess.isStalemate()}
+                        Stalemate
+                    {:else if chess.isDraw()}
+                        Draw    
                     {/if}
-                {/if}
+                </p>
+            {:else}
+                <p
+                class="p-2 rounded-token font-semibold text-center"
+                class:text-white={chess.turn()===BLACK}
+                class:text-black={chess.turn()===WHITE}
+                class:bg-white={chess.turn()===WHITE} 
+                class:bg-black={chess.turn()===BLACK}>
+                {chess.turn()===WHITE ? 'White' : 'Black'}'s turn
+                </p>
+            {/if}
+       
             </div>
             <p class="font-bold !text-xl">
                 {#if getOrientation(chessGame)==='white'}
@@ -458,7 +460,7 @@
     
                             // If premove got turned off, cancel current premove if present
                             if (!$settings.premove) chessBoard.cancelPremove();
-                            updateUI()
+                             chess = chess
                         }, 25)}>
                         <label class="flex items-center gap-2 justify-between" for="animate">
                             Animate
