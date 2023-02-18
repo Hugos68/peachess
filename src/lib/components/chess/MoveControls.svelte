@@ -8,7 +8,7 @@
 
 <div class="flex gap-1">
             
-    <button disabled={$chessStateStore.moveStack.length===0} on:click={chessStateStore.loadFirstmove} class="btn btn-sm variant-filled-primary">
+    <button disabled={$chessStateStore.moveStack.length===0} on:click={chessStateStore.loadFirstMove} class="btn btn-sm variant-filled-primary">
         <svg class="w-8 h-8" viewBox="0 0 1920 1920">
             <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
             <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>

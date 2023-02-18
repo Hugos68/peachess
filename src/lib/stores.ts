@@ -64,7 +64,7 @@ const playMoveSound = (move: Move): void => {
 
 export interface ChessStateStore extends Writable<ChessState> {
     loadGame: (chessGame: ChessGame) => void
-    loadFirstmove: () => void
+    loadFirstMove: () => void
     loadPreviousMove: () => void
     loadNextMove: () => void
     loadLastMove: () => void
