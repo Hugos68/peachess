@@ -159,7 +159,7 @@
     on:mousedown={(event) => {
         if (!promotionModal.contains(event.target) && promotionMove!==null) cancelPromotion();
     }}
- /> 
+/> 
 
 <!-- BOARD-WRAPPER -->
 <div class="relative h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
