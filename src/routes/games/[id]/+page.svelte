@@ -28,6 +28,41 @@
         drag: true
     });
 
+    const moveSFX = new Howl({
+        src: '/sfx/move.mp3'
+    });
+    const captureSFX = new Howl({
+        src: '/sfx/capture.mp3'
+    });
+    const castleSFX = new Howl({
+        src: '/sfx/castle.mp3'
+    });
+    const checkSFX = new Howl({
+        src: '/sfx/check.mp3'
+    });
+    const gameOverSFX = new Howl({
+        src: '/sfx/gameover.mp3'
+    });
+
+    const playMoveSound = (move: Move) => {
+        if (!$settings.sfx) return;
+
+        // '+' is when a piece checks the opponents king
+        else if (move.san.includes('+')) checkSFX.play();
+
+        // 'k' is when castling kingside, 'q' is when castling queenside
+        else if (move.flags.includes('k') || move.flags.includes('q')) castleSFX.play();
+
+        // 'c' is when a piece captures
+        else if (move.flags.includes('c')) captureSFX.play();
+
+        // 'n' is when a piece moves, 'b' is when a pawn moves 2 squares
+        else if (move.flags.includes('n') || move.flags.includes('b')) moveSFX.play();
+
+        // '#' is when a piece checkmates the opponents king
+        if (move.san.includes('#')) gameOverSFX.play();
+    }
+
     const channel = supabase
     .channel('table-db-changes')
     .on(
@@ -139,9 +174,7 @@
     const doMove = async (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b') => {
         
         chessStore.move(from, to, promotion);
-        const move = chessStore.getPreviousMove();
-        if (move) playMoveSound(move);
-       
+
         // Execute the move to the database
         const {error} = await supabase.functions.invoke('move', {
             body : {
@@ -189,51 +222,6 @@
     const cancelPromotion = () => {
         promotionMove = null;
     }
-
-    const moveSFX = new Howl({
-    src: '/sfx/move.mp3'
-    });
-    const captureSFX = new Howl({
-        src: '/sfx/capture.mp3'
-    });
-    const castleSFX = new Howl({
-        src: '/sfx/castle.mp3'
-    });
-    const checkSFX = new Howl({
-        src: '/sfx/check.mp3'
-    });
-    const gameOverSFX = new Howl({
-        src: '/sfx/gameover.mp3'
-    });
-
-    const playMoveSound = (move: Move) => {
-        if (!$settings.sfx) return;
-        
-        // '+' is when a piece checks the opponents king
-        if (move.san.includes('+')) checkSFX.play();
-
-        // 'k' is when castling kingside, 'q' is when castling queenside
-        else if (move.flags.includes('k') || move.flags.includes('q')) castleSFX.play();
-
-        // 'c' is when a piece captures
-        else if (move.flags.includes('c')) captureSFX.play();
-
-        // 'n' is when a piece moves, 'b' is when a pawn moves 2 squares
-        else if (move.flags.includes('n') || move.flags.includes('b')) moveSFX.play();
-
-        // '#' is when a piece checkmates the opponents king
-        if (move.san.includes('#')) gameOverSFX.play();
-    }
-
-
-    const scrollSelectedMoveIntoView = () => {
-
-        // // Doing setTimeout without any time fixes the race condition between the elements loading and setting the scroll position
-        // setTimeout(() => {
-        //     const li = document.getElementById('move'+(moveStack.length-1));
-        //     if (li) li.scrollIntoView({behavior: 'smooth', block: "center"});
-        // });
-    }
     
 	function triggerCopiedToast(type: 'Link' | 'FEN' | 'PGN') {
         const t: ToastSettings = {
@@ -245,8 +233,8 @@
 	}
 
     onMount(() => {
-        chessBoard = Chessground(boardElement);
         chessStore.loadGame(data.chessGame);
+        chessBoard = Chessground(boardElement);
         chessStore.subscribe(value => {
             if (chessBoard) chessBoard.set(getConfig(value, data.chessGame));
         });        
@@ -263,7 +251,10 @@
     }}
     on:keydown={(event) => {
         if (event.key==='ArrowLeft') chessStore.loadPreviousMove();
-        if (event.key==='ArrowRight') chessStore.loadNextMove();
+        if (event.key==='ArrowRight') {
+            const move = chessStore.loadNextMove();
+            if (move) playMoveSound(move);
+        }
     }} 
  /> 
 
@@ -327,32 +318,34 @@
         </div>
         <footer class="flex justify-between items-end">
             <div class="flex gap-1">
-                <button on:click={chessStore.loadFirstMove} class="btn btn-sm variant-filled-primary">
-                    <svg class="w-8 h-8" viewBox="0 0 1920 1920">
-                        <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
-                        <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
-                    </svg>
-                </button>
-                <button on:click={chessStore.loadPreviousMove} class="btn btn-sm variant-filled-primary">
-                    <svg class="w-8 h-8" viewBox="0 0 1920 1920">
-                        <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
-                    </svg>
-                </button>   
-                <button on:click={() => {
-                    chessStore.loadNextMove();
-                    const move = chessStore.getPreviousMove();
-                    if (move) playMoveSound(move);
-                }} class="btn btn-sm variant-filled-primary">
-                    <svg class="w-8 h-8 rotate-180" viewBox="0 0 1920 1920">
-                        <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
-                    </svg>
-                </button>
-                <button on:click={chessStore.loadLastMove} class="btn btn-sm variant-filled-primary">
-                    <svg class="w-8 h-8 rotate-180" viewBox="0 0 1920 1920">
-                        <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
-                        <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
-                    </svg>
-                </button>
+                {#key $chessStore}
+                    <button disabled={chessStore.getCurrentMoveHistory().length===0} on:click={chessStore.loadFirstMove} class="btn btn-sm variant-filled-primary">
+                        <svg class="w-8 h-8" viewBox="0 0 1920 1920">
+                            <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
+                            <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
+                        </svg>
+                    </button>
+                    <button disabled={chessStore.getCurrentMoveHistory().length===0} on:click={chessStore.loadPreviousMove} class="btn btn-sm variant-filled-primary">
+                        <svg class="w-8 h-8" viewBox="0 0 1920 1920">
+                            <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
+                        </svg>
+                    </button>   
+                    <button disabled={chessStore.getCurrentMoveHistory().length===chessStore.getTotalMoveHistory().length} on:click={() => {
+                            const move = chessStore.loadNextMove();
+                            if (move) playMoveSound(move);
+                        }} 
+                        class="btn btn-sm variant-filled-primary">
+                        <svg class="w-8 h-8 rotate-180" viewBox="0 0 1920 1920">
+                            <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
+                        </svg>
+                    </button>
+                    <button disabled={chessStore.getCurrentMoveHistory().length===chessStore.getTotalMoveHistory().length} on:click={chessStore.loadLastMove} class="btn btn-sm variant-filled-primary">
+                        <svg class="w-8 h-8 rotate-180" viewBox="0 0 1920 1920">
+                            <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
+                            <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
+                        </svg>
+                    </button>
+                {/key}
             </div>
             <p class="font-bold !text-xl">
             {#if getOrientation(data.chessGame)==='black'}

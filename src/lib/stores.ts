@@ -21,7 +21,7 @@ const chessGameStore = () => {
             update(chess => {
                 chess.loadPgn(chessGame.pgn)
                 undoneMoveStack = [];
-                moveStack = value.history({verbose: true});
+                moveStack = chess.history({verbose: true});
                 return chess;
             });
         },
@@ -36,24 +36,27 @@ const chessGameStore = () => {
             });
         },
         loadPreviousMove: () => {
-            update(value => {
-                const move = value.undo({verbose: true});
-                if (move) {
-                    moveStack.pop();
-                    undoneMoveStack.push(move);
-                }
-                return value;
-            });
-        },
-        loadNextMove: () => {
-            update(chess => {           
-                const move = undoneMoveStack.pop();
-                if (move)  {
-                    moveStack.push(move);
-                    chess.move(move);
-                }
+            let move;
+            update(chess => {
+                move = chess.undo({verbose: true});
                 return chess;
             });
+            if (move) {
+                moveStack.pop();
+                undoneMoveStack.push(move);
+                return move;
+            }
+        },
+        loadNextMove: () => {
+            const move = undoneMoveStack.pop();
+            if (move)  {
+                moveStack.push(move);
+                update(chess => {           
+                    chess.move(move);
+                    return chess;
+                });
+                return move;
+            }
         },
         loadLastMove: () => {
             update(chess => {
@@ -75,17 +78,19 @@ const chessGameStore = () => {
             return moveStack.concat(undoneMoveStack.slice().reverse());
         },
         move: (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b')   => {
+            let move;
             update(chess => {
                 try {
 
                     // Move (throws exception if move is invalid)
-                    chess.move({from, to, promotion});
+                    move = chess.move({from, to, promotion});
 
                 } catch(error) {
                     console.error(error);
                 }
                 return chess;
             });
+            return move;
         }
     }
 }
