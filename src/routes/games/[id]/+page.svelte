@@ -112,7 +112,7 @@
             </p>
         </header>
 
-        <div class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
+        <div class="rounded-token h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
             <ChessBoard chessStateStore={chessStateStore}  on:move={(event) => {
                 handleMove(
                     event.detail.from,

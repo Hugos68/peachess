@@ -16,25 +16,24 @@
 
     onMount(() => {
         board = Chessground(boardElement);
-
-        chessStateStore.subscribe(chessState => {
-            const config = getConfig(chessState);
-            board.set(config);
-        }); 
-        settings.subscribe(settings => {
-            board.set({
-                premovable: {
-                    enabled: settings.premove
-                },
-                animation: {
-                    enabled: $settings.animate,
-                },
-                draggable: {
-                    enabled: $settings.drag
-                },
-            });
-        });
     })
+
+    $: if (board) {
+        board.set(getConfig($chessStateStore));
+    }
+    $: if (board) {
+        board.set({
+            premovable: {
+                enabled: $settings.premove
+            },
+            animation: {
+                enabled: $settings.animate,
+            },
+            draggable: {
+                enabled: $settings.drag
+            },
+        });
+    }
 
     const dispatch = createEventDispatcher();
 
@@ -160,7 +159,7 @@
 <div class="relative h-full w-full aspect-square">
 
     <!-- BOARD -->
-    <div class="flex justify-center items-center rounded-token w-full h-full" class:brightness-50={promotionMove!==null} bind:this={boardElement}>
+    <div class="flex justify-center items-center w-full h-full" class:brightness-50={promotionMove!==null} bind:this={boardElement}>
         <p class="!text-[2rem] animate-bounce">
             Loading board...
         </p>
