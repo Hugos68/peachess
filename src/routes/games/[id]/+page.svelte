@@ -5,7 +5,6 @@
 	import { onMount, onDestroy } from "svelte";
 	import { supabase } from "$lib/supabase";
 	import { page } from "$app/stores";
-	import { toastStore, type ToastSettings } from "@skeletonlabs/skeleton";
 	import { fly } from "svelte/transition";
     import { settings, createChessGameStore } from "$lib/stores";
 	import MoveControls from "$lib/components/chess/MoveControls.svelte";
@@ -177,8 +176,14 @@
     }
 
     onMount(() => {
+
+        // Load the game
         chessStore.loadGame(data.chessGame);
+
+        // Fill the chessboard element
         chessBoard = Chessground(boardElement);
+
+        // On any chessStore change, update the board with a config derived from the updated store value
         chessStore.subscribe(value => {
             if (chessBoard) chessBoard.set(getConfig(value, data.chessGame));
         });        
