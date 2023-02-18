@@ -40,14 +40,15 @@
                     autohide: true
                 }
                 toastStore.trigger(t);
-                return;
             }
-            const t: ToastSettings = {
+            else if (result.type==='failure')  {
+                const t: ToastSettings = {
                 message: result.data?.message,
                 preset: 'error',
                 autohide: true
+                }
+                toastStore.trigger(t);
             }
-            toastStore.trigger(t);
         }
     }
 </script>

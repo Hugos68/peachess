@@ -1,12 +1,14 @@
-import {}
+import { Chess, type Move, type Square } from "chess.js";
+import { writable } from "svelte/store";
+
 
 export const createGameStore = (chessGame: ChessGame) => {
 
     const chess: Chess = new Chess();
     chess.loadPgn(chessGame.pgn);
-    const { set, update, subscribe } = Writable(chess);
+    const { set, update, subscribe } = writable(chess);
     
-    const undoneMoveStack: Move = [];
+    const undoneMoveStack: Move[] = [];
 
     return {
         set,
@@ -14,7 +16,6 @@ export const createGameStore = (chessGame: ChessGame) => {
         subscribe,
         loadFirstMove: () => {
             console.log('not implemented');
-            
         },
         loadPreviousMove: () => {
             console.log('not implemented');
@@ -30,14 +31,11 @@ export const createGameStore = (chessGame: ChessGame) => {
                 try {
                     // Move (throws exception if move is invalid)
                     const move = chess.move({from, to, promotion});
-                    playMoveSound(move);
+                    // playMoveSound(move);
                     
                 } catch(error) {
                     console.error(error);
                 }
-
-
-                
                 return chess;
             });
 

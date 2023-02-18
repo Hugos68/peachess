@@ -8,7 +8,7 @@ export const load = (async (event) => {
     const {error, data} = await supabaseClient
     .from("games")
     .select("*")
-    .eq("id", event.params.id as number)
+    .eq("id", event.params.id)
     .limit(1)
     .single();
 
