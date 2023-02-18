@@ -10,8 +10,21 @@ export const settings: Writable<Settings> = localStorageStore('settings',  {
     drag: true
 });
 
-export function createChessGameStore() {
-    return chessGameStore();
+export function createChessStateStore(chessGame: ChessGame): ChessStateStore {
+
+    // Init chessState by loading pgn into chess and loading history into the move stack
+    const chess = new Chess();
+    chess.loadPgn(chessGame.pgn);
+    const moveStack: Move[] = chess.history({verbose: true});
+    const undoneMoveStack: Move[] = [];
+
+    const chessState: ChessState = {
+        chessGame,
+        chess,
+        moveStack,
+        undoneMoveStack
+    }
+    return chessStateStore(chessState);
 }
 
 const moveSFX = new Howl({
@@ -30,7 +43,7 @@ const gameOverSFX = new Howl({
     src: '/sfx/gameover.mp3'
 });
 
-const playMoveSound = (move: Move) => {
+const playMoveSound = (move: Move): void => {
     if (!get(settings).sfx) return;
    
     // '#' is when a piece checkmates the opponents king
@@ -49,104 +62,96 @@ const playMoveSound = (move: Move) => {
     else if (move.flags.includes('n') || move.flags.includes('b')) moveSFX.play();
 }
 
-const chessGameStore = () => {
+export interface ChessStateStore extends Writable<ChessState> {
+    loadGame: (chessGame: ChessGame) => void
+    loadFirstmove: () => void
+    loadPreviousMove: () => void
+    loadNextMove: () => void
+    loadLastMove: () => void
+    move: (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b') => Move
+}
 
-    const chess: Chess = new Chess();
-    const { set, update, subscribe } = writable(chess);
-    
-    let undoneMoveStack: Move[] = [];
-    let moveStack: Move[] = [];
-    let chessGame: ChessGame;
+const chessStateStore: ChessStateStore = (chessState: ChessState) => {
+
+    const { set, update, subscribe }: Writable<ChessState> = writable(chessState);
 
     return {
         set,
         update,
         subscribe,
         loadGame: (toBeLoadedChessGame: chessGame) => {
-            update(chess => {
+            update(chessState => {
 
-                chessGame = toBeLoadedChessGame;
-                chess.loadPgn(chessGame.pgn)
+                chessState.chessGame = toBeLoadedChessGame;
+                chessState.chess.loadPgn(chessState.chessGame.pgn)
 
-                const moveAmountBeforeUpdating = moveStack.length + undoneMoveStack.length;
+                const moveAmountBeforeUpdating = chessState.moveStack.length + chessState.undoneMoveStack.length;
 
-                undoneMoveStack = [];
-                moveStack = chess.history({verbose: true});
+                chessState. undoneMoveStack = [];
+                chessState.moveStack = chessState.chess.history({verbose: true});
 
-                const moveAmountAfterUpdating = moveStack.length + undoneMoveStack.length;
+                const moveAmountAfterUpdating = chessState.moveStack.length + chessState.undoneMoveStack.length;
                 
-                if (moveAmountBeforeUpdating < moveAmountAfterUpdating) playMoveSound(moveStack[moveStack.length-1]);
+                if (moveAmountBeforeUpdating < moveAmountAfterUpdating) playMoveSound(chessState.moveStack[chessState.moveStack.length-1]);
 
-                return chess;
+                return chessState;
             });
         },
         loadFirstMove: () => {
-            update(chess => {
+            update(chessState => {
                 let move;
-                while ((move = chess.undo())) {
-                    moveStack.pop();
-                    undoneMoveStack.push(move);
+                while ((move = chessState.chess.undo({verbose: true}))) {
+                    chessState.moveStack.pop();
+                    chessState.undoneMoveStack.push(move);
                 } 
-                return chess;
+                return chessState;
             });
         },
         loadPreviousMove: () => {
-            update(chess => {
-                const move = chess.undo({verbose: true});
+            update(chessState => {
+                const move = chessState.chess.undo({verbose: true});
                 if (move) {
-                    moveStack.pop();
-                    undoneMoveStack.push(move);
+                    chessState.moveStack.pop();
+                    chessState.undoneMoveStack.push(move);
                 }
-                return chess;
+                return chessState;
             });
         },
         loadNextMove: () => {
-            update(chess => {          
-                const move = undoneMoveStack.pop();
+            update(chessState => {          
+                const move = chessState.undoneMoveStack.pop();
                 if (move)  {
                     playMoveSound(move);
-                    moveStack.push(move);
-                    chess.move(move);
+                    chessState.moveStack.push(move);
+                    chessState.chess.move(move);
                 } 
-                return chess;
+                return chessState;
             });
         },
         loadLastMove: () => {
-            update(chess => {
+            update(chessState => {
                 let move;
-                while ((move = undoneMoveStack.pop())) {
-                    moveStack.push(move);
-                    chess.move(move);
+                while ((move = chessState.undoneMoveStack.pop())) {
+                    chessState.moveStack.push(move);
+                    chessState.chess.move(move);
                 } 
-                return chess;
+                return chessState;
             });
-        },
-        getPreviousMove: (): Move | undefined => {
-            return moveStack[moveStack.length-1];
-        },
-        getCurrentMoveHistory: (): Move[] => {
-            return moveStack;
-        },
-        getTotalMoveHistory: (): Move[] => {
-            return moveStack.concat(undoneMoveStack.slice().reverse());
-        },
-        getChessGame: (): ChessGame => {
-            return chessGame;
         },
         move: (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b')   => {
             let move;
-            update(chess => {
+            update(chessState => {
                 try {
 
                     // Move (throws exception if move is invalid)
-                    move = chess.move({from, to, promotion});
-                    moveStack.push(move);
+                    move = chessState.chess.move({from, to, promotion});
+                    chessState.moveStack.push(move);
                     playMoveSound(move);
 
                 } catch(error) {
                     console.error(error);
                 }
-                return chess;
+                return chessState;
             });
             return move;
         }

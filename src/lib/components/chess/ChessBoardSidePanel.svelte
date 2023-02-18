@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { clipboard, SlideToggle, Tab, TabGroup, toastStore, type ToastSettings } from "@skeletonlabs/skeleton";
-    import { settings } from "$lib/stores";
+    import { settings, type ChessStateStore } from "$lib/stores";
 	import { page } from "$app/stores";
 
-    export let chessStore: any;
+    export let chessStateStore: ChessStateStore;
     
     let tabSet: number = 0
         
@@ -30,23 +30,23 @@
                 <span class="flex-1 p-1"><strong>White</strong></span>
                 <span class="flex-1 p-1"><strong>Black</strong></span>
             </div>
-            {#key $chessStore}
-                <ul id="moveList" class="overflow-scroll flex-1">
-                    {#each chessStore.getTotalMoveHistory() as move, i} 
-                        {#if i%2===0}
-                            <li id="move{i}" class="w-full flex gap-2">
-                                <span class="flex-1 p-1">{i/2+1}</span>
-                                <span class="flex-1 p-1 rounded-token {chessStore.getCurrentMoveHistory().length-1===i ? "bg-primary-500/50" : ""}">{move.san}</span>
-                                <span class="flex-1 p-1 rounded-token {chessStore.getCurrentMoveHistory().length-1===i+1 ? "bg-primary-500/50" : ""}">
-                                    {#if chessStore.getTotalMoveHistory()[i+1]}
-                                        {chessStore.getTotalMoveHistory()[i+1].san}
-                                    {/if}
-                                </span>
-                            </li>
-                        {/if}
-                    {/each}
-                </ul>
-            {/key}
+
+            <ul id="moveList" class="overflow-scroll flex-1">
+                {#each $chessStateStore.moveStack.concat($chessStateStore.undoneMoveStack.slice().reverse()) as move, i} 
+                    {#if i%2===0}
+                        <li id="move{i}" class="w-full flex gap-2">
+                            <span class="flex-1 p-1">{i/2+1}</span>
+                            <span class="flex-1 p-1 rounded-token {$chessStateStore.moveStack.length-1===i ? "bg-primary-500/50" : ""}">{move.san}</span>
+                            <span class="flex-1 p-1 rounded-token {$chessStateStore.moveStack.length-1===i+1 ? "bg-primary-500/50" : ""}">
+                                {#if $chessStateStore.moveStack.concat($chessStateStore.undoneMoveStack.slice().reverse())[i+1]}
+                                    {$chessStateStore.moveStack.concat($chessStateStore.undoneMoveStack.slice().reverse())[i+1].san}
+                                {/if}
+                            </span>
+                        </li>
+                    {/if}
+                {/each}
+            </ul>
+
         {:else if tabSet === 1}
                 <p>Coming soon</p>
         {:else if tabSet === 2}
@@ -70,18 +70,20 @@
             </div>
         {:else if tabSet === 3}
             <p class="text-xl font-bold text-center">Click to copy</p>
+
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
             <div class="flex flex-col gap-8">
-                <label use:clipboard={$page.url} on:click={() => triggerCopiedToast('Link')}>
+                <label for="fen" use:clipboard={$page.url} on:click={() => triggerCopiedToast('Link')}>
                     Link:
-                    <input class="input" type="text" readonly value={$page.url} />
+                    <input  class="input" type="text" readonly value={$page.url} />
                 </label>
-                <label use:clipboard={$chessStore.fen()} on:click={() => triggerCopiedToast('FEN')}>
+                <label use:clipboard={$chessStateStore.chess.fen()} on:click={() => triggerCopiedToast('FEN')}>
                     FEN:
-                    <input class="input" type="text" readonly value={$chessStore.fen()} />
+                    <input class="input" type="text" readonly value={$chessStateStore.chess.fen()} />
                 </label>
-                <label use:clipboard={$chessStore.pgn()} on:click={() => triggerCopiedToast('PGN')}>
+                <label use:clipboard={$chessStateStore.chess.pgn()} on:click={() => triggerCopiedToast('PGN')}>
                     PGN:
-                    <textarea class="input resize-none" rows=10 readonly value={$chessStore.pgn()} />
+                    <textarea class="input resize-none" rows=10 readonly value={$chessStateStore.chess.pgn()} />
                 </label>
             </div>
         {/if}

@@ -19,9 +19,9 @@ interface Settings {
     drag: boolean
 }
 
-interface ChessInterface {
-    chessGame: ChessGame,
-    chess: Chess,
-    moveStack: Move[],
+interface ChessState {
+    chessGame: ChessGame
+    chess: Chess
+    moveStack: Move[]
     undoneMoveStack: Move[]
 }

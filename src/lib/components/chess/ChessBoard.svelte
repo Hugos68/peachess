@@ -3,12 +3,11 @@
 	import { Chessground } from "chessground";
 	import { fly } from "svelte/transition";
 	import { onMount } from "svelte";
-    import { settings } from "$lib/stores";
+    import { settings, type ChessStateStore } from "$lib/stores";
     import { createEventDispatcher } from "svelte";
 	import { page } from "$app/stores";
 
-    export let playingSide: 'white' | 'black';
-    export let chessStore: any;
+    export let chessStateStore: ChessStateStore;
 
     let board: any;
     let boardElement: HTMLElement;
@@ -17,8 +16,10 @@
 
     onMount(() => {
         board = Chessground(boardElement);
-        chessStore.subscribe(() => {
-            board.set(getConfig(chessStore));
+
+        chessStateStore.subscribe(chessState => {
+            const config = getConfig(chessState);
+            board.set(config);
         }); 
         settings.subscribe(settings => {
             board.set({
@@ -37,23 +38,21 @@
 
     const dispatch = createEventDispatcher();
 
-    const getConfig = (chessStore: any) => {
-        const chessGame: ChessGame = chessStore.getChessGame();
-        const chess = $chessStore;
+    const getConfig = (chessState: ChessState) => {
         return {
-            fen: chess.fen(),
-            turnColor: (chess.turn() === WHITE) ? 'white' : 'black',
-            orientation: playingSide,
+            fen: chessState.chess.fen(),
+            turnColor: (chessState.chess.turn() === WHITE) ? 'white' : 'black',
+            orientation: getOrientation(chessState.chessGame),
             lastMove: getLastMoveHighlight(),
-            viewOnly: getViewOnly(chessGame),
-            check: chess.inCheck(),
+            viewOnly: getViewOnly(chessState.chessGame),
+            check: chessState.chess.inCheck(),
             highlight: {
                 lastMove: true,  
             },
             movable: {
-                color: playingSide,
+                color: getPlayingColor(chessState.chessGame),
                 free: false,
-                dests: getValidDestinations(chess),
+                dests: getValidDestinations(chessState.chess),
                 showDests: true
             },
             drawable: {
@@ -66,13 +65,19 @@
         }
     }
 
+    const getOrientation = (chessGame: ChessGame) => {
+        const playingColor = getPlayingColor(chessGame);
+        // Default to white (for spectators)
+        return playingColor || 'white';
+    }
+
     const getPlayingColor = (chessGame: ChessGame) => {
         if (!$page.data.session) return undefined;
         return $page.data.session.user.id === chessGame.player_id_black ? 'black' : 'white';
     }
 
     const getLastMoveHighlight = () => {
-        const move = getLastMove();
+        const move = $chessStateStore.moveStack[$chessStateStore.moveStack.length-1]; 
         if (!move) return [];
         return [move.from, move.to];
     }
@@ -80,13 +85,9 @@
     const getViewOnly = (chessGame: ChessGame) => {
         if (!$page.data.session) return true;
         if ($page.data.session.user.id !== chessGame.player_id_white && $page.data.session.user.id !== chessGame.player_id_black) return true;
-        if ($chessStore.isGameOver()) return true;
+        if ($chessStateStore.chess.isGameOver()) return true;
         return false;
 	}
-
-    const getLastMove = (): Move | undefined => {
-        return chessStore.getPreviousMove();
-    }
 
     const getValidDestinations = (chess: Chess) => {
         const dests = new Map();
@@ -98,7 +99,6 @@
     }
 
     const moveCallback = (from: Square, to: Square) => {        
-
         // If there is a promotion set the promotionMove and return so that the move doesn't get played yet (in case of a promotion cancel)
         const promotion = isMovePromotion(from, to);
         if (promotion) { 
@@ -113,7 +113,7 @@
     }
 
     const isMovePromotion = (from: Square, to: Square): boolean => {
-        const {type, color} = $chessStore.get(from);
+        const {type, color} = $chessStateStore.chess.get(from);
         const rankNumber =  Number.parseInt(to.charAt(1));
 
         if (type!==PAWN) return false;
@@ -131,7 +131,7 @@
         const percentage = (number-1) * 12.5;
 
         // We check color here to deal with the board orientation
-        return playingSide === 'white' ? percentage : 87.5-percentage;
+        return getOrientation($chessStateStore.chessGame) === 'white' ? percentage : 87.5-percentage;
     }
 
     const handlePromotion = (promotion: 'q' | 'r' | 'n' | 'b') => {
@@ -146,7 +146,7 @@
     
     const cancelPromotion = () => {
         promotionMove = null;
-        chessStore.loadGame(chessStore.getChessGame());
+        chessStateStore.loadGame($chessStateStore.chessGame);
     }
 </script>
 
@@ -169,10 +169,10 @@
     <!-- PROMOTION-MODAL -->
     <div in:fly={{y: 50, duration: 150}} bind:this={promotionModal} class:hidden={promotionMove===null} class="absolute top-0 w-[12.5%] h-[50%] z-[50]">
         {#if promotionMove}
-            <button class="btn w-full variant-glass-secondary h-[25%] bg-cover queen {playingSide}" on:click={() => handlePromotion('q')}></button>
-            <button class="btn w-full variant-glass-secondary h-[25%] bg-cover rook {playingSide}" on:click={() => handlePromotion('r')}></button>
-            <button class="btn w-full variant-glass-secondary h-[25%] bg-cover knight {playingSide}" on:click={() => handlePromotion('n')}></button>
-            <button class="btn w-full variant-glass-secondary h-[25%] bg-cover bishop {playingSide}" on:click={() => handlePromotion('b')}></button>
+            <button class="btn w-full variant-glass-secondary h-[25%] bg-cover queen {getOrientation($chessStateStore.chessGame)}" on:click={() => handlePromotion('q')}></button>
+            <button class="btn w-full variant-glass-secondary h-[25%] bg-cover rook {getOrientation($chessStateStore.chessGame)}" on:click={() => handlePromotion('r')}></button>
+            <button class="btn w-full variant-glass-secondary h-[25%] bg-cover knight {getOrientation($chessStateStore.chessGame)}" on:click={() => handlePromotion('n')}></button>
+            <button class="btn w-full variant-glass-secondary h-[25%] bg-cover bishop {getOrientation($chessStateStore.chessGame)}" on:click={() => handlePromotion('b')}></button>
         {/if}
     </div>
 </div>

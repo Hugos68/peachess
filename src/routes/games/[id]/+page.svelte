@@ -3,7 +3,7 @@
     import type { PageData } from "./$types";
 	import { onDestroy } from "svelte";
 	import { supabase } from "$lib/supabase";
-    import { createChessGameStore } from "$lib/stores";
+    import { createChessStateStore, type ChessStateStore } from "$lib/stores";
 	import MoveControls from "$lib/components/chess/MoveControls.svelte";
 	import ChessBoardSidePanel from "$lib/components/chess/ChessBoardSidePanel.svelte";
 	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
@@ -11,8 +11,7 @@
 
     export let data: PageData;
 
-    const chessStore = createChessGameStore();
-    chessStore.loadGame(data.chessGame);
+    const chessStateStore: ChessStateStore = createChessStateStore(data.chessGame);
 
     const channel = supabase
     .channel('table-db-changes')
@@ -27,14 +26,14 @@
         (payload) => {
             const updatedChessGame: ChessGame = payload.new as ChessGame
             
-            chessStore.loadGame(updatedChessGame);
+            chessStateStore.loadGame(updatedChessGame);
         }
     )
     .subscribe();
 
     const handleMove = async (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b') => {
         
-        chessStore.move(from, to, promotion);
+        chessStateStore.move(from, to, promotion);
 
         // Execute the move to the database
         const {error} = await supabase.functions.invoke('move', {
@@ -49,7 +48,7 @@
         });
 
         // Reload to last known stable state if anything goes wrong
-        if (error) chessStore.loadGame(data.chessGame);
+        if (error) chessStateStore.loadGame(data.chessGame);
     }
 
     const getPlayingSide = (chessGame: ChessGame) => {
@@ -71,8 +70,8 @@
 
 <svelte:window 
     on:keydown={(event) => {
-        if (event.key==='ArrowLeft') chessStore.loadPreviousMove();
-        if (event.key==='ArrowRight') chessStore.loadNextMove();
+        if (event.key==='ArrowLeft') chessStateStore.loadPreviousMove();
+        if (event.key==='ArrowRight') chessStateStore.loadNextMove();
     }}
  /> 
 
@@ -82,39 +81,39 @@
         <header class="flex justify-between">
             <div class="flex gap-2">
     
-            {#if $chessStore.isGameOver()}
+            {#if $chessStateStore.chess.isGameOver()}
                 <p  class="p-2 rounded-token font-semibold text-center bg-secondary-700">
-                    {#if $chessStore.isCheckmate()}
-                        {$chessStore.turn() === WHITE ? 'Black' : 'White'} won with checkmate
-                    {:else if $chessStore.isStalemate()}
+                    {#if $chessStateStore.chess.isCheckmate()}
+                        {$chessStateStore.chess.turn() === WHITE ? 'Black' : 'White'} won with checkmate
+                    {:else if $chessStateStore.chess.isStalemate()}
                         Stalemate
-                    {:else if $chessStore.isDraw()}
+                    {:else if $chessStateStore.chess.isDraw()}
                         Draw    
                     {/if}
                 </p>
             {:else}
                 <p
                 class="p-2 rounded-token font-semibold text-center"
-                class:text-white={$chessStore.turn()===BLACK}
-                class:text-black={$chessStore.turn()===WHITE}
-                class:bg-white={$chessStore.turn()===WHITE} 
-                class:bg-black={$chessStore.turn()===BLACK}>
-                {$chessStore.turn()===WHITE ? 'White' : 'Black'}'s turn
+                class:text-white={$chessStateStore.chess.turn()===BLACK}
+                class:text-black={$chessStateStore.chess.turn()===WHITE}
+                class:bg-white={$chessStateStore.chess.turn()===WHITE} 
+                class:bg-black={$chessStateStore.chess.turn()===BLACK}>
+                {$chessStateStore.chess.turn()===WHITE ? 'White' : 'Black'}'s turn
                 </p>
             {/if}
        
             </div>
             <p class="font-bold !text-xl">
                 {#if getPlayingSide(data.chessGame)==='white'}
-                    {$chessStore.header().Black}
+                    {$chessStateStore.chess.header().Black}
                 {:else} 
-                    {$chessStore.header().White}
+                    {$chessStateStore.chess.header().White}
                 {/if}
             </p>
         </header>
 
         <div class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
-            <ChessBoard playingSide={getPlayingSide(data.chessGame)} chessStore={chessStore}  on:move={(event) => {
+            <ChessBoard chessStateStore={chessStateStore}  on:move={(event) => {
                 handleMove(
                     event.detail.from,
                     event.detail.to,
@@ -126,19 +125,19 @@
 
         <footer class="flex justify-between items-end">
 
-            <MoveControls chessStore={chessStore} />
+            <MoveControls chessStateStore={chessStateStore} />
        
             <p class="font-bold !text-xl">
             {#if getPlayingSide(data.chessGame)==='black'}
-                {$chessStore.header().Black}
+                {$chessStateStore.chess.header().Black}
             {:else} 
-                {$chessStore.header().White}
+                {$chessStateStore.chess.header().White}
             {/if}
             </p>
         </footer>
     </div>
 
     <div class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
-        <ChessBoardSidePanel chessStore={chessStore} />
+        <ChessBoardSidePanel chessStateStore={chessStateStore} />
     </div>
  </div>
