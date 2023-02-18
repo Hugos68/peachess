@@ -18,3 +18,10 @@ interface Settings {
     premove: boolean
     drag: boolean
 }
+
+interface ChessInterface {
+    chessGame: ChessGame,
+    chess: Chess,
+    moveStack: Move[],
+    undoneMoveStack: Move[]
+}
