@@ -18,21 +18,21 @@ const chessGameStore = () => {
         update,
         subscribe,
         loadGame: (chessGame: chessGame) => {
-            update(value => {
-                value.loadPgn(chessGame.pgn)
+            update(chess => {
+                chess.loadPgn(chessGame.pgn)
                 undoneMoveStack = [];
                 moveStack = value.history({verbose: true});
-                return value;
+                return chess;
             });
         },
         loadFirstMove: () => {
-            update(value => {
+            update(chess => {
                 let move;
-                while ((move = value.undo())) {
+                while ((move = chess.undo())) {
                     moveStack.pop();
                     undoneMoveStack.push(move);
                 } 
-                return value;
+                return chess;
             });
         },
         loadPreviousMove: () => {
@@ -46,24 +46,23 @@ const chessGameStore = () => {
             });
         },
         loadNextMove: () => {
-            update(value => {           
+            update(chess => {           
                 const move = undoneMoveStack.pop();
                 if (move)  {
                     moveStack.push(move);
-                    value.move(move);
+                    chess.move(move);
                 }
-                // playMoveSound(chess.move(move));
-                return value;
+                return chess;
             });
         },
         loadLastMove: () => {
-            update(value => {
+            update(chess => {
                 let move;
                 while ((move = undoneMoveStack.pop())) {
                     moveStack.push(move);
-                    value.move(move);
+                    chess.move(move);
                 } 
-                return value;
+                return chess;
             });
         },
         getPreviousMove: (): Move | undefined => {
@@ -76,16 +75,16 @@ const chessGameStore = () => {
             return moveStack.concat(undoneMoveStack.slice().reverse());
         },
         move: (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b')   => {
-            update(value => {
+            update(chess => {
                 try {
-                    
+
                     // Move (throws exception if move is invalid)
-                    value.move({from, to, promotion});
+                    chess.move({from, to, promotion});
 
                 } catch(error) {
                     console.error(error);
                 }
-                return value;
+                return chess;
             });
         }
     }
