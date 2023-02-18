@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from "$app/stores";
 	import { LightSwitch } from "@skeletonlabs/skeleton";
-	import ProfileButton from "../ProfileButton.svelte";
+	import ProfileButton from "./ProfileButton.svelte";
 
     interface navItem {
         label: string
