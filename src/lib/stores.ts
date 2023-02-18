@@ -10,6 +10,10 @@ export const settings: Writable<Settings> = localStorageStore('settings',  {
     drag: true
 });
 
+export function createChessGameStore() {
+    return chessGameStore();
+}
+
 const moveSFX = new Howl({
     src: '/sfx/move.mp3'
 });
@@ -28,6 +32,9 @@ const gameOverSFX = new Howl({
 
 const playMoveSound = (move: Move) => {
     if (!get(settings).sfx) return;
+   
+    // '#' is when a piece checkmates the opponents king
+    else if (move.san.includes('#')) gameOverSFX.play();
 
     // '+' is when a piece checks the opponents king
     else if (move.san.includes('+')) checkSFX.play();
@@ -40,13 +47,6 @@ const playMoveSound = (move: Move) => {
 
     // 'n' is when a piece moves, 'b' is when a pawn moves 2 squares
     else if (move.flags.includes('n') || move.flags.includes('b')) moveSFX.play();
-
-    // '#' is when a piece checkmates the opponents king
-    if (move.san.includes('#')) gameOverSFX.play();
-}
-
-export function createChessGameStore() {
-    return chessGameStore();
 }
 
 const chessGameStore = () => {
@@ -56,13 +56,15 @@ const chessGameStore = () => {
     
     let undoneMoveStack: Move[] = [];
     let moveStack: Move[] = [];
+    let chessGame: ChessGame;
 
     return {
         set,
         update,
         subscribe,
-        loadGame: (chessGame: chessGame) => {
+        loadGame: (toBeLoadedChessGame: chessGame) => {
             update(chess => {
+                chessGame = toBeLoadedChessGame;
                 chess.loadPgn(chessGame.pgn)
                 undoneMoveStack = [];
                 moveStack = chess.history({verbose: true});
@@ -113,11 +115,14 @@ const chessGameStore = () => {
         getPreviousMove: (): Move | undefined => {
             return moveStack[moveStack.length-1];
         },
-        getCurrentMoveHistory: () => {
+        getCurrentMoveHistory: (): Move[] => {
             return moveStack;
         },
-        getTotalMoveHistory: () => {
+        getTotalMoveHistory: (): Move[] => {
             return moveStack.concat(undoneMoveStack.slice().reverse());
+        },
+        getChessGame: (): ChessGame => {
+            return chessGame;
         },
         move: (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b')   => {
             let move;
