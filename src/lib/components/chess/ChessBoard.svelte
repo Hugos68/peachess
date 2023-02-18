@@ -15,15 +15,29 @@
 
     onMount(() => {
         board = Chessground(boardElement);
-        chessStore.subscribe(value => {
-            board.set(getConfig(value));
+        chessStore.subscribe(() => {
+            board.set(getConfig(chessStore));
+        }); 
+        settings.subscribe(settings => {
+            board.set({
+                premovable: {
+                    enabled: settings.premove
+                },
+                animation: {
+                    enabled: $settings.animate,
+                },
+                draggable: {
+                    enabled: $settings.drag
+                },
+            });
         });
     })
 
     const dispatch = createEventDispatcher();
 
-    const getConfig = (chess: Chess) => {
+    const getConfig = (chessStore: any) => {
         const chessGame: ChessGame = chessStore.getChessGame();
+        const chess = $chessStore;
         return {
             fen: chess.fen(),
             orientation: getOrientation(chessGame),
@@ -37,18 +51,8 @@
             movable: {
                 color: getPlayingColor(chessGame),
                 free: false,
-                dests: getValidDestinations(chess)
-            },
-            premovable: {
-                enabled: $settings.premove,
-                castle: true
-            },
-            animation: {
-                enabled: $settings.animate,
-                duration: 100
-            },
-            draggable: {
-                enabled: $settings.drag
+                dests: getValidDestinations(chess),
+                showDests: true
             },
             drawable: {
                 enabled: true,
@@ -92,13 +96,13 @@
     const getValidDestinations = (chess: Chess) => {
         const dests = new Map();
         SQUARES.forEach(s => {
-            const ms = chess.moves({square: s, verbose: true});
-            if (ms.length) dests.set(s, ms.map(m => m.to));
+            const moves = chess.moves({square: s, verbose: true});
+            dests.set(s, moves.map(m => m.to));
         });
         return dests;
     }
 
-    const moveCallback = async (from: Square, to: Square) => {        
+    const moveCallback = (from: Square, to: Square) => {        
 
         // If there is a promotion set the promotionMove and return so that the move doesn't get played yet (in case of a promotion cancel)
         const promotion = isMovePromotion(from, to);
@@ -132,10 +136,10 @@
         const percentage = (number-1) * 12.5;
 
         // We check color here to deal with the board orientation
-        return getOrientation(data.chessGame) === 'white' ? percentage : 87.5-percentage;
+        return getOrientation(chessStore.getChessGame()) === 'white' ? percentage : 87.5-percentage;
     }
 
-    const doPromotion = async (promotion: 'q' | 'r' | 'n' | 'b') => {
+    const handlePromotion = (promotion: 'q' | 'r' | 'n' | 'b') => {
         if (!promotionMove) return;
         dispatch('move', {
             from: promotionMove.from,
@@ -147,6 +151,7 @@
     
     const cancelPromotion = () => {
         promotionMove = null;
+        chessStore.loadGame(chessStore.getChessGame());
     }
 </script>
 
@@ -167,12 +172,12 @@
     </div>
 
     <!-- PROMOTION-MODAL -->
-    <div in:fly={{y: 50, duration: 150}} bind:this={promotionModal} class="absolute top-0 w-[12.5%] h-[50%] z-[50]">
+    <div in:fly={{y: 50, duration: 150}} bind:this={promotionModal} class:hidden={promotionMove===null} class="absolute top-0 w-[12.5%] h-[50%] z-[50]">
         {#if promotionMove}
-            <button class="btn w-full variant-glass-secondary h-[25%] promo-queen-{'white'}" on:click={async () => await doPromotion('q')}></button>
-            <button class="btn w-full variant-glass-secondary h-[25%] promo-rook-{'white'}" on:click={async () => await doPromotion('r')}></button>
-            <button class="btn w-full variant-glass-secondary h-[25%] promo-knight-{'white'}" on:click={async () => await doPromotion('n')}></button>
-            <button class="btn w-full variant-glass-secondary h-[25%] promo-bischop-{'white'}" on:click={async () => await doPromotion('b')}></button>
+            <button class="btn w-full variant-glass-secondary h-[25%] bg-cover queen {getOrientation(chessStore.getChessGame())}" on:click={() => handlePromotion('q')}></button>
+            <button class="btn w-full variant-glass-secondary h-[25%] bg-cover rook {getOrientation(chessStore.getChessGame())}" on:click={() => handlePromotion('r')}></button>
+            <button class="btn w-full variant-glass-secondary h-[25%] bg-cover knight {getOrientation(chessStore.getChessGame())}" on:click={() => handlePromotion('n')}></button>
+            <button class="btn w-full variant-glass-secondary h-[25%] bg-cover bishop {getOrientation(chessStore.getChessGame())}" on:click={() => handlePromotion('b')}></button>
         {/if}
     </div>
 </div>
