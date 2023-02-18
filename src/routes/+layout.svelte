@@ -5,9 +5,9 @@
 	import '../chessground.css';
 
 	import { AppShell, Drawer, drawerStore, Modal, Toast } from "@skeletonlabs/skeleton";
-	import Header from '$lib/components/Header.svelte';
-	import SideBarLeft from '$lib/components/SideBarLeft.svelte';
-	import Footer from '$lib/components/Footer.svelte';
+	import Header from '$lib/components/layout/Header.svelte';
+	import SideBarLeft from '$lib/components/layout/SideBarLeft.svelte';
+	import Footer from '$lib/components/layout/Footer.svelte';
 	import { invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { supabase } from '$lib/supabase';

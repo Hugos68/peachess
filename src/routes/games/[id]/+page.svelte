@@ -5,11 +5,10 @@
 	import { onMount, onDestroy } from "svelte";
 	import { supabase } from "$lib/supabase";
 	import { page } from "$app/stores";
-	import { clipboard, localStorageStore, SlideToggle, Tab, TabGroup, toastStore, type ToastSettings } from "@skeletonlabs/skeleton";
-    import type { Writable } from 'svelte/store';
-    import { Howl } from 'howler';
+	import { clipboard, SlideToggle, Tab, TabGroup, toastStore, type ToastSettings } from "@skeletonlabs/skeleton";
 	import { fly } from "svelte/transition";
-    import { createChessGameStore } from "$lib/stores";
+    import { settings, createChessGameStore } from "$lib/stores";
+	import MoveControls from "$lib/components/chess/MoveControls.svelte";
 
     export let data: PageData;
 
@@ -20,48 +19,6 @@
     let boardElement: HTMLElement;
     let promotionModal: HTMLElement;
     let promotionMove: CustomMove | null = null;
-
-    const settings: Writable<Settings> = localStorageStore('settings',  {
-        animate: true,
-        sfx: true,
-        premove: false,
-        drag: true
-    });
-
-    const moveSFX = new Howl({
-        src: '/sfx/move.mp3'
-    });
-    const captureSFX = new Howl({
-        src: '/sfx/capture.mp3'
-    });
-    const castleSFX = new Howl({
-        src: '/sfx/castle.mp3'
-    });
-    const checkSFX = new Howl({
-        src: '/sfx/check.mp3'
-    });
-    const gameOverSFX = new Howl({
-        src: '/sfx/gameover.mp3'
-    });
-
-    const playMoveSound = (move: Move) => {
-        if (!$settings.sfx) return;
-
-        // '+' is when a piece checks the opponents king
-        else if (move.san.includes('+')) checkSFX.play();
-
-        // 'k' is when castling kingside, 'q' is when castling queenside
-        else if (move.flags.includes('k') || move.flags.includes('q')) castleSFX.play();
-
-        // 'c' is when a piece captures
-        else if (move.flags.includes('c')) captureSFX.play();
-
-        // 'n' is when a piece moves, 'b' is when a pawn moves 2 squares
-        else if (move.flags.includes('n') || move.flags.includes('b')) moveSFX.play();
-
-        // '#' is when a piece checkmates the opponents king
-        if (move.san.includes('#')) gameOverSFX.play();
-    }
 
     const channel = supabase
     .channel('table-db-changes')
@@ -251,11 +208,8 @@
     }}
     on:keydown={(event) => {
         if (event.key==='ArrowLeft') chessStore.loadPreviousMove();
-        if (event.key==='ArrowRight') {
-            const move = chessStore.loadNextMove();
-            if (move) playMoveSound(move);
-        }
-    }} 
+        if (event.key==='ArrowRight') chessStore.loadNextMove();
+    }}
  /> 
 
  <div class="mt-[5vh] mx-auto flex flex-col xl:flex-row justify-center items-center gap-12">
@@ -317,36 +271,9 @@
     
         </div>
         <footer class="flex justify-between items-end">
-            <div class="flex gap-1">
-                {#key $chessStore}
-                    <button disabled={chessStore.getCurrentMoveHistory().length===0} on:click={chessStore.loadFirstMove} class="btn btn-sm variant-filled-primary">
-                        <svg class="w-8 h-8" viewBox="0 0 1920 1920">
-                            <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
-                            <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
-                        </svg>
-                    </button>
-                    <button disabled={chessStore.getCurrentMoveHistory().length===0} on:click={chessStore.loadPreviousMove} class="btn btn-sm variant-filled-primary">
-                        <svg class="w-8 h-8" viewBox="0 0 1920 1920">
-                            <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
-                        </svg>
-                    </button>   
-                    <button disabled={chessStore.getCurrentMoveHistory().length===chessStore.getTotalMoveHistory().length} on:click={() => {
-                            const move = chessStore.loadNextMove();
-                            if (move) playMoveSound(move);
-                        }} 
-                        class="btn btn-sm variant-filled-primary">
-                        <svg class="w-8 h-8 rotate-180" viewBox="0 0 1920 1920">
-                            <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
-                        </svg>
-                    </button>
-                    <button disabled={chessStore.getCurrentMoveHistory().length===chessStore.getTotalMoveHistory().length} on:click={chessStore.loadLastMove} class="btn btn-sm variant-filled-primary">
-                        <svg class="w-8 h-8 rotate-180" viewBox="0 0 1920 1920">
-                            <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
-                            <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
-                        </svg>
-                    </button>
-                {/key}
-            </div>
+
+            <MoveControls chessStore={chessStore} />
+       
             <p class="font-bold !text-xl">
             {#if getOrientation(data.chessGame)==='black'}
                 {$chessStore.header().Black}
