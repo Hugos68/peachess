@@ -75,7 +75,7 @@ const chessGameStore = () => {
 
                 const moveAmountAfterUpdating = moveStack.length + undoneMoveStack.length;
                 
-                if (moveAmountBeforeUpdating !== moveAmountAfterUpdating) playMoveSound(moveStack[moveStack.length-1]);
+                if (moveAmountBeforeUpdating < moveAmountAfterUpdating) playMoveSound(moveStack[moveStack.length-1]);
 
                 return chess;
             });
