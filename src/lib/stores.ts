@@ -45,7 +45,7 @@ const gameOverSFX = new Howl({
 
 const playMoveSound = (move: Move): void => {
     if (!get(settings).sfx) return;
-   
+
     // '#' is when a piece checkmates the opponents king
     else if (move.san.includes('#')) gameOverSFX.play();
 
