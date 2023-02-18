@@ -2,6 +2,7 @@
 	import { clipboard, SlideToggle, Tab, TabGroup, toastStore, type ToastSettings } from "@skeletonlabs/skeleton";
     import { settings } from "$lib/stores";
 	import { page } from "$app/stores";
+
     export let chessStore: any;
     
     let tabSet: number = 0
