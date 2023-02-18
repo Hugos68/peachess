@@ -31,7 +31,7 @@
                 <span class="flex-1 p-1"><strong>Black</strong></span>
             </div>
 
-            <ul id="moveList" class="overflow-scroll flex-1">
+            <ul id="moveList" class="overflow-y-scroll flex-1">
                 {#each $chessStateStore.moveStack.concat($chessStateStore.undoneMoveStack.slice().reverse()) as move, i} 
                     {#if i%2===0}
                         <li id="move{i}" class="w-full flex gap-2">
