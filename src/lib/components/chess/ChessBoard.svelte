@@ -14,6 +14,8 @@
     let promotionModal: HTMLElement;
     let promotionMove: CustomMove | null = null;
 
+    const dispatch = createEventDispatcher();
+
     onMount(() => {
         board = Chessground(boardElement);
     })
@@ -35,7 +37,7 @@
         });
     }
 
-    const dispatch = createEventDispatcher();
+
 
     const getConfig = (chessState: ChessState) => {
         return {
