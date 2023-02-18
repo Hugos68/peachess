@@ -7,6 +7,7 @@
 	import MoveControls from "$lib/components/chess/MoveControls.svelte";
 	import ChessBoardSidePanel from "$lib/components/chess/ChessBoardSidePanel.svelte";
 	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
+	import { page } from "$app/stores";
 
     export let data: PageData;
 
@@ -50,6 +51,18 @@
         // Reload to last known stable state if anything goes wrong
         if (error) chessStore.loadGame(data.chessGame);
     }
+
+    const getPlayingSide = (chessGame: ChessGame) => {
+        const playingColor = getPlayingColor(chessGame);
+        
+        // Default to white (for spectators)
+        return playingColor || 'white';
+    }
+
+    const getPlayingColor = (chessGame: ChessGame) => {
+        if (!$page.data.session) return undefined;
+        return $page.data.session.user.id === chessGame.player_id_black ? 'black' : 'white';
+    }
     
     onDestroy(() => {
         channel.unsubscribe();
@@ -92,15 +105,15 @@
        
             </div>
             <p class="font-bold !text-xl">
-                <!-- {#if getOrientation(data.chessGame)==='white'}
+                {#if getPlayingSide(data.chessGame)==='white'}
                     {$chessStore.header().Black}
                 {:else} 
                     {$chessStore.header().White}
-                {/if} -->
+                {/if}
             </p>
         </header>
 
-        <ChessBoard chessStore={chessStore} on:move={(event) => {
+        <ChessBoard playingSide={getPlayingSide(data.chessGame)} chessStore={chessStore} on:move={(event) => {
             handleMove(
                 event.detail.from,
                 event.detail.to,
@@ -113,11 +126,11 @@
             <MoveControls chessStore={chessStore} />
        
             <p class="font-bold !text-xl">
-            <!-- {#if getOrientation(data.chessGame)==='black'}
+            {#if getPlayingSide(data.chessGame)==='black'}
                 {$chessStore.header().Black}
             {:else} 
                 {$chessStore.header().White}
-            {/if} -->
+            {/if}
             </p>
         </footer>
     </div>

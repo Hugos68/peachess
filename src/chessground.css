@@ -177,8 +177,8 @@ cg-board piece.fading {
     flex-flow: row-reverse;
   }
 
-  .cg-wrap coords.files.black {
-    flex-flow: row-reverse;
+  .cg-wrap coords.ranks.black {
+    flex-flow: column;
   }
   cg-board {
   background-color: #f0d9b5;
