@@ -9,6 +9,7 @@
 
     export let playingSide: 'white' | 'black';
     export let chessStore: any;
+
     let board: any;
     let boardElement: HTMLElement;
     let promotionModal: HTMLElement;
@@ -156,7 +157,7 @@
 /> 
 
 <!-- BOARD-WRAPPER -->
-<div class="relative h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
+<div class="relative h-full w-full aspect-square">
 
     <!-- BOARD -->
     <div class="flex justify-center items-center rounded-token w-full h-full" class:brightness-50={promotionMove!==null} bind:this={boardElement}>

@@ -17,7 +17,7 @@
 	}
 </script>
 
-<TabGroup regionPanel="flex-1 flex flex-col overflow-hidden" class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))] card !bg-secondary-700 p-4 flex flex-col">
+<TabGroup regionPanel="flex-1 flex flex-col overflow-hidden" class="h-full w-full card !bg-secondary-700 p-4 flex flex-col">
     <Tab bind:group={tabSet} name="moves" value={0}>Moves</Tab>
     <Tab bind:group={tabSet} name="chat" value={1}>Chat</Tab>
     <Tab bind:group={tabSet} name="settings" value={2}>Settings</Tab>

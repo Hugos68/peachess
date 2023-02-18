@@ -113,13 +113,16 @@
             </p>
         </header>
 
-        <ChessBoard playingSide={getPlayingSide(data.chessGame)} chessStore={chessStore} on:move={(event) => {
-            handleMove(
-                event.detail.from,
-                event.detail.to,
-                event.detail.promotion
-            );
-        }} />
+        <div class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
+            <ChessBoard playingSide={getPlayingSide(data.chessGame)} chessStore={chessStore}  on:move={(event) => {
+                handleMove(
+                    event.detail.from,
+                    event.detail.to,
+                    event.detail.promotion
+                );
+            }} />
+        </div>
+
 
         <footer class="flex justify-between items-end">
 
@@ -134,5 +137,8 @@
             </p>
         </footer>
     </div>
-    <ChessBoardSidePanel chessStore={chessStore} />
+
+    <div class="h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
+        <ChessBoardSidePanel chessStore={chessStore} />
+    </div>
  </div>
