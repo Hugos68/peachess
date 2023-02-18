@@ -64,10 +64,19 @@ const chessGameStore = () => {
         subscribe,
         loadGame: (toBeLoadedChessGame: chessGame) => {
             update(chess => {
+
                 chessGame = toBeLoadedChessGame;
                 chess.loadPgn(chessGame.pgn)
+
+                const moveAmountBeforeUpdating = moveStack.length + undoneMoveStack.length;
+
                 undoneMoveStack = [];
                 moveStack = chess.history({verbose: true});
+
+                const moveAmountAfterUpdating = moveStack.length + undoneMoveStack.length;
+                
+                if (moveAmountBeforeUpdating !== moveAmountAfterUpdating) playMoveSound(moveStack[moveStack.length-1]);
+
                 return chess;
             });
         },
@@ -131,6 +140,7 @@ const chessGameStore = () => {
 
                     // Move (throws exception if move is invalid)
                     move = chess.move({from, to, promotion});
+                    moveStack.push(move);
                     playMoveSound(move);
 
                 } catch(error) {

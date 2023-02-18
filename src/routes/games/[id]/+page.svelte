@@ -25,7 +25,7 @@
         // This callback is called whenever this game gets an update, payload contains the old and new version
         (payload) => {
             const updatedChessGame: ChessGame = payload.new as ChessGame
-
+            
             chessStore.loadGame(updatedChessGame);
         }
     )
