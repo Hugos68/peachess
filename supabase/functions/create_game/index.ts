@@ -79,6 +79,7 @@ serve(async (req) => {
                 status: 400,
             });
         }
+        // TODO: Check if both are already in a game
 
         // Randomly decide side (50/50)
         let playerWhite;
@@ -131,6 +132,6 @@ serve(async (req) => {
         return new Response(JSON.stringify({ error: error.message }), {
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
                 status: 400,
-        });
+        }); 
     }
 });

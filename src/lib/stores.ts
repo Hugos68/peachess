@@ -1,63 +1,92 @@
 import { Chess, type Move, type Square } from "chess.js";
 import { writable } from "svelte/store";
 
+export function createChessGameStore() {
+    return chessGameStore();
+}
 
-export const createChessGameStore = (chessGame: ChessGame) => { return chessGameStore(chessGame) }
-
-const chessGameStore = (chessGame: ChessGame) => {
+const chessGameStore = () => {
 
     const chess: Chess = new Chess();
-    chess.loadPgn(chessGame.pgn);
     const { set, update, subscribe } = writable(chess);
     
-    const undoneMoveStack: Move[] = [];
+    let undoneMoveStack: Move[] = [];
+    let moveStack: Move[] = [];
 
     return {
         set,
         update,
         subscribe,
+        loadGame: (chessGame: chessGame) => {
+            update(value => {
+                value.loadPgn(chessGame.pgn)
+                undoneMoveStack = [];
+                moveStack = value.history({verbose: true});
+                return value;
+            });
+        },
         loadFirstMove: () => {
-            update(chess => {
+            update(value => {
                 let move;
-                while ((move = chess.undo())) undoneMoveStack.push(move);
-                return chess;
+                while ((move = value.undo())) {
+                    moveStack.pop();
+                    undoneMoveStack.push(move);
+                } 
+                return value;
             });
         },
         loadPreviousMove: () => {
-            update(chess => {
-                const move = chess.undo();
-                if (move) undoneMoveStack.push(move);
-                return chess;
+            update(value => {
+                const move = value.undo({verbose: true});
+                if (move) {
+                    moveStack.pop();
+                    undoneMoveStack.push(move);
+                }
+                return value;
             });
         },
         loadNextMove: () => {
-            update(chess => {
+            update(value => {           
                 const move = undoneMoveStack.pop();
-                if (!move) return;
+                if (move)  {
+                    moveStack.push(move);
+                    value.move(move);
+                }
                 // playMoveSound(chess.move(move));
-                return chess;
+                return value;
             });
         },
         loadLastMove: () => {
-            update(chess => {
+            update(value => {
                 let move;
-                while ((move = undoneMoveStack.pop())) chess.move(move);
-                return chess;
+                while ((move = undoneMoveStack.pop())) {
+                    moveStack.push(move);
+                    value.move(move);
+                } 
+                return value;
             });
         },
+        getPreviousMove: (): Move | undefined => {
+            return moveStack[moveStack.length-1];
+        },
+        getCurrentMoveHistory: () => {
+            return moveStack;
+        },
+        getTotalMoveHistory: () => {
+            return moveStack.concat(undoneMoveStack.slice().reverse());
+        },
         move: (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b')   => {
-            update(chess => {
+            update(value => {
                 try {
-
+                    
                     // Move (throws exception if move is invalid)
-                    const move = chess.move({from, to, promotion});
-                    // playMoveSound(move);
+                    value.move({from, to, promotion});
+
                 } catch(error) {
                     console.error(error);
                 }
-                return chess;
+                return value;
             });
-
         }
     }
 }

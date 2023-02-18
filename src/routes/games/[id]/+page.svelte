@@ -9,17 +9,11 @@
     import type { Writable } from 'svelte/store';
     import { Howl } from 'howler';
 	import { fly } from "svelte/transition";
+    import { createChessGameStore } from "$lib/stores";
 
     export let data: PageData;
 
-    $: chess = new Chess();
-    $: moveStack = chess.history({verbose: true}) as Move[];
-    $: undoneMoveStack = [] as Move[];
-    $: if (chessBoard) {
-        undoneMoveStack = undoneMoveStack;
-        chessBoard.set(getConfig(chess, data.chessGame));
-        scrollSelectedMoveIntoView();
-    }
+    const chessStore = createChessGameStore();
 
     let tabSet: number = 0
     let chessBoard: any;
@@ -32,22 +26,6 @@
         sfx: true,
         premove: false,
         drag: true
-    });
-
-    const moveSFX = new Howl({
-        src: '/sfx/move.mp3'
-    });
-    const captureSFX = new Howl({
-        src: '/sfx/capture.mp3'
-    });
-    const castleSFX = new Howl({
-        src: '/sfx/castle.mp3'
-    });
-    const checkSFX = new Howl({
-        src: '/sfx/check.mp3'
-    });
-    const gameOverSFX = new Howl({
-        src: '/sfx/gameover.mp3'
     });
 
     const channel = supabase
@@ -63,20 +41,11 @@
         (payload) => {
             const updatedChessGame: ChessGame = payload.new as ChessGame
 
-            loadGame(updatedChessGame);
+            chessStore.loadGame(updatedChessGame);
         }
     )
     .subscribe();
         
-    const loadGame = (newChessGame: ChessGame) => {
-        chess.loadPgn(newChessGame.pgn);
-        chess = chess;
-        undoneMoveStack = [] as Move[];
-
-        // Once game is reloaded play any premoves the player might have
-        chessBoard.playPremove();
-    } 
-
     const getConfig = (chess: Chess, chessGame: ChessGame) => {
         return {
             fen: chess.fen(),
@@ -137,15 +106,14 @@
     }
 
     const getViewOnly = (chessGame: ChessGame) => {
-		if (undoneMoveStack.length!==0) return true;
         if (!$page.data.session) return true;
         if ($page.data.session.user.id !== chessGame.player_id_white && $page.data.session.user.id !== chessGame.player_id_black) return true;
-        if (chess.isGameOver()) return true;
+        if ($chessStore.isGameOver()) return true;
         return false;
 	}
 
     const getLastMove = (): Move | undefined => {
-        return moveStack[moveStack.length-1];
+        return chessStore.getPreviousMove();
     }
 
     const getValidDestinations = (chess: Chess) => {
@@ -170,17 +138,10 @@
 
     const doMove = async (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b') => {
         
-        try {
-            // Move (throws exception if move is invalid)
-            const move = chess.move({from, to, promotion});
-            playMoveSound(move);
-            
-            chess = chess;
-        } catch(error) {
-            console.error(error);
-            return;
-        }
-        
+        chessStore.move(from, to, promotion);
+        const move = chessStore.getPreviousMove();
+        if (move) playMoveSound(move);
+       
         // Execute the move to the database
         const {error} = await supabase.functions.invoke('move', {
             body : {
@@ -194,11 +155,11 @@
         });
 
         // Reload to last known stable state if anything goes wrong
-        if (error) loadGame(data.chessGame);
+        if (error) chessStore.loadGame(data.chessGame);
     }
 
     const isMovePromotion = (from: Square, to: Square): boolean => {
-        const {type, color} = chess.get(from);
+        const {type, color} = $chessStore.get(from);
         const rankNumber =  Number.parseInt(to.charAt(1));
 
         if (type!==PAWN) return false;
@@ -227,49 +188,29 @@
     
     const cancelPromotion = () => {
         promotionMove = null;
-        chess = chess;
     }
 
-    const loadFirstMove = () => {
-        let move;
-        while (move = chess.undo()) undoneMoveStack.push(move);
-        chess = chess;
-    }
-
-    const loadPreviousMove =() => {
-        const move = chess.undo();
-        if (!move) return;
-        undoneMoveStack.push(move);
-        chess = chess;
-    }
-
-    const loadNextMove = () => {
-        const move = undoneMoveStack.pop();
-        if (!move) return;
-        playMoveSound(chess.move(move));
-        chess = chess;
-    }
-    
-    const loadLastMove = () => {
-        let move;
-        while (move = undoneMoveStack.pop()) chess.move(move);
-        chess = chess;
-    }
-
-    const scrollSelectedMoveIntoView = () => {
-
-        // Doing setTimeout without any time fixes the race condition between the elements loading and setting the scroll position
-        setTimeout(() => {
-            const li = document.getElementById('move'+(moveStack.length-1));
-            if (li) li.scrollIntoView({behavior: 'smooth', block: "center"});
-        });
-    }
+    const moveSFX = new Howl({
+    src: '/sfx/move.mp3'
+    });
+    const captureSFX = new Howl({
+        src: '/sfx/capture.mp3'
+    });
+    const castleSFX = new Howl({
+        src: '/sfx/castle.mp3'
+    });
+    const checkSFX = new Howl({
+        src: '/sfx/check.mp3'
+    });
+    const gameOverSFX = new Howl({
+        src: '/sfx/gameover.mp3'
+    });
 
     const playMoveSound = (move: Move) => {
         if (!$settings.sfx) return;
-
+        
         // '+' is when a piece checks the opponents king
-        else if (move.san.includes('+')) checkSFX.play();
+        if (move.san.includes('+')) checkSFX.play();
 
         // 'k' is when castling kingside, 'q' is when castling queenside
         else if (move.flags.includes('k') || move.flags.includes('q')) castleSFX.play();
@@ -284,6 +225,15 @@
         if (move.san.includes('#')) gameOverSFX.play();
     }
 
+
+    const scrollSelectedMoveIntoView = () => {
+
+        // // Doing setTimeout without any time fixes the race condition between the elements loading and setting the scroll position
+        // setTimeout(() => {
+        //     const li = document.getElementById('move'+(moveStack.length-1));
+        //     if (li) li.scrollIntoView({behavior: 'smooth', block: "center"});
+        // });
+    }
     
 	function triggerCopiedToast(type: 'Link' | 'FEN' | 'PGN') {
         const t: ToastSettings = {
@@ -296,7 +246,10 @@
 
     onMount(() => {
         chessBoard = Chessground(boardElement);
-        loadGame(data.chessGame);
+        chessStore.loadGame(data.chessGame);
+        chessStore.subscribe(value => {
+            if (chessBoard) chessBoard.set(getConfig(value, data.chessGame));
+        });        
     });
     
     onDestroy(() => {
@@ -309,8 +262,8 @@
         if (!promotionModal.contains(event.target) && promotionMove!==null) cancelPromotion();
     }}
     on:keydown={(event) => {
-        if (event.key==='ArrowLeft') loadPreviousMove();
-        if (event.key==='ArrowRight') loadNextMove();
+        if (event.key==='ArrowLeft') chessStore.loadPreviousMove();
+        if (event.key==='ArrowRight') chessStore.loadNextMove();
     }} 
  /> 
 
@@ -320,33 +273,33 @@
         <header class="flex justify-between">
             <div class="flex gap-2">
     
-            {#if chess.isGameOver()}
+            {#if $chessStore.isGameOver()}
                 <p  class="p-2 rounded-token font-semibold text-center bg-secondary-700">
-                    {#if chess.isCheckmate()}
-                        {chess.turn() === WHITE ? 'Black' : 'White'} won with checkmate
-                    {:else if chess.isStalemate()}
+                    {#if $chessStore.isCheckmate()}
+                        {$chessStore.turn() === WHITE ? 'Black' : 'White'} won with checkmate
+                    {:else if $chessStore.isStalemate()}
                         Stalemate
-                    {:else if chess.isDraw()}
+                    {:else if $chessStore.isDraw()}
                         Draw    
                     {/if}
                 </p>
             {:else}
                 <p
                 class="p-2 rounded-token font-semibold text-center"
-                class:text-white={chess.turn()===BLACK}
-                class:text-black={chess.turn()===WHITE}
-                class:bg-white={chess.turn()===WHITE} 
-                class:bg-black={chess.turn()===BLACK}>
-                {chess.turn()===WHITE ? 'White' : 'Black'}'s turn
+                class:text-white={$chessStore.turn()===BLACK}
+                class:text-black={$chessStore.turn()===WHITE}
+                class:bg-white={$chessStore.turn()===WHITE} 
+                class:bg-black={$chessStore.turn()===BLACK}>
+                {$chessStore.turn()===WHITE ? 'White' : 'Black'}'s turn
                 </p>
             {/if}
        
             </div>
             <p class="font-bold !text-xl">
                 {#if getOrientation(data.chessGame)==='white'}
-                    {chess.header().Black}
+                    {$chessStore.header().Black}
                 {:else} 
-                    {chess.header().White}
+                    {$chessStore.header().White}
                 {/if}
             </p>
         </header>
@@ -374,23 +327,27 @@
         </div>
         <footer class="flex justify-between items-end">
             <div class="flex gap-1">
-                <button disabled={moveStack.length===0} on:click={loadFirstMove} class="btn btn-sm variant-filled-primary">
+                <button on:click={chessStore.loadFirstMove} class="btn btn-sm variant-filled-primary">
                     <svg class="w-8 h-8" viewBox="0 0 1920 1920">
                         <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
                         <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
                     </svg>
                 </button>
-                <button disabled={moveStack.length===0} on:click={loadPreviousMove} class="btn btn-sm variant-filled-primary">
+                <button on:click={chessStore.loadPreviousMove} class="btn btn-sm variant-filled-primary">
                     <svg class="w-8 h-8" viewBox="0 0 1920 1920">
                         <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
                     </svg>
                 </button>   
-                <button disabled={undoneMoveStack.length===0} on:click={loadNextMove} class="btn btn-sm variant-filled-primary">
+                <button on:click={() => {
+                    chessStore.loadNextMove();
+                    const move = chessStore.getPreviousMove();
+                    if (move) playMoveSound(move);
+                }} class="btn btn-sm variant-filled-primary">
                     <svg class="w-8 h-8 rotate-180" viewBox="0 0 1920 1920">
                         <path d="m1394.006 0 92.299 92.168-867.636 867.767 867.636 867.636-92.299 92.429-959.935-960.065z" fill-rule="evenodd"/>
                     </svg>
                 </button>
-                <button disabled={undoneMoveStack.length===0} on:click={loadLastMove} class="btn btn-sm variant-filled-primary">
+                <button on:click={chessStore.loadLastMove} class="btn btn-sm variant-filled-primary">
                     <svg class="w-8 h-8 rotate-180" viewBox="0 0 1920 1920">
                         <path d="M1052 92.168 959.701 0-.234 959.935 959.701 1920l92.299-92.43-867.636-867.635L1052 92.168Z"/>
                         <path d="M1920 92.168 1827.7 0 867.766 959.935 1827.7 1920l92.3-92.43-867.64-867.635L1920 92.168Z"/>
@@ -399,9 +356,9 @@
             </div>
             <p class="font-bold !text-xl">
             {#if getOrientation(data.chessGame)==='black'}
-                {chess.header().Black}
+                {$chessStore.header().Black}
             {:else} 
-                {chess.header().White}
+                {$chessStore.header().White}
             {/if}
             </p>
         </footer>
@@ -420,22 +377,23 @@
                         <span class="flex-1 p-1"><strong>White</strong></span>
                         <span class="flex-1 p-1"><strong>Black</strong></span>
                     </div>
-             
-                    <ul id="moveList" class="overflow-scroll flex-1">
-                        {#each moveStack.concat(undoneMoveStack.slice().reverse()) as move, i} 
-                            {#if i%2===0}
-                                <li id="move{i}" class="w-full flex gap-2">
-                                    <span class="flex-1 p-1">{i/2+1}</span>
-                                    <span class="flex-1 p-1 rounded-token {moveStack.length-1===i ? "bg-primary-500/50" : ""}">{move.san}</span>
-                                    <span class="flex-1 p-1 rounded-token {moveStack.length-1===i+1 ? "bg-primary-500/50" : ""}">
-                                        {#if moveStack.concat(undoneMoveStack.slice().reverse())[i+1]}
-                                            {moveStack.concat(undoneMoveStack.slice().reverse())[i+1].san}
-                                        {/if}
-                                    </span>
-                                </li>
-                            {/if}
-                        {/each}
-                    </ul>
+                    {#key $chessStore}
+                        <ul id="moveList" class="overflow-scroll flex-1">
+                            {#each chessStore.getTotalMoveHistory() as move, i} 
+                                {#if i%2===0}
+                                    <li id="move{i}" class="w-full flex gap-2">
+                                        <span class="flex-1 p-1">{i/2+1}</span>
+                                        <span class="flex-1 p-1 rounded-token {chessStore.getCurrentMoveHistory().length-1===i ? "bg-primary-500/50" : ""}">{move.san}</span>
+                                        <span class="flex-1 p-1 rounded-token {chessStore.getCurrentMoveHistory().length-1===i+1 ? "bg-primary-500/50" : ""}">
+                                            {#if chessStore.getTotalMoveHistory()[i+1]}
+                                                {chessStore.getTotalMoveHistory()[i+1].san}
+                                            {/if}
+                                        </span>
+                                    </li>
+                                {/if}
+                            {/each}
+                        </ul>
+                    {/key}
                 {:else if tabSet === 1}
                         <p>Coming soon</p>
                 {:else if tabSet === 2}
@@ -444,7 +402,6 @@
     
                             // If premove got turned off, cancel current premove if present
                             if (!$settings.premove) chessBoard.cancelPremove();
-                             chess = chess
                         }, 25)}>
                         <label class="flex items-center gap-2 justify-between" for="animate">
                             Animate
@@ -470,13 +427,13 @@
                             Link:
                             <input class="input" type="text" readonly value={$page.url} />
                         </label>
-                        <label use:clipboard={chess.fen()} on:click={() => triggerCopiedToast('FEN')}>
+                        <label use:clipboard={$chessStore.fen()} on:click={() => triggerCopiedToast('FEN')}>
                             FEN:
-                            <input class="input" type="text" readonly value={chess.fen()} />
+                            <input class="input" type="text" readonly value={$chessStore.fen()} />
                         </label>
-                        <label use:clipboard={chess.pgn()} on:click={() => triggerCopiedToast('PGN')}>
+                        <label use:clipboard={$chessStore.pgn()} on:click={() => triggerCopiedToast('PGN')}>
                             PGN:
-                            <textarea class="input resize-none" rows=10 readonly value={chess.pgn()} />
+                            <textarea class="input resize-none" rows=10 readonly value={$chessStore.pgn()} />
                         </label>
                     </div>
                 {/if}
