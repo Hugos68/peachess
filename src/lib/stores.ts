@@ -90,7 +90,7 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
 
                 const moveAmountBeforeUpdating = chessState.moveStack.length + chessState.undoneMoveStack.length;
 
-                chessState. undoneMoveStack = [];
+                chessState.undoneMoveStack = [];
                 chessState.moveStack = chessState.chess.history({verbose: true});
 
                 const moveAmountAfterUpdating = chessState.moveStack.length + chessState.undoneMoveStack.length;
