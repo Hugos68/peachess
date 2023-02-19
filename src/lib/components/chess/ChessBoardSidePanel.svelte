@@ -72,7 +72,7 @@
             <p class="text-xl font-bold text-center">Click to copy</p>
 
             <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <div class="flex flex-col gap-8">
+            <div class="flex flex-col justify-between gap-2">
                 <label for="fen" use:clipboard={$page.url} on:click={() => triggerCopiedToast('Link')}>
                     Link:
                     <input  class="input" type="text" readonly value={$page.url} />
@@ -83,7 +83,7 @@
                 </label>
                 <label use:clipboard={$chessStateStore.chess.pgn()} on:click={() => triggerCopiedToast('PGN')}>
                     PGN:
-                    <textarea class="input resize-none" rows=10 readonly value={$chessStateStore.chess.pgn()} />
+                    <textarea class="input resize-none rounded-lg" rows=10 readonly value={$chessStateStore.chess.pgn()} />
                 </label>
             </div>
         {/if}

@@ -112,11 +112,10 @@
     <div class="flex flex-col gap-4">
         <header class="flex justify-between">
             <div class="flex gap-2">
-    
             {#if $chessStateStore.chess.isGameOver()}
                 <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">
                     {#if $chessStateStore.chess.isCheckmate()}
-                        {$chessStateStore.chess.turn() === WHITE ? 'Black' : 'White'} won with checkmate
+                        Checkmate
                     {:else if $chessStateStore.chess.isStalemate()}
                         Stalemate
                     {:else if $chessStateStore.chess.isDraw()}
@@ -133,7 +132,6 @@
                 {$chessStateStore.chess.turn()===WHITE ? 'White' : 'Black'}'s turn
                 </p>
             {/if}
-       
             </div>
             <div class="flex flex-col items-end">
                 <p class="font-bold">{$chessStateStore.chess.header()[getPlayingSide($chessStateStore.chessGame) === BLACK ? 'White' : 'Black']}</p>
@@ -151,7 +149,7 @@
             </div>
         </header>
 
-        <div class="rounded-token h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
+        <div class="overflow-hidden card h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
             <ChessBoard chessStateStore={chessStateStore}  on:move={(event) => {
                 handleMove(
                     event.detail.from,
