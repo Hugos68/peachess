@@ -1,11 +1,13 @@
 <script lang="ts">
-	import { BLACK, PAWN, SQUARES, WHITE, type Chess, type Move, type Square } from "chess.js";
+	import { BLACK, PAWN, WHITE, type Square } from "chess.js";
 	import { Chessground } from "chessground";
 	import { fly } from "svelte/transition";
 	import { onMount } from "svelte";
     import { settings, type ChessStateStore } from "$lib/stores";
     import { createEventDispatcher } from "svelte";
 	import { page } from "$app/stores";
+	import { focusTrap } from "@skeletonlabs/skeleton";
+	import { getValidMoves as getValidDestinations } from "$lib/util";
 
     export let chessStateStore: ChessStateStore;
 
@@ -99,15 +101,6 @@
         return false;
 	}
 
-    const getValidDestinations = (chess: Chess) => {
-        const dests = new Map();
-        SQUARES.forEach(s => {
-            const moves = chess.moves({square: s, verbose: true});
-            dests.set(s, moves.map(m => m.to));
-        });
-        return dests;
-    }
-
     const moveCallback = (from: Square, to: Square) => {        
         // If there is a promotion set the promotionMove and return so that the move doesn't get played yet (in case of a promotion cancel)
         const promotion = isMovePromotion(from, to);
@@ -160,29 +153,30 @@
     }
 </script>
 
-<svelte:window 
-    on:mousedown={(event) => {
+<svelte:window on:mousedown={(event) => {
         if (!promotionModal.contains(event.target) && promotionMove!==null) cancelPromotion();
-    }}
-/> 
+}} /> 
+
 
 <!-- BOARD-WRAPPER -->
 <div class="relative h-full w-full aspect-square">
 
     <!-- BOARD -->
-    <div class="flex justify-center items-center w-full h-full" class:brightness-50={promotionMove!==null} bind:this={boardElement}>
+    <div class="flex justify-center items-center w-full h-full transition-[filter]" class:brightness-50={promotionMove!==null} bind:this={boardElement}>
         <p class="!text-[2rem] animate-bounce">
             Loading board...
         </p>
     </div>
 
     <!-- PROMOTION-MODAL -->
-    <div in:fly={{y: 50, duration: 150}} bind:this={promotionModal} class:hidden={promotionMove===null} class="absolute top-0 w-[12.5%] h-[50%] z-[50]">
+    <div bind:this={promotionModal} class:hidden={promotionMove===null} class="absolute top-0 w-[12.5%] h-[50%] z-[50] bg-primary-500">
         {#if promotionMove}
-            <button class="btn w-full variant-glass-secondary h-[25%] bg-cover queen {getOrientation($chessStateStore.chessGame)}" on:click={() => handlePromotion('q')}></button>
-            <button class="btn w-full variant-glass-secondary h-[25%] bg-cover rook {getOrientation($chessStateStore.chessGame)}" on:click={() => handlePromotion('r')}></button>
-            <button class="btn w-full variant-glass-secondary h-[25%] bg-cover knight {getOrientation($chessStateStore.chessGame)}" on:click={() => handlePromotion('n')}></button>
-            <button class="btn w-full variant-glass-secondary h-[25%] bg-cover bishop {getOrientation($chessStateStore.chessGame)}" on:click={() => handlePromotion('b')}></button>
+            <div class="h-full w-full" transition:fly={{y: -100, duration: 200}} use:focusTrap={promotionMove!==null}>
+                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover queen {getOrientation($chessStateStore.chessGame)}" on:click={() => handlePromotion('q')}></button>
+                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover rook {getOrientation($chessStateStore.chessGame)}" on:click={() => handlePromotion('r')}></button>
+                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover knight {getOrientation($chessStateStore.chessGame)}" on:click={() => handlePromotion('n')}></button>
+                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover bishop {getOrientation($chessStateStore.chessGame)}" on:click={() => handlePromotion('b')}></button>
+            </div>
         {/if}
     </div>
 </div>

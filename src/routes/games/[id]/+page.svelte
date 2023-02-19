@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { BLACK, WHITE, type Move, type Square } from "chess.js";
+	import { BLACK, WHITE, type Square } from "chess.js";
     import type { PageData } from "./$types";
 	import { supabase } from "$lib/supabase";
     import { createChessStateStore, type ChessStateStore } from "$lib/stores";
@@ -9,6 +9,8 @@
 	import { page } from "$app/stores";
 	import { onMount } from "svelte";
 	import { derived, type Readable } from "svelte/store";
+	import { getCapturedPieces } from "$lib/util";
+	import { fly } from "svelte/transition";
 
     export let data: PageData;
 
@@ -19,25 +21,7 @@
     }
 
     const capturedPiecesStore: Readable<CapturedPieces> = derived(chessStateStore, $chessStateStore => {
-        const capturedPieces: CapturedPieces = {
-            w: { k: 0, q: 0, r: 0, n: 0, b: 0, p: 0 },
-            b: { k: 0, q: 0, r: 0, n: 0, b: 0, p: 0 },
-        }
-        let move: Move;
-        for (move of $chessStateStore.moveStack) {
-            if (move.captured)  {
-                capturedPieces[move.color][move.captured]+=1;
-            }
-        }
-        return capturedPieces;
-    });
-
-    const capturedPiecesWhiteStore = derived(capturedPiecesStore, $capturedPiecesStore => {
-        return $capturedPiecesStore.w;
-    });
-
-    const capturedPiecesBlackStore = derived(capturedPiecesStore, $capturedPiecesStore => {
-        return $capturedPiecesStore.b;
+        return getCapturedPieces($chessStateStore.moveStack);
     });
 
     onMount(() => {
@@ -136,15 +120,17 @@
             <div class="flex flex-col items-end">
                 <p class="font-bold">{$chessStateStore.chess.header()[getPlayingSide($chessStateStore.chessGame) === BLACK ? 'White' : 'Black']}</p>
                 <div class="flex flex-row-reverse gap-6">
-                    {#each Object.entries(getPlayingSide($chessStateStore.chessGame) === BLACK ? $capturedPiecesWhiteStore : $capturedPiecesBlackStore) as [piece, amount]}
-                        {#if amount > 0}
-                            <div class="relative">
-                                {#each Array(amount) as _, i}
-                                    <div style="transform: translateX(-{i*25}%);" class="absolute top-0 right-0 w-6 bg-cover aspect-square {fullPieceNameObject[piece]} {getPlayingSide($chessStateStore.chessGame) === BLACK ? "black" : "white"}"></div>
-                                {/each}
-                            </div>
-                        {/if}
-                    {/each}
+                    {#each Object.entries(getPlayingSide($chessStateStore.chessGame) === BLACK ? $capturedPiecesStore.w : $capturedPiecesStore.b).filter(item => item[1] > 0) as [piece, amount] (piece)}
+                    <div class="relative">
+                        {#each Array(amount) as _, i}
+                            <div 
+                            style="transform: translateX(-{i*25}%);" 
+                            class="absolute top-0 right-0 w-6 bg-cover aspect-square {fullPieceNameObject[piece]} {getPlayingSide($chessStateStore.chessGame) === BLACK ? "black" : "white"}" 
+                            transition:fly={{y: 20, duration: 200}}
+                            ></div>
+                        {/each}
+                    </div>
+                {/each}
                 </div>
             </div>
         </header>
@@ -163,17 +149,18 @@
         <footer class="flex justify-between items-end">
 
             <MoveControls chessStateStore={chessStateStore} />
-       
             <div class="flex flex-col items-end">
                 <div class="flex flex-row-reverse gap-6">
-                    {#each Object.entries(getPlayingSide($chessStateStore.chessGame) === WHITE ? $capturedPiecesWhiteStore : $capturedPiecesBlackStore) as [piece, amount]}
-                        {#if amount > 0}
-                            <div class="relative">
-                                {#each Array(amount) as _, i}
-                                    <div style="transform: translateX(-{i*25}%);" class="absolute bottom-0 right-0 w-6 bg-cover aspect-square {fullPieceNameObject[piece]} {getPlayingSide($chessStateStore.chessGame) === WHITE ? "black" : "white"}"></div>
-                                {/each}
-                            </div>
-                        {/if}
+                    {#each Object.entries(getPlayingSide($chessStateStore.chessGame) === WHITE ? $capturedPiecesStore.w : $capturedPiecesStore.b).filter(item => item[1] > 0) as [piece, amount] (piece)}
+                        <div class="relative">
+                            {#each Array(amount) as _, i}
+                                <div 
+                                style="transform: translateX(-{i*25}%);" 
+                                class="absolute bottom-0 right-0 w-6 bg-cover aspect-square {fullPieceNameObject[piece]} {getPlayingSide($chessStateStore.chessGame) === WHITE ? "black" : "white"}" 
+                                transition:fly={{y: -20, duration: 200}}
+                                ></div>
+                            {/each}
+                        </div>
                     {/each}
                 </div>
                 <p class="font-bold">{$chessStateStore.chess.header()[getPlayingSide($chessStateStore.chessGame) === WHITE ? 'White' : 'Black']}</p>
