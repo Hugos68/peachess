@@ -11,7 +11,7 @@
 	}
 </script>
 
-<AppBar class="h-16 justify-center !bg-tertiary-500" padding="px-[4vw]">
+<AppBar class="h-16 justify-center" padding="px-[4vw]">
     <svelte:fragment slot="lead">
         <button class="btn p-0" on:click={openLeftSideBar}>
             <svg class="w-8 h-8" viewBox="0 0 100 100">

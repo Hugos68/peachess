@@ -92,19 +92,21 @@
     {/if}
     <div class="flex flex-wrap gap-8" class:hidden={!mounted}>
         {#each data.chessGames as chessGame} 
-            <a class="card card-hover h-full w-full flex-[25rem] p-4 flex flex-col group" href="/games/{chessGame.id}">
+            <a class="card h-full w-full flex-[25rem] p-4 flex flex-col group" href="/games/{chessGame.id}">
                 {#if mounted} 
                 <div class="pb-4 flex justify-between">
                     <p class="font-bold">Game {chessGame.id}: {chessGameChessObjectMap.get(chessGame.id)?.header()['White']} vs {chessGameChessObjectMap.get(chessGame.id)?.header()['Black']}</p>
                     {#if !chessGameChessObjectMap.get(chessGame.id)?.isGameOver()}
-                        <p class="bg-red-400 rounded-token p-0.5 px-3 pl-6 relative before:absolute before:rounded-full before:bg-white before:w-2 before:aspect-square before:left-3 before:top-[50%] before:translate-y-[-50%]">Live</p>
+                        <div class="badge bg-red-400">
+                            <div class="w-2 aspect-square rounded-full bg-white"></div>
+                            <span class="font-bold">Live</span>
+                        </div>
+                      
+                     
                     {/if}
                 </div>
                 {/if}
-                <div class="relative group">
-                    <div class="group-hover:brightness-50 transition-[filter]" id="board{chessGame.id}"></div>
-                    <p class="font-bold !text-2xl absolute hidden group-hover:inline z-999 top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]">Click to view</p>
-                </div>
+                <div class="group-hover:brightness-75 transition-[filter] duration-250" id="board{chessGame.id}"></div>
             </a>
         {/each}
         <div class="flex-[1_0_25rem] p-4 h-0"></div>
