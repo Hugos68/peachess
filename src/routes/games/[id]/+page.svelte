@@ -101,25 +101,20 @@
     <div class="flex flex-col gap-4">
         <header class="flex justify-between">
             <div class="flex gap-2">
-            {#if $chessStateStore.chess.isGameOver()}
-                <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">
-                    {#if $chessStateStore.chess.isCheckmate()}
-                        Checkmate
-                    {:else if $chessStateStore.chess.isStalemate()}
-                        Stalemate
-                    {:else if $chessStateStore.chess.isDraw()}
-                        Draw    
-                    {/if}
-                </p>
+            {#if $chessStateStore.chess.isCheckmate()}
+                <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Checkmate</p>
+            {:else if $chessStateStore.chess.isStalemate()}
+                <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Stalemate</p>
+            {:else if $chessStateStore.chess.isDraw()}
+                <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Draw</p>
             {:else}
                 <p
                 class="my-auto p-2 rounded-token font-semibold text-center"
                 class:text-white={$chessStateStore.chess.turn()===BLACK}
                 class:text-black={$chessStateStore.chess.turn()===WHITE}
                 class:bg-white={$chessStateStore.chess.turn()===WHITE} 
-                class:bg-black={$chessStateStore.chess.turn()===BLACK}>
-                {$chessStateStore.chess.turn()===WHITE ? 'White' : 'Black'}'s turn
-                </p>
+                class:bg-black={$chessStateStore.chess.turn()===BLACK}
+                >{$chessStateStore.chess.turn()===WHITE ? 'White' : 'Black'}'s turn</p>
             {/if}
             </div>
             <div class="flex flex-col items-end">
