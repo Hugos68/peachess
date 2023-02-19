@@ -42,6 +42,11 @@ export function getValidMoves(chess: Chess): Map<Square, Square> {
     return dests;
 }
 
-export function getMaterial(capturedPieces: CapturedPieces, color: WHITE | BLACK): number {
-
+export function getMaterial(capturedPieces: CapturedPieces): number {
+    let material = 0;
+    Object.entries(capturedPieces).forEach(([piece, amount]) => {
+        material += getPieceWeight(piece) * amount;
+    });
+    console.log(material);
+    return material;
 }

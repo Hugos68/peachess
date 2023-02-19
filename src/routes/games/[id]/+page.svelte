@@ -9,7 +9,7 @@
 	import { page } from "$app/stores";
 	import { onMount } from "svelte";
 	import { derived, type Readable } from "svelte/store";
-	import { getCapturedPieces } from "$lib/util";
+	import { getCapturedPieces, getMaterial } from "$lib/util";
 	import { fly } from "svelte/transition";
 
     export let data: PageData;
@@ -157,8 +157,7 @@
             <div class="flex flex-col items-end">
                 <div class="flex flex-row-reverse gap-6">
                     {#each Object.entries(getPlayingSide($chessStateStore.chessGame) === WHITE ? $capturedPiecesWhite: $capturedPiecesBlack).filter(item => item[1] > 0) as [piece, amount] (piece)}
-                        <div class="relative" 
-                        >
+                        <div class="relative">
                             {#each Array(amount) as _, i}
                                 <div 
                                 style="transform: translateX(-{i*25}%);" 

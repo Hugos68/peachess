@@ -115,7 +115,7 @@
         });
     }
 
-    const isMovePromotion = (from: Square, to: Square): boolean => {
+    const isMovePromotion = (from: Square, to: Square,): boolean => {
         const {type, color} = $chessStateStore.chess.get(from);
         const rankNumber =  Number.parseInt(to.charAt(1));
 
