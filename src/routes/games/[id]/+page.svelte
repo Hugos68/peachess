@@ -8,25 +8,15 @@
 	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
 	import { page } from "$app/stores";
 	import { onMount } from "svelte";
-	import { derived, type Readable } from "svelte/store";
-	import { getCapturedPieces, getMaterial } from "$lib/util";
-	import { fly } from "svelte/transition";
+	import {  writable, type Writable } from "svelte/store";
+	import { getMaterial as getMaterialFromColor } from "$lib/util";
 
     export let data: PageData;
 
     const chessStateStore: ChessStateStore = createChessStateStore(data.chessGame);
 
-    const fullPieceNameObject = {
-        k: 'king', q: 'queen', r: 'rook', n: 'knight', b: 'bishop', p: 'pawn'
-    }
-
-    const capturedPiecesWhite: Readable<CapturedPieces> = derived(chessStateStore, $chessStateStore => {
-        return getCapturedPieces($chessStateStore.moveStack, WHITE);
-    });
-    
-    const capturedPiecesBlack: Readable<CapturedPieces> = derived(chessStateStore, $chessStateStore => {
-        return getCapturedPieces($chessStateStore.moveStack, BLACK);
-    });
+    const whiteMaterialStore: Writable<Material> = writable(getMaterialFromColor($chessStateStore.moveStack, WHITE));
+    const blackMaterialStore: Writable<Material> = writable(getMaterialFromColor($chessStateStore.moveStack, BLACK));
 
 
     onMount(() => {
@@ -57,7 +47,14 @@
 
     const handleMove = async (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b') => {
         
-        chessStateStore.move(from, to, promotion);
+        const move = chessStateStore.move(from, to, promotion);
+        
+        // Update capture stores only when captures happen
+        if (move.captured) {
+            if (move.color===WHITE) whiteMaterialStore.set(getMaterialFromColor($chessStateStore.moveStack, WHITE));
+            else blackMaterialStore.set(getMaterialFromColor($chessStateStore.moveStack, BLACK));
+            console.log($whiteMaterialStore);
+        }
 
         // Execute the move to the database
         const {error} = await supabase.functions.invoke('move', {

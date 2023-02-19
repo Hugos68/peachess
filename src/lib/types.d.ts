@@ -26,11 +26,12 @@ interface ChessState {
     undoneMoveStack: Move[]
 }
 
-interface CapturedPieces {
+interface Material {
     k: number
     q: number
     r: number
     n: number
     b: number
     p: number
+    material: number
 }

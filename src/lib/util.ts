@@ -23,12 +23,15 @@ export function getPieceWeight(piece: 'k' | 'q' | 'r' | 'n' | 'b' | 'p'): number
     }
 }
 
-export function getCapturedPieces(moves: Move[], color: WHITE | BLACK): CapturedPieces {
+export function getMaterial(moves: Move[], color: WHITE | BLACK): CapturedPieces {
     const capturedPieces: CapturedPieces = {
-         k: 0, q: 0, r: 0, n: 0, b: 0, p: 0 ,
+         k: 0, q: 0, r: 0, n: 0, b: 0, p: 0, material: 0
     }
     for (const move of moves) {
-        if (move.captured && move.color===color) capturedPieces[move.captured]++;
+        if (move.captured && move.color===color)  {
+            capturedPieces[move.captured]++;
+            capturedPieces.material+=getPieceWeight(move.captured);
+        }
     }
     return capturedPieces;
 }
@@ -40,13 +43,4 @@ export function getValidMoves(chess: Chess): Map<Square, Square> {
         dests.set(square, moves.map(move => move.to));
     });
     return dests;
-}
-
-export function getMaterial(capturedPieces: CapturedPieces): number {
-    let material = 0;
-    Object.entries(capturedPieces).forEach(([piece, amount]) => {
-        material += getPieceWeight(piece) * amount;
-    });
-    console.log(material);
-    return material;
 }
