@@ -11,6 +11,7 @@
 	import { invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { supabase } from '$lib/supabase';
+	import { page } from '$app/stores';
 
 	// SUPABASE AUTH SESSION OBSERVER
 	onMount(() => {
@@ -34,9 +35,11 @@
 		</div>
 	</svelte:fragment>
 	<svelte:fragment slot="sidebarLeft">
-		<div class="hidden 2xl:block">
-			<SideBarLeft />
-		</div>
+		{#if $page.route.id!=='/'}
+			<div class="hidden 2xl:block">
+				<SideBarLeft />
+			</div>
+		{/if}
 	</svelte:fragment>
 	<div class="base-page-container"><slot /></div>
 	<svelte:fragment slot="pageFooter"><Footer /></svelte:fragment>

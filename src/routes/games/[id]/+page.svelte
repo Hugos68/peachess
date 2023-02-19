@@ -82,7 +82,7 @@
             <div class="flex gap-2">
     
             {#if $chessStateStore.chess.isGameOver()}
-                <p  class="p-2 rounded-token font-semibold text-center bg-secondary-700">
+                <p class="p-2 rounded-token font-semibold text-center bg-secondary-700">
                     {#if $chessStateStore.chess.isCheckmate()}
                         {$chessStateStore.chess.turn() === WHITE ? 'Black' : 'White'} won with checkmate
                     {:else if $chessStateStore.chess.isStalemate()}

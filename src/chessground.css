@@ -37,14 +37,6 @@ cg-helper {
   bottom: 0;
 }
 
-cg-container {
-  position: absolute;
-  width: 800%;
-  height: 800%;
-  display: block;
-  bottom: 0;
-}
-
 cg-board {
   position: absolute;
   top: 0;
