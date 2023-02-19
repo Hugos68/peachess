@@ -1,21 +1,22 @@
 <script lang="ts">
 	import { page } from "$app/stores";
+	import NewGameModal from "$lib/components/modal/NewGameModal.svelte";
 	import { supabase } from "$lib/supabase";
-	import { toastStore, type ToastSettings } from "@skeletonlabs/skeleton";
+	import { modalStore, toastStore, type ModalComponent, type ModalSettings, type ToastSettings } from "@skeletonlabs/skeleton";
 	import { Chess } from "chess.js";
 	import { Chessground } from "chessground";
-	import { onMount, onDestroy } from "svelte";
+	import { onMount } from "svelte";
 	import type { PageData } from "./$types";
 
     export let data: PageData;
     
     if ($page.url.searchParams.get('message')) {
-        const t: ToastSettings = {
+        const toast: ToastSettings = {
             preset: 'error',
             message: $page.url.searchParams.get('message') || 'Something went wrong',
             autohide: true,
         }
-        toastStore.trigger(t);
+        toastStore.trigger(toast);
     } 
 
     let mounted: boolean = false;
@@ -55,12 +56,23 @@
         mounted = true;
     });
 
+    const handleCreateNewGame = () => {
+        const modalComponent: ModalComponent = {
+		    ref: NewGameModal,
+        };
+	    const modal: ModalSettings = {
+            type: 'component',
+            title: 'Create a new game',
+            component: modalComponent,
+        };
+        modalStore.trigger(modal);
+    }
 </script>
 
 <div class="mt-[5vh] flex flex-col gap-8">
     <div class="flex justify-between items-center gap-4">
         <h1 >Games</h1>
-        <button class=" btn btn-sm variant-filled-primary">+ New Game</button>
+        <button class=" btn btn-sm variant-filled-primary" on:click={handleCreateNewGame}>+ New Game</button>
     </div>
 
     {#if !mounted}
@@ -73,7 +85,7 @@
                 <div class="pb-4 flex justify-between">
                     <p class="font-bold">Game {chessGame.id}: {chessGameChessObjectMap.get(chessGame.id)?.header()['White']} vs {chessGameChessObjectMap.get(chessGame.id)?.header()['Black']}</p>
                     {#if !chessGameChessObjectMap.get(chessGame.id)?.isGameOver()}
-                        <p class="bg-red-40 rounded-token p-0.5 px-3 pl-6 relative before:absolute before:rounded-full before:bg-white before:w-2 before:aspect-square before:left-3 before:top-[50%] before:translate-y-[-50%]">Live</p>
+                        <p class="bg-red-400 rounded-token p-0.5 px-3 pl-6 relative before:absolute before:rounded-full before:bg-white before:w-2 before:aspect-square before:left-3 before:top-[50%] before:translate-y-[-50%]">Live</p>
                     {/if}
                 </div>
                 {/if}

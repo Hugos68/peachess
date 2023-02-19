@@ -109,7 +109,7 @@ serve(async (req) => {
             {
                 player_id_white: playerWhite.id,
                 player_id_black: playerBlack.id,
-                pgn: chess.pgn()
+                pgn: chess.pgn().replace(/([^\n])(\*)$/, '$1\n$2')
             }
         ])
         .select()
