@@ -4,6 +4,7 @@
 	import { supabase } from "$lib/supabase";
     import { createChessStateStore, type ChessStateStore } from "$lib/stores";
 	import MoveControls from "$lib/components/chess/MoveControls.svelte";
+    import MaterialTracker from "$lib/components/chess/MaterialTracker.svelte";
 	import ChessBoardSidePanel from "$lib/components/chess/ChessBoardSidePanel.svelte";
 	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
 	import { onMount } from "svelte";
@@ -12,9 +13,7 @@
     export let data: PageData;
 
     const chessStateStore: ChessStateStore = createChessStateStore(data.chessGame);
-    $: {
-        console.log($chessStateStore.material.w);
-    }
+
     onMount(() => {
 
         // Only open a channel when the game is ongoing 
@@ -71,28 +70,34 @@
 
  <div class="mx-auto flex flex-col xl:flex-row justify-center items-center gap-12">
 
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-2">
         <header class="flex justify-between">
-            <div>
-                {#if $chessStateStore.chess.isCheckmate()}
-                    <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Checkmate</p>
-                {:else if $chessStateStore.chess.isStalemate()}
-                    <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Stalemate</p>
-                {:else if $chessStateStore.chess.isDraw()}
-                    <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Draw</p>
+            {#if $chessStateStore.chess.isCheckmate()}
+                <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Checkmate</p>
+            {:else if $chessStateStore.chess.isStalemate()}
+                <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Stalemate</p>
+            {:else if $chessStateStore.chess.isDraw()}
+                <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Draw</p>
+            {:else}
+                <p
+                class="my-auto p-2 rounded-token font-semibold text-center"
+                class:text-white={$chessStateStore.chess.turn()===BLACK}
+                class:text-black={$chessStateStore.chess.turn()===WHITE}
+                class:bg-white={$chessStateStore.chess.turn()===WHITE} 
+                class:bg-black={$chessStateStore.chess.turn()===BLACK}
+                >{$chessStateStore.chess.turn()===WHITE ? 'White' : 'Black'}'s turn</p>
+            {/if}
+
+            <div class="flex flex-col items-end">
+                {#if getOrientation($chessStateStore.chessGame) === 'white'}
+                    <p class="font-bold">{$chessStateStore.chess.header()['Black']}</p>
+                    <MaterialTracker chessStateStore={chessStateStore} color={WHITE} />
                 {:else}
-                    <p
-                    class="my-auto p-2 rounded-token font-semibold text-center"
-                    class:text-white={$chessStateStore.chess.turn()===BLACK}
-                    class:text-black={$chessStateStore.chess.turn()===WHITE}
-                    class:bg-white={$chessStateStore.chess.turn()===WHITE} 
-                    class:bg-black={$chessStateStore.chess.turn()===BLACK}
-                    >{$chessStateStore.chess.turn()===WHITE ? 'White' : 'Black'}'s turn</p>
+                    <p class="font-bold">{$chessStateStore.chess.header()['White']}</p>
+                    <MaterialTracker chessStateStore={chessStateStore} color={BLACK} />
                 {/if}
             </div>
-            <div class="flex flex-col items-end">
-                <p class="font-bold">{$chessStateStore.chess.header()[getOrientation($chessStateStore.chessGame) === 'black' ? 'White' : 'Black']}</p>
-            </div>
+
         </header>
 
         <div class="overflow-hidden card h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
@@ -109,8 +114,15 @@
         <footer class="flex justify-between items-end">
 
             <MoveControls chessStateStore={chessStateStore} />
+
             <div class="flex flex-col items-end">
-                <p class="font-bold">{$chessStateStore.chess.header()[getOrientation($chessStateStore.chessGame) === 'white' ? 'White' : 'Black']}</p>
+                {#if getOrientation($chessStateStore.chessGame) === 'black'}
+                    <MaterialTracker chessStateStore={chessStateStore} color={WHITE} />
+                    <p class="font-bold">{$chessStateStore.chess.header()['Black']}</p>
+                {:else}
+                    <MaterialTracker chessStateStore={chessStateStore} color={BLACK} />
+                    <p class="font-bold">{$chessStateStore.chess.header()['White']}</p>
+                {/if}
             </div>
         </footer>
     </div>

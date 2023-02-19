@@ -23,6 +23,29 @@ export function getPieceWeight(piece: 'k' | 'q' | 'r' | 'n' | 'b' | 'p'): number
     }
 }
 
+export function getPieceName(piece: 'k' | 'q' | 'r' | 'n' | 'b' | 'p'): string {
+    switch (piece) {
+        case 'k':
+            return 'king';
+            break;
+        case 'q':
+            return 'queen';
+            break;
+        case 'r':
+            return 'rook';
+            break;
+        case 'n':
+            return 'knight';
+            break;
+        case 'b':
+            return 'bishop';
+            break;
+        case 'p':
+            return 'pawn';
+            break;
+    }
+}
+
 export function getMaterial(moves: Move[]): Material {
     const material: Material = {
         w: {
