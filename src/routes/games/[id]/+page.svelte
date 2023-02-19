@@ -12,24 +12,27 @@
     export let data: PageData;
 
     const chessStateStore: ChessStateStore = createChessStateStore(data.chessGame);
-
-    const channel = supabase
-    .channel('table-db-changes')
-    .on(
-        'postgres_changes',
-        {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'games',
-        },
-        // This callback is called whenever this game gets an update, payload contains the old and new version
-        (payload) => {
-            const updatedChessGame: ChessGame = payload.new as ChessGame
-            
-            chessStateStore.loadGame(updatedChessGame);
-        }
-    )
-    .subscribe();
+    
+    // Only open a channel when the game is ongoing 
+    if (!$chessStateStore.chess.isGameOver()) {
+        const channel = supabase
+        .channel('table-db-changes')
+        .on(
+            'postgres_changes',
+            {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'games',
+            },
+            // This callback is called whenever this game gets an update, payload contains the old and new version
+            (payload) => {
+                const updatedChessGame: ChessGame = payload.new as ChessGame
+                
+                chessStateStore.loadGame(updatedChessGame);
+            }
+        )
+        .subscribe();
+    }
 
     const handleMove = async (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b') => {
         

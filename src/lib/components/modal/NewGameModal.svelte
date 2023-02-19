@@ -32,7 +32,7 @@
         }
     }
 </script>
-<div class="flex flex-col justify-center gap-4">
-    <input class="input p-2" placeholder="Enter opponents username..." bind:value={opponentUsername} />
+<form class="flex flex-col justify-center gap-4">
+    <input type="text" class="input p-2" placeholder="Enter opponents username..." required bind:value={opponentUsername} />
     <button class="ml-auto btn btn-lg variant-filled-primary" on:click={() => createGame(opponentUsername)}>Create Game</button>
-</div>
+</form>

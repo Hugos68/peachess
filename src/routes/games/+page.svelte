@@ -32,26 +32,29 @@
             });
             chessGameChessObjectMap.set(chessGame.id, chess);
 
-            const channel = supabase
-            .channel('table-db-changes')
-            .on(
-                'postgres_changes',
-                {
-                    event: 'UPDATE',
-                    schema: 'public',
-                    table: 'games',
-                },
-                // This callback is called whenever this game gets an update, payload contains the old and new version
-                (payload) => {
-                    const updatedChessGame: ChessGame = payload.new as ChessGame;
-                    chess.loadPgn(updatedChessGame.pgn);
-                    chessBoard.set({
-                        fen: chess.fen(),
-                        viewOnly: true
-                    });
-                }
-            )
-            .subscribe();
+            // Only open a channel when the game is ongoing 
+            if (!chess.isGameOver()) {
+                const channel = supabase
+                .channel('table-db-changes')
+                .on(
+                    'postgres_changes',
+                    {
+                        event: 'UPDATE',
+                        schema: 'public',
+                        table: 'games',
+                    },
+                    // This callback is called whenever this game gets an update, payload contains the old and new version
+                    (payload) => {
+                        const updatedChessGame: ChessGame = payload.new as ChessGame;
+                        chess.loadPgn(updatedChessGame.pgn);
+                        chessBoard.set({
+                            fen: chess.fen(),
+                            viewOnly: true
+                        });
+                    }
+                )
+                .subscribe();
+            }
         });
         mounted = true;
     });

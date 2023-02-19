@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from "$app/stores";
-	import { LightSwitch } from "@skeletonlabs/skeleton";
+	import { drawerStore } from "@skeletonlabs/skeleton";
 	import ProfileButton from "./ProfileButton.svelte";
 
     interface navItem {
@@ -26,11 +26,11 @@
     <nav class="mx-auto w-full">
         <ul class="flex flex-col list-nav">
             {#each navItems as navItem}
-                <li><a href={navItem.link}>{navItem.label}</a></li>
+                <li><a href={navItem.link} on:click={() => drawerStore.close()}>{navItem.label}</a></li>
             {/each}
             {#if !$page.data.session}
-                <li><a href="/sign-in">Sign In</a></li>
-                <li><a href="/sign-up">Sign Up</a></li>
+                <li><a href="/sign-in" on:click={() => drawerStore.close()}>Sign In</a></li>
+                <li><a href="/sign-up" on:click={() => drawerStore.close()}>Sign Up</a></li>
             {/if}
         </ul>
     </nav>
