@@ -6,19 +6,15 @@
 	import MoveControls from "$lib/components/chess/MoveControls.svelte";
 	import ChessBoardSidePanel from "$lib/components/chess/ChessBoardSidePanel.svelte";
 	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
-	import { page } from "$app/stores";
 	import { onMount } from "svelte";
-	import {  writable, type Writable } from "svelte/store";
-	import { getMaterial as getMaterialFromColor } from "$lib/util";
+	import { getOrientation } from "$lib/util";
 
     export let data: PageData;
 
     const chessStateStore: ChessStateStore = createChessStateStore(data.chessGame);
-
-    const whiteMaterialStore: Writable<Material> = writable(getMaterialFromColor($chessStateStore.moveStack, WHITE));
-    const blackMaterialStore: Writable<Material> = writable(getMaterialFromColor($chessStateStore.moveStack, BLACK));
-
-
+    $: {
+        console.log($chessStateStore.material.w);
+    }
     onMount(() => {
 
         // Only open a channel when the game is ongoing 
@@ -47,14 +43,7 @@
 
     const handleMove = async (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b') => {
         
-        const move = chessStateStore.move(from, to, promotion);
-        
-        // Update capture stores only when captures happen
-        if (move.captured) {
-            if (move.color===WHITE) whiteMaterialStore.set(getMaterialFromColor($chessStateStore.moveStack, WHITE));
-            else blackMaterialStore.set(getMaterialFromColor($chessStateStore.moveStack, BLACK));
-            console.log($whiteMaterialStore);
-        }
+        chessStateStore.move(from, to, promotion);
 
         // Execute the move to the database
         const {error} = await supabase.functions.invoke('move', {
@@ -71,19 +60,6 @@
         // Reload to last known stable state if anything goes wrong
         if (error) chessStateStore.loadGame(data.chessGame);
     }
-
-    const getPlayingSide = (chessGame: ChessGame): 'w' | 'b' => {
-        const playingColor = getPlayingColor(chessGame);
-        
-        // Default to white (for spectators)
-        return playingColor || 'w';
-    }
-
-    const getPlayingColor = (chessGame: ChessGame): 'w' | 'b' | undefined => {
-        if (!$page.data.session) return;    
-        if ($page.data.session.user.id === chessGame.player_id_white) return 'w';
-        if ($page.data.session.user.id === chessGame.player_id_black) return 'b';
-    }
 </script>
 
 <svelte:window 
@@ -97,25 +73,25 @@
 
     <div class="flex flex-col gap-4">
         <header class="flex justify-between">
-            <div class="flex gap-2">
-            {#if $chessStateStore.chess.isCheckmate()}
-                <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Checkmate</p>
-            {:else if $chessStateStore.chess.isStalemate()}
-                <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Stalemate</p>
-            {:else if $chessStateStore.chess.isDraw()}
-                <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Draw</p>
-            {:else}
-                <p
-                class="my-auto p-2 rounded-token font-semibold text-center"
-                class:text-white={$chessStateStore.chess.turn()===BLACK}
-                class:text-black={$chessStateStore.chess.turn()===WHITE}
-                class:bg-white={$chessStateStore.chess.turn()===WHITE} 
-                class:bg-black={$chessStateStore.chess.turn()===BLACK}
-                >{$chessStateStore.chess.turn()===WHITE ? 'White' : 'Black'}'s turn</p>
-            {/if}
+            <div>
+                {#if $chessStateStore.chess.isCheckmate()}
+                    <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Checkmate</p>
+                {:else if $chessStateStore.chess.isStalemate()}
+                    <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Stalemate</p>
+                {:else if $chessStateStore.chess.isDraw()}
+                    <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Draw</p>
+                {:else}
+                    <p
+                    class="my-auto p-2 rounded-token font-semibold text-center"
+                    class:text-white={$chessStateStore.chess.turn()===BLACK}
+                    class:text-black={$chessStateStore.chess.turn()===WHITE}
+                    class:bg-white={$chessStateStore.chess.turn()===WHITE} 
+                    class:bg-black={$chessStateStore.chess.turn()===BLACK}
+                    >{$chessStateStore.chess.turn()===WHITE ? 'White' : 'Black'}'s turn</p>
+                {/if}
             </div>
             <div class="flex flex-col items-end">
-                <p class="font-bold">{$chessStateStore.chess.header()[getPlayingSide($chessStateStore.chessGame) === BLACK ? 'White' : 'Black']}</p>
+                <p class="font-bold">{$chessStateStore.chess.header()[getOrientation($chessStateStore.chessGame) === 'black' ? 'White' : 'Black']}</p>
             </div>
         </header>
 
@@ -134,7 +110,7 @@
 
             <MoveControls chessStateStore={chessStateStore} />
             <div class="flex flex-col items-end">
-                <p class="font-bold">{$chessStateStore.chess.header()[getPlayingSide($chessStateStore.chessGame) === WHITE ? 'White' : 'Black']}</p>
+                <p class="font-bold">{$chessStateStore.chess.header()[getOrientation($chessStateStore.chessGame) === 'white' ? 'White' : 'Black']}</p>
             </div>
         </footer>
     </div>

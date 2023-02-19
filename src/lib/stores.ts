@@ -2,6 +2,7 @@ import { Chess, type Move, type Square } from "chess.js";
 import { writable, type Writable, get } from "svelte/store";
 import { localStorageStore } from "@skeletonlabs/skeleton";
 import { Howl } from 'howler';
+import { getMaterial } from "$lib/util";
 
 export const settings: Writable<Settings> = localStorageStore('settings',  {
     animate: true,
@@ -17,12 +18,14 @@ export function createChessStateStore(chessGame: ChessGame): ChessStateStore {
     chess.loadPgn(chessGame.pgn);
     const moveStack: Move[] = chess.history({verbose: true});
     const undoneMoveStack: Move[] = [];
+    const material = getMaterial(moveStack);
 
     const chessState: ChessState = {
         chessGame,
         chess,
         moveStack,
-        undoneMoveStack
+        undoneMoveStack,
+        material
     }
     return chessStateStore(chessState);
 }
@@ -103,7 +106,8 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
                 while ((move = chessState.chess.undo({verbose: true}))) {
                     chessState.moveStack.pop();
                     chessState.undoneMoveStack.push(move);
-                } 
+                }
+                chessState.material = getMaterial(chessState.moveStack);
                 return chessState;
             });
         },
@@ -114,6 +118,7 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
                     chessState.moveStack.pop();
                     chessState.undoneMoveStack.push(move);
                 }
+                chessState.material = getMaterial(chessState.moveStack);
                 return chessState;
             });
         },
@@ -125,6 +130,7 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
                     chessState.moveStack.push(move);
                     chessState.chess.move(move);
                 } 
+                chessState.material = getMaterial(chessState.moveStack);
                 return chessState;
             });
         },
@@ -135,6 +141,7 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
                     chessState.moveStack.push(move);
                     chessState.chess.move(move);
                 } 
+                chessState.material = getMaterial(chessState.moveStack);
                 return chessState;
             });
         },
@@ -146,6 +153,7 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
                     // Move (throws exception if move is invalid)
                     move = chessState.chess.move({from, to, promotion});
                     chessState.moveStack.push(move);
+                    chessState.material = getMaterial(chessState.moveStack);
                     playMoveSound(move);
 
                 } catch(error) {

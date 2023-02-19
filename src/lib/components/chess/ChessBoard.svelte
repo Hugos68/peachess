@@ -5,9 +5,9 @@
 	import { onMount } from "svelte";
     import { settings, type ChessStateStore } from "$lib/stores";
     import { createEventDispatcher } from "svelte";
-	import { page } from "$app/stores";
 	import { focusTrap } from "@skeletonlabs/skeleton";
-	import { getValidMoves as getValidDestinations } from "$lib/util";
+	import { getLastMoveHighlight, getOrientation, getPlayingColor, getValidMoves as getValidDestinations, getViewOnly } from "$lib/util";
+	import { page } from "$app/stores";
 
     export let chessStateStore: ChessStateStore;
 
@@ -39,23 +39,22 @@
         });
     }
 
-
-
     const getConfig = (chessState: ChessState) => {
+        const {chessGame, chess, moveStack, undoneMoveStack} = chessState;
         return {
-            fen: chessState.chess.fen(),
-            turnColor: (chessState.chess.turn() === WHITE) ? 'white' : 'black',
-            orientation: getOrientation(chessState.chessGame),
-            lastMove: getLastMoveHighlight(),
-            viewOnly: getViewOnly(chessState),
-            check: chessState.chess.inCheck(),
+            fen: chess.fen(),
+            turnColor: chess.turn() === WHITE ? 'white' : 'black',
+            orientation: getOrientation(chessGame),
+            lastMove: getLastMoveHighlight(moveStack),
+            viewOnly: getViewOnly(chessGame, chess, undoneMoveStack, $page.data.session),
+            check: chess.inCheck(),
             highlight: {
                 lastMove: true,  
             },
             movable: {
-                color: getPlayingColor(chessState.chessGame),
+                color: getPlayingColor(chessGame, $page.data.session),
                 free: false,
-                dests: getValidDestinations(chessState.chess),
+                dests: getValidDestinations(chess),
                 showDests: true
             },
             drawable: {
@@ -67,39 +66,6 @@
             }
         }
     }
-
-    const getOrientation = (chessGame: ChessGame) => {
-        const playingColor = getPlayingColor(chessGame);
-        // Default to white (for spectators)
-        return playingColor || 'white';
-    }
-
-    const getPlayingColor = (chessGame: ChessGame) => {
-        if (!$page.data.session) return undefined;
-        return $page.data.session.user.id === chessGame.player_id_black ? 'black' : 'white';
-    }
-
-    const getLastMoveHighlight = () => {
-        const move = $chessStateStore.moveStack[$chessStateStore.moveStack.length-1]; 
-        if (!move) return [];
-        return [move.from, move.to];
-    }
-
-    const getViewOnly = (chessState: ChessState) => {
-
-        // If someone is not logged in they cannot make moves
-        if (!$page.data.session) return true;
-
-        // If someone is not part of the game they cannot make moves
-        if ($page.data.session.user.id !== chessState.chessGame.player_id_white && $page.data.session.user.id !== chessState.chessGame.player_id_black) return true;
-
-        // If someone is part of the game but they aren't looking at the latest turn they cannot make moves
-        if (chessState.undoneMoveStack.length!==0) return true;
-
-        // If the game is over they cannot make moves
-        if ($chessStateStore.chess.isGameOver()) return true;
-        return false;
-	}
 
     const moveCallback = (from: Square, to: Square) => {        
         // If there is a promotion set the promotionMove and return so that the move doesn't get played yet (in case of a promotion cancel)

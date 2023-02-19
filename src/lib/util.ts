@@ -23,17 +23,37 @@ export function getPieceWeight(piece: 'k' | 'q' | 'r' | 'n' | 'b' | 'p'): number
     }
 }
 
-export function getMaterial(moves: Move[], color: WHITE | BLACK): CapturedPieces {
-    const capturedPieces: CapturedPieces = {
-         k: 0, q: 0, r: 0, n: 0, b: 0, p: 0, material: 0
-    }
-    for (const move of moves) {
-        if (move.captured && move.color===color)  {
-            capturedPieces[move.captured]++;
-            capturedPieces.material+=getPieceWeight(move.captured);
+export function getMaterial(moves: Move[]): Material {
+    const material: Material = {
+        w: {
+            captures: {
+                k: 0,
+                q: 0,
+                r: 0,
+                n: 0,
+                b: 0,
+                p: 0
+            },
+            total: 0
+        },
+        b: {
+            captures: {
+                k: 0,
+                q: 0,
+                r: 0,
+                n: 0,
+                b: 0,
+                p: 0
+            },
+            total: 0
         }
     }
-    return capturedPieces;
+    for (const move of moves) {
+        if (!move.captured) continue;
+        material[move.color].captures[move.captured]++;
+        material[move.color].total+=getPieceWeight(move.captured);
+    }
+    return material;
 }
 
 export function getValidMoves(chess: Chess): Map<Square, Square> {
@@ -43,4 +63,39 @@ export function getValidMoves(chess: Chess): Map<Square, Square> {
         dests.set(square, moves.map(move => move.to));
     });
     return dests;
+}
+
+export function getOrientation(chessGame: ChessGame) {
+    const playingColor = getPlayingColor(chessGame);
+    // Default to white (for spectators)
+    return playingColor || 'white';
+}
+
+export function getPlayingColor(chessGame: ChessGame, session: Session | undefined) {
+
+    if (!session) return;
+    return session.user.id === chessGame.player_id_black ? 'black' : 'white';
+}
+
+
+export const getLastMoveHighlight = (moves: Move[]) => {
+    const move = moves[moves.length-1]; 
+    if (!move) return [];
+    return [move.from, move.to];
+}
+
+export function getViewOnly(chessGame: ChessGame, chess: Chess, undoneMoveStack: Move[], session: Session | undefined) {
+
+    // If someone is not logged in they cannot make moves
+    if (!session) return true;
+
+    // If someone is not part of the game they cannot make moves
+    if (session.user.id !== chessGame.player_id_white && session.user.id !== chessGame.player_id_black) return true;
+
+    // If someone is part of the game but they aren't looking at the latest turn they cannot make moves
+    if (undoneMoveStack.length!==0) return true;
+
+    // If the game is over they cannot make moves
+    if (chess.isGameOver()) return true;
+    return false;
 }

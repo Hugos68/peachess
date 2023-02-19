@@ -24,14 +24,30 @@ interface ChessState {
     chess: Chess
     moveStack: Move[]
     undoneMoveStack: Move[]
+    material: Material
 }
 
 interface Material {
-    k: number
-    q: number
-    r: number
-    n: number
-    b: number
-    p: number
-    material: number
+    w: {
+        captures: {
+            k: number,
+            q: number,
+            r: number,
+            n: number,
+            b: number,
+            p: number
+        }
+        total: number
+    },
+    b: {
+        captures: {
+            k: number,
+            q: number,
+            r: number,
+            n: number,
+            b: number,
+            p: number
+        }
+        total: number
+    }
 }

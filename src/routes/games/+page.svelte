@@ -101,8 +101,6 @@
                             <div class="w-2 aspect-square rounded-full bg-white"></div>
                             <span class="font-bold">Live</span>
                         </div>
-                      
-                     
                     {/if}
                 </div>
                 {/if}
