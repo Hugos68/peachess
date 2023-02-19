@@ -138,6 +138,11 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
                 return chessState;
             });
         },
+        getCapturedPieces: (color: WHITE | BLACK) => {
+            const captured = {'p': 0, 'n': 0, 'b': 0, 'r': 0, 'q': 0}
+            for (const move of chessH)
+            return captured
+        },
         move: (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b')   => {
             let move;
             update(chessState => {

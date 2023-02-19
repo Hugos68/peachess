@@ -45,7 +45,7 @@
             turnColor: (chessState.chess.turn() === WHITE) ? 'white' : 'black',
             orientation: getOrientation(chessState.chessGame),
             lastMove: getLastMoveHighlight(),
-            viewOnly: getViewOnly(chessState.chessGame),
+            viewOnly: getViewOnly(chessState),
             check: chessState.chess.inCheck(),
             highlight: {
                 lastMove: true,  
@@ -83,9 +83,18 @@
         return [move.from, move.to];
     }
 
-    const getViewOnly = (chessGame: ChessGame) => {
+    const getViewOnly = (chessState: ChessState) => {
+
+        // If someone is not logged in they cannot make moves
         if (!$page.data.session) return true;
-        if ($page.data.session.user.id !== chessGame.player_id_white && $page.data.session.user.id !== chessGame.player_id_black) return true;
+
+        // If someone is not part of the game they cannot make moves
+        if ($page.data.session.user.id !== chessState.chessGame.player_id_white && $page.data.session.user.id !== chessState.chessGame.player_id_black) return true;
+
+        // If someone is part of the game but they aren't looking at the latest turn they cannot make moves
+        if (chessState.undoneMoveStack.length!==0) return true;
+
+        // If the game is over they cannot make moves
         if ($chessStateStore.chess.isGameOver()) return true;
         return false;
 	}

@@ -25,3 +25,22 @@ interface ChessState {
     moveStack: Move[]
     undoneMoveStack: Move[]
 }
+
+interface CapturedPieces {
+    w: {
+        k: number
+        q: number
+        r: number
+        n: number
+        b: number
+        p: number
+    }
+    b: {
+        k: number
+        q: number
+        r: number
+        n: number
+        b: number
+        p: number
+    }
+}

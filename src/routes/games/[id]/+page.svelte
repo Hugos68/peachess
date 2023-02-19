@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { BLACK, WHITE, type Square } from "chess.js";
+	import { BLACK, WHITE, type Move, type Square } from "chess.js";
     import type { PageData } from "./$types";
 	import { supabase } from "$lib/supabase";
     import { createChessStateStore, type ChessStateStore } from "$lib/stores";
@@ -8,10 +8,37 @@
 	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
 	import { page } from "$app/stores";
 	import { onMount } from "svelte";
+	import { derived, type Readable } from "svelte/store";
 
     export let data: PageData;
 
     const chessStateStore: ChessStateStore = createChessStateStore(data.chessGame);
+
+    const fullPieceNameObject = {
+        k: 'king', q: 'queen', r: 'rook', n: 'knight', b: 'bishop', p: 'pawn'
+    }
+
+    const capturedPiecesStore: Readable<CapturedPieces> = derived(chessStateStore, $chessStateStore => {
+        const capturedPieces: CapturedPieces = {
+            w: { k: 0, q: 0, r: 0, n: 0, b: 0, p: 0 },
+            b: { k: 0, q: 0, r: 0, n: 0, b: 0, p: 0 },
+        }
+        let move: Move;
+        for (move of $chessStateStore.moveStack) {
+            if (move.captured)  {
+                capturedPieces[move.color][move.captured]+=1;
+            }
+        }
+        return capturedPieces;
+    });
+
+    const capturedPiecesWhiteStore = derived(capturedPiecesStore, $capturedPiecesStore => {
+        return $capturedPiecesStore.w;
+    });
+
+    const capturedPiecesBlackStore = derived(capturedPiecesStore, $capturedPiecesStore => {
+        return $capturedPiecesStore.b;
+    });
 
     onMount(() => {
 
@@ -36,7 +63,7 @@
             .subscribe();
             return () => channel.unsubscribe();
         }
-    })
+    });
 
 
     const handleMove = async (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b') => {
@@ -59,35 +86,35 @@
         if (error) chessStateStore.loadGame(data.chessGame);
     }
 
-    const getPlayingSide = (chessGame: ChessGame) => {
+    const getPlayingSide = (chessGame: ChessGame): 'w' | 'b' => {
         const playingColor = getPlayingColor(chessGame);
         
         // Default to white (for spectators)
-        return playingColor || 'white';
+        return playingColor || 'w';
     }
 
-    const getPlayingColor = (chessGame: ChessGame) => {
-        if (!$page.data.session) return undefined;
-        return $page.data.session.user.id === chessGame.player_id_black ? 'black' : 'white';
+    const getPlayingColor = (chessGame: ChessGame): 'w' | 'b' | undefined => {
+        if (!$page.data.session) return;    
+        if ($page.data.session.user.id === chessGame.player_id_white) return 'w';
+        if ($page.data.session.user.id === chessGame.player_id_black) return 'b';
     }
-
 </script>
 
 <svelte:window 
     on:keydown={(event) => {
-        if (event.key==='ArrowLeft') chessStateStore.loadPreviousMove();
-        if (event.key==='ArrowRight') chessStateStore.loadNextMove();
+        if (event.key==='ArrowLeft' && $chessStateStore.moveStack.length!==0) chessStateStore.loadPreviousMove();
+        if (event.key==='ArrowRight' && $chessStateStore.undoneMoveStack.length!==0) chessStateStore.loadNextMove();
     }}
  /> 
 
- <div class="mt-[5vh] mx-auto flex flex-col xl:flex-row justify-center items-center gap-12">
+ <div class="mx-auto flex flex-col xl:flex-row justify-center items-center gap-12">
 
     <div class="flex flex-col gap-4">
         <header class="flex justify-between">
             <div class="flex gap-2">
     
             {#if $chessStateStore.chess.isGameOver()}
-                <p class="p-2 rounded-token font-semibold text-center bg-secondary-700">
+                <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">
                     {#if $chessStateStore.chess.isCheckmate()}
                         {$chessStateStore.chess.turn() === WHITE ? 'Black' : 'White'} won with checkmate
                     {:else if $chessStateStore.chess.isStalemate()}
@@ -98,7 +125,7 @@
                 </p>
             {:else}
                 <p
-                class="p-2 rounded-token font-semibold text-center"
+                class="my-auto p-2 rounded-token font-semibold text-center"
                 class:text-white={$chessStateStore.chess.turn()===BLACK}
                 class:text-black={$chessStateStore.chess.turn()===WHITE}
                 class:bg-white={$chessStateStore.chess.turn()===WHITE} 
@@ -108,13 +135,20 @@
             {/if}
        
             </div>
-            <p class="font-bold !text-xl">
-                {#if getPlayingSide(data.chessGame)==='white'}
-                    {$chessStateStore.chess.header().Black}
-                {:else} 
-                    {$chessStateStore.chess.header().White}
-                {/if}
-            </p>
+            <div class="flex flex-col items-end">
+                <p class="font-bold">{$chessStateStore.chess.header()[getPlayingSide($chessStateStore.chessGame) === BLACK ? 'White' : 'Black']}</p>
+                <div class="flex flex-row-reverse gap-6">
+                    {#each Object.entries(getPlayingSide($chessStateStore.chessGame) === BLACK ? $capturedPiecesWhiteStore : $capturedPiecesBlackStore) as [piece, amount]}
+                        {#if amount > 0}
+                            <div class="relative">
+                                {#each Array(amount) as _, i}
+                                    <div style="transform: translateX(-{i*25}%);" class="absolute top-0 right-0 w-6 bg-cover aspect-square {fullPieceNameObject[piece]} {getPlayingSide($chessStateStore.chessGame) === BLACK ? "black" : "white"}"></div>
+                                {/each}
+                            </div>
+                        {/if}
+                    {/each}
+                </div>
+            </div>
         </header>
 
         <div class="rounded-token h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
@@ -132,13 +166,20 @@
 
             <MoveControls chessStateStore={chessStateStore} />
        
-            <p class="font-bold !text-xl">
-            {#if getPlayingSide(data.chessGame)==='black'}
-                {$chessStateStore.chess.header().Black}
-            {:else} 
-                {$chessStateStore.chess.header().White}
-            {/if}
-            </p>
+            <div class="flex flex-col items-end">
+                <div class="flex flex-row-reverse gap-6">
+                    {#each Object.entries(getPlayingSide($chessStateStore.chessGame) === WHITE ? $capturedPiecesWhiteStore : $capturedPiecesBlackStore) as [piece, amount]}
+                        {#if amount > 0}
+                            <div class="relative">
+                                {#each Array(amount) as _, i}
+                                    <div style="transform: translateX(-{i*25}%);" class="absolute bottom-0 right-0 w-6 bg-cover aspect-square {fullPieceNameObject[piece]} {getPlayingSide($chessStateStore.chessGame) === WHITE ? "black" : "white"}"></div>
+                                {/each}
+                            </div>
+                        {/if}
+                    {/each}
+                </div>
+                <p class="font-bold">{$chessStateStore.chess.header()[getPlayingSide($chessStateStore.chessGame) === WHITE ? 'White' : 'Black']}</p>
+            </div>
         </footer>
     </div>
 
