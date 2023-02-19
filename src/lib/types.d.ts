@@ -27,20 +27,10 @@ interface ChessState {
 }
 
 interface CapturedPieces {
-    w: {
-        k: number
-        q: number
-        r: number
-        n: number
-        b: number
-        p: number
-    }
-    b: {
-        k: number
-        q: number
-        r: number
-        n: number
-        b: number
-        p: number
-    }
+    k: number
+    q: number
+    r: number
+    n: number
+    b: number
+    p: number
 }

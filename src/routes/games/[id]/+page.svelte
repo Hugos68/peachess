@@ -20,9 +20,14 @@
         k: 'king', q: 'queen', r: 'rook', n: 'knight', b: 'bishop', p: 'pawn'
     }
 
-    const capturedPiecesStore: Readable<CapturedPieces> = derived(chessStateStore, $chessStateStore => {
-        return getCapturedPieces($chessStateStore.moveStack);
+    const capturedPiecesWhite: Readable<CapturedPieces> = derived(chessStateStore, $chessStateStore => {
+        return getCapturedPieces($chessStateStore.moveStack, WHITE);
     });
+    
+    const capturedPiecesBlack: Readable<CapturedPieces> = derived(chessStateStore, $chessStateStore => {
+        return getCapturedPieces($chessStateStore.moveStack, BLACK);
+    });
+
 
     onMount(() => {
 
@@ -120,7 +125,7 @@
             <div class="flex flex-col items-end">
                 <p class="font-bold">{$chessStateStore.chess.header()[getPlayingSide($chessStateStore.chessGame) === BLACK ? 'White' : 'Black']}</p>
                 <div class="flex flex-row-reverse gap-6">
-                    {#each Object.entries(getPlayingSide($chessStateStore.chessGame) === BLACK ? $capturedPiecesStore.w : $capturedPiecesStore.b).filter(item => item[1] > 0) as [piece, amount] (piece)}
+                    {#each Object.entries(getPlayingSide($chessStateStore.chessGame) === BLACK ? $capturedPiecesWhite: $capturedPiecesBlack).filter(item => item[1] > 0) as [piece, amount] (piece)}
                     <div class="relative">
                         {#each Array(amount) as _, i}
                             <div 
@@ -151,8 +156,9 @@
             <MoveControls chessStateStore={chessStateStore} />
             <div class="flex flex-col items-end">
                 <div class="flex flex-row-reverse gap-6">
-                    {#each Object.entries(getPlayingSide($chessStateStore.chessGame) === WHITE ? $capturedPiecesStore.w : $capturedPiecesStore.b).filter(item => item[1] > 0) as [piece, amount] (piece)}
-                        <div class="relative">
+                    {#each Object.entries(getPlayingSide($chessStateStore.chessGame) === WHITE ? $capturedPiecesWhite: $capturedPiecesBlack).filter(item => item[1] > 0) as [piece, amount] (piece)}
+                        <div class="relative" 
+                        >
                             {#each Array(amount) as _, i}
                                 <div 
                                 style="transform: translateX(-{i*25}%);" 

@@ -1,4 +1,4 @@
-import { SQUARES } from "chess.js";
+import { SQUARES, WHITE, BLACK } from "chess.js";
 
 export function getPieceWeight(piece: 'k' | 'q' | 'r' | 'n' | 'b' | 'p'): number {
     switch (piece) {
@@ -23,13 +23,12 @@ export function getPieceWeight(piece: 'k' | 'q' | 'r' | 'n' | 'b' | 'p'): number
     }
 }
 
-export function getCapturedPieces(moves: Move[]): CapturedPieces {
+export function getCapturedPieces(moves: Move[], color: WHITE | BLACK): CapturedPieces {
     const capturedPieces: CapturedPieces = {
-        w: { k: 0, q: 0, r: 0, n: 0, b: 0, p: 0 },
-        b: { k: 0, q: 0, r: 0, n: 0, b: 0, p: 0 },
+         k: 0, q: 0, r: 0, n: 0, b: 0, p: 0 ,
     }
     for (const move of moves) {
-        if (move.captured) capturedPieces[move.color][move.captured]++;
+        if (move.captured && move.color===color) capturedPieces[move.captured]++;
     }
     return capturedPieces;
 }
@@ -41,4 +40,8 @@ export function getValidMoves(chess: Chess): Map<Square, Square> {
         dests.set(square, moves.map(move => move.to));
     });
     return dests;
+}
+
+export function getMaterial(capturedPieces: CapturedPieces, color: WHITE | BLACK): number {
+
 }
