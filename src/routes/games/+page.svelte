@@ -3,9 +3,10 @@
 	import NewGameModal from "$lib/components/modal/NewGameModal.svelte";
 	import { supabase } from "$lib/supabase";
 	import { modalStore, toastStore, type ModalComponent, type ModalSettings, type ToastSettings } from "@skeletonlabs/skeleton";
+	import type { RealtimeChannel } from "@supabase/supabase-js";
 	import { Chess } from "chess.js";
 	import { Chessground } from "chessground";
-	import { onMount } from "svelte";
+	import { onDestroy, onMount } from "svelte";
 	import type { PageData } from "./$types";
 
     export let data: PageData;
@@ -20,6 +21,7 @@
     } 
 
     let mounted: boolean = false;
+    const channels: RealtimeChannel[] = [];
     let chessGameChessObjectMap: Map<number, Chess> = new Map();
     onMount(() => {
         data.chessGames.forEach(chessGame => {
@@ -54,6 +56,7 @@
                     }
                 )
                 .subscribe();
+                channels.push(channel);
             }
         });
         mounted = true;
@@ -70,6 +73,12 @@
         };
         modalStore.trigger(modal);
     }
+
+    onDestroy(() => {
+        channels.forEach(channel => {
+            channel.unsubscribe();
+        })
+    });
 </script>
 
 <div class="mt-[5vh] flex flex-col gap-8">

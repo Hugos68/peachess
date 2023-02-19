@@ -1,38 +1,43 @@
 <script lang="ts">
 	import { BLACK, WHITE, type Square } from "chess.js";
     import type { PageData } from "./$types";
-	import { onDestroy } from "svelte";
 	import { supabase } from "$lib/supabase";
     import { createChessStateStore, type ChessStateStore } from "$lib/stores";
 	import MoveControls from "$lib/components/chess/MoveControls.svelte";
 	import ChessBoardSidePanel from "$lib/components/chess/ChessBoardSidePanel.svelte";
 	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
 	import { page } from "$app/stores";
+	import { onMount } from "svelte";
 
     export let data: PageData;
 
     const chessStateStore: ChessStateStore = createChessStateStore(data.chessGame);
-    
-    // Only open a channel when the game is ongoing 
-    if (!$chessStateStore.chess.isGameOver()) {
-        const channel = supabase
-        .channel('table-db-changes')
-        .on(
-            'postgres_changes',
-            {
-                event: 'UPDATE',
-                schema: 'public',
-                table: 'games',
-            },
-            // This callback is called whenever this game gets an update, payload contains the old and new version
-            (payload) => {
-                const updatedChessGame: ChessGame = payload.new as ChessGame
-                
-                chessStateStore.loadGame(updatedChessGame);
-            }
-        )
-        .subscribe();
-    }
+
+    onMount(() => {
+
+        // Only open a channel when the game is ongoing 
+        if (!$chessStateStore.chess.isGameOver()) {
+            const channel = supabase
+            .channel('table-db-changes')
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'games',
+                },
+                // This callback is called whenever this game gets an update, payload contains the old and new version
+                (payload) => {
+                    const updatedChessGame: ChessGame = payload.new as ChessGame
+                    
+                    chessStateStore.loadGame(updatedChessGame);
+                }
+            )
+            .subscribe();
+            return () => channel.unsubscribe();
+        }
+    })
+
 
     const handleMove = async (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b') => {
         
@@ -65,10 +70,7 @@
         if (!$page.data.session) return undefined;
         return $page.data.session.user.id === chessGame.player_id_black ? 'black' : 'white';
     }
-    
-    onDestroy(() => {
-        channel.unsubscribe();
-    });
+
 </script>
 
 <svelte:window 
