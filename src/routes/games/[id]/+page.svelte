@@ -124,19 +124,6 @@
             </div>
             <div class="flex flex-col items-end">
                 <p class="font-bold">{$chessStateStore.chess.header()[getPlayingSide($chessStateStore.chessGame) === BLACK ? 'White' : 'Black']}</p>
-                <div class="flex flex-row-reverse gap-6">
-                    {#each Object.entries(getPlayingSide($chessStateStore.chessGame) === BLACK ? $capturedPiecesWhite: $capturedPiecesBlack).filter(item => item[1] > 0) as [piece, amount] (piece)}
-                    <div class="relative">
-                        {#each Array(amount) as _, i}
-                            <div 
-                            style="transform: translateX(-{i*25}%);" 
-                            class="absolute top-0 right-0 w-6 bg-cover aspect-square {fullPieceNameObject[piece]} {getPlayingSide($chessStateStore.chessGame) === BLACK ? "black" : "white"}" 
-                            transition:fly={{y: 20, duration: 200}}
-                            ></div>
-                        {/each}
-                    </div>
-                {/each}
-                </div>
             </div>
         </header>
 
@@ -155,19 +142,6 @@
 
             <MoveControls chessStateStore={chessStateStore} />
             <div class="flex flex-col items-end">
-                <div class="flex flex-row-reverse gap-6">
-                    {#each Object.entries(getPlayingSide($chessStateStore.chessGame) === WHITE ? $capturedPiecesWhite: $capturedPiecesBlack).filter(item => item[1] > 0) as [piece, amount] (piece)}
-                        <div class="relative">
-                            {#each Array(amount) as _, i}
-                                <div 
-                                style="transform: translateX(-{i*25}%);" 
-                                class="absolute bottom-0 right-0 w-6 bg-cover aspect-square {fullPieceNameObject[piece]} {getPlayingSide($chessStateStore.chessGame) === WHITE ? "black" : "white"}" 
-                                transition:fly={{y: -20, duration: 200}}
-                                ></div>
-                            {/each}
-                        </div>
-                    {/each}
-                </div>
                 <p class="font-bold">{$chessStateStore.chess.header()[getPlayingSide($chessStateStore.chessGame) === WHITE ? 'White' : 'Black']}</p>
             </div>
         </footer>
