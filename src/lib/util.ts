@@ -79,10 +79,18 @@ export function getMaterial(moves: Move[]): Material {
     return material;
 }
 
-export function updateMaterial(material: Material, move: Move) {
-    if (!move.capture) return material;
-    material[move.color].captures[move.captured]++;
-    material[move.color].total+=getPieceWeight(move.captured);
+export function updateMaterial(material: Material, move: Move, method: 'add' | 'subtract') {
+    if (!move.captured) return material;
+    if (method==='add') {
+        material[move.color].captures[move.captured]++;
+        material[move.color].total+=getPieceWeight(move.captured);
+    }
+    else {
+        material[move.color].captures[move.captured]--;
+        material[move.color].total-=getPieceWeight(move.captured);
+    }
+
+    return material;
 }
 
 export function getValidMoves(chess: Chess): Map<Square, Square> {

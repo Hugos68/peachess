@@ -67,7 +67,7 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
             update(chessState => {
                 chessState.moveStack.pop();
                 chessState.undoneMoveStack.push(move);
-                chessState.material = updateMaterial(chessState.material, move);
+                chessState.material = updateMaterial(chessState.material, move, 'subtract');
                 return chessState;
             });
         },
@@ -78,7 +78,7 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
             update(chessState => {          
                 chessState.moveStack.push(move);
                 chessState.chess.move(move);
-                chessState.material = updateMaterial(chessState.material, move);
+                chessState.material = updateMaterial(chessState.material, move, 'add');
                 return chessState;
             });
         },
