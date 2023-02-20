@@ -25,13 +25,14 @@
             {:else if $chessStateStore.chess.isDraw()}
                 <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Draw</p>
             {:else}
+                {@const turn = $chessStateStore.chess.turn()}
                 <p
                 class="my-auto p-2 rounded-token font-semibold text-center"
-                class:text-white={$chessStateStore.chess.turn()===BLACK}
-                class:text-black={$chessStateStore.chess.turn()===WHITE}
-                class:bg-white={$chessStateStore.chess.turn()===WHITE} 
-                class:bg-black={$chessStateStore.chess.turn()===BLACK}
-                >{$chessStateStore.chess.turn()===WHITE ? 'White' : 'Black'}'s turn</p>
+                class:text-white={turn===BLACK}
+                class:text-black={turn===WHITE}
+                class:bg-white={turn===WHITE} 
+                class:bg-black={turn===BLACK}
+                >{turn===WHITE ? 'White' : 'Black'}'s turn</p>
             {/if}
 
             <div class="flex flex-col items-end">
