@@ -11,7 +11,6 @@
 	import { page } from "$app/stores";
 
     export let chessStateStore: ChessStateStore;
-    export let config;
 
     let board: any;
     let boardElement: HTMLElement;
