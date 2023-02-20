@@ -104,9 +104,9 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
         loadLastMove: () => {
             update(chessState => {
                 chessState.chess.loadPgn(chessState.chessGame.pgn);
-                chessState.moveStack = chessState.chess.history({verbose: true});
-                chessState.material = getMaterial(chessState.moveStack);
+                chessState.moveStack = chessState.moveStack.concat(chessState.undoneMoveStack.reverse());
                 chessState.undoneMoveStack = [];
+                chessState.material = getMaterial(chessState.moveStack);
                 return chessState;
             });
         },
