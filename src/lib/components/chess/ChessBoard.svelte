@@ -50,7 +50,7 @@
         return {
             fen: chess.fen(),
             turnColor: chess.turn() === WHITE ? 'white' : 'black',
-            orientation: getOrientation(chessGame),
+            orientation: getOrientation(chessGame, $page.data.session),
             lastMove: getLastMoveHighlight(moveStack),
             viewOnly: getViewOnly(chessGame, chess, undoneMoveStack, $page.data.session),
             check: chess.inCheck(),

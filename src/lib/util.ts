@@ -88,14 +88,15 @@ export function getValidMoves(chess: Chess): Map<Square, Square> {
     return dests;
 }
 
-export function getOrientation(chessGame: ChessGame) {
-    const playingColor = getPlayingColor(chessGame);
+export function getOrientation(chessGame: ChessGame, session: Session) {
+    const playingColor = getPlayingColor(chessGame, session);
+
     // Default to white (for spectators)
     return playingColor || 'white';
 }
 
 export function getPlayingColor(chessGame: ChessGame, session: Session | undefined) {
-
+    
     if (!session) return;
     return session.user.id === chessGame.player_id_black ? 'black' : 'white';
 }
