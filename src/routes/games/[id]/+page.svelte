@@ -4,7 +4,7 @@
     import { createChessStateStore, type ChessStateStore } from "$lib/stores/chess-store";
 	import MoveControls from "$lib/components/chess/MoveControls.svelte";
     import MaterialTracker from "$lib/components/chess/MaterialTracker.svelte";
-	import ChessBoardSidePanel from "$lib/components/chess/ChessBoardSidePanel.svelte";
+	import ChessBoardSidePanel from "$lib/components/chess/ChessInfoPanel.svelte";
 	import { getOrientation } from "$lib/util";
 	import { page } from "$app/stores";
 	import OnlineChessBoard from "$lib/components/chess/OnlineChessBoard.svelte";

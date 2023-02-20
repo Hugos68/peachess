@@ -26,25 +26,16 @@
 
     <svelte:fragment slot="panel">
         {#if tabSet === 0}
-            <div class="flex gap-2">
-                <span class="flex-1 p-1"><strong>No.</strong></span>
-                <span class="flex-1 p-1"><strong>White</strong></span>
-                <span class="flex-1 p-1"><strong>Black</strong></span>
-            </div>
-
-            <ul id="moveList" class="overflow-y-scroll flex-1">
+        {@const activeMoveIndex = $chessStateStore.moveStack.length-1}
+            <ul id="moveList" class="overflow-y-scroll flex-1 grid grid-cols-3 place-items-center">
+                <span class="p-1"><strong>No.</strong></span>
+                <span class="p-1"><strong>White</strong></span>
+                <span class="p-1"><strong>Black</strong></span>
                 {#each $chessStateStore.moveStack.concat($chessStateStore.undoneMoveStack.slice().reverse()) as move, i} 
-                    {#if i%2===0}
-                        <li id="move{i}" class="w-full flex gap-2">
-                            <span class="flex-1 p-1">{i/2+1}</span>
-                            <span class="flex-1 p-1 rounded-token {$chessStateStore.moveStack.length-1===i ? "bg-primary-500/50" : ""}">{move.san}</span>
-                            <span class="flex-1 p-1 rounded-token {$chessStateStore.moveStack.length-1===i+1 ? "bg-primary-500/50" : ""}">
-                                {#if $chessStateStore.moveStack.concat($chessStateStore.undoneMoveStack.slice().reverse())[i+1]}
-                                    {$chessStateStore.moveStack.concat($chessStateStore.undoneMoveStack.slice().reverse())[i+1].san}
-                                {/if}
-                            </span>
-                        </li>
-                    {/if}
+                        {#if i%2===0}
+                            <li class="px-4 rounded-token">{i/2+1}</li>
+                        {/if}
+                        <li class="px-4 rounded-token" class:bg-primary-500={activeMoveIndex===i} id="move{i}">{move.from + move.to}</li>
                 {/each}
             </ul>
 
