@@ -9,6 +9,7 @@
 	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
 	import { onMount } from "svelte";
 	import { getOrientation } from "$lib/util";
+	import { page } from "$app/stores";
 
     export let data: PageData;
 
@@ -89,7 +90,7 @@
             {/if}
 
             <div class="flex flex-col items-end">
-                {#if getOrientation($chessStateStore.chessGame) === 'white'}
+                {#if getOrientation($chessStateStore.chessGame, $page.data.session) === 'white'}
                     <p class="font-bold">{$chessStateStore.chess.header()['Black']}</p>
                     <MaterialTracker chessStateStore={chessStateStore} color={WHITE} />
                 {:else}
@@ -116,7 +117,7 @@
             <MoveControls chessStateStore={chessStateStore} />
 
             <div class="flex flex-col items-end">
-                {#if getOrientation($chessStateStore.chessGame) === 'black'}
+                {#if getOrientation($chessStateStore.chessGame, $page.data.session) === 'black'}
                     <MaterialTracker chessStateStore={chessStateStore} color={WHITE} />
                     <p class="font-bold">{$chessStateStore.chess.header()['Black']}</p>
                 {:else}
