@@ -71,7 +71,6 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
             });
         },
         loadNextMove: () => {
-            console.time();
             const move = chessState.undoneMoveStack.pop();
             if (!move) return;
             playMoveSound(move);
@@ -81,7 +80,6 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
                 chessState.material = updateMaterial(chessState.material, move, 'add');
                 return chessState;
             });
-            console.timeEnd();
         },
         loadLastMove: () => {
             update(chessState => {
