@@ -125,10 +125,15 @@
     }
 </script>
 
-<svelte:window on:mousedown={(event) => {
-        if (!promotionModal.contains(event.target) && promotionMove!==null) cancelPromotion();
-}} /> 
-
+<svelte:window 
+    on:mousedown={(event) => {
+            if (!promotionModal.contains(event.target) && promotionMove!==null) cancelPromotion();
+    }} 
+    on:keydown={(event) => {
+        if (event.key==='ArrowLeft' && $chessStateStore.moveStack.length!==0) chessStateStore.loadPreviousMove();
+        if (event.key==='ArrowRight' && $chessStateStore.undoneMoveStack.length!==0) chessStateStore.loadNextMove();
+    }}
+/>
 
 <!-- BOARD-WRAPPER -->
 <div class="relative h-full w-full aspect-square">

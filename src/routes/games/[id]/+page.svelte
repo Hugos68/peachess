@@ -1,73 +1,18 @@
 <script lang="ts">
-	import { BLACK, WHITE, type Square } from "chess.js";
+	import { BLACK, WHITE } from "chess.js";
     import type { PageData } from "./$types";
-	import { supabase } from "$lib/supabase";
     import { createChessStateStore, type ChessStateStore } from "$lib/stores/chess-store";
 	import MoveControls from "$lib/components/chess/MoveControls.svelte";
     import MaterialTracker from "$lib/components/chess/MaterialTracker.svelte";
 	import ChessBoardSidePanel from "$lib/components/chess/ChessBoardSidePanel.svelte";
-	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
-	import { onMount } from "svelte";
 	import { getOrientation } from "$lib/util";
 	import { page } from "$app/stores";
+	import OnlineChessBoard from "$lib/components/chess/OnlineChessBoard.svelte";
 
     export let data: PageData;
 
     const chessStateStore: ChessStateStore = createChessStateStore(data.chessGame);
-
-    onMount(() => {
-
-        // Only open a channel when the game is ongoing 
-        if (!$chessStateStore.chess.isGameOver()) {
-            const channel = supabase
-            .channel('table-db-changes')
-            .on(
-                'postgres_changes',
-                {
-                    event: 'UPDATE',
-                    schema: 'public',
-                    table: 'games',
-                },
-                // This callback is called whenever this game gets an update, payload contains the old and new version
-                (payload) => {
-                    const updatedChessGame: ChessGame = payload.new as ChessGame
-                    
-                    chessStateStore.loadGame(updatedChessGame);
-                }
-            )
-            .subscribe();
-            return () => channel.unsubscribe();
-        }
-    });
-
-
-    const handleMove = async (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b') => {
-        
-        chessStateStore.move(from, to, promotion);
-
-        // Execute the move to the database
-        const {error} = await supabase.functions.invoke('move', {
-            body : {
-                gameId: data.chessGame.id,
-                move: {
-                    from, 
-                    to,
-                    promotion
-                }
-            }
-        });
-
-        // Reload to last known stable state if anything goes wrong
-        if (error) chessStateStore.loadGame(data.chessGame);
-    }
 </script>
-
-<svelte:window 
-    on:keydown={(event) => {
-        if (event.key==='ArrowLeft' && $chessStateStore.moveStack.length!==0) chessStateStore.loadPreviousMove();
-        if (event.key==='ArrowRight' && $chessStateStore.undoneMoveStack.length!==0) chessStateStore.loadNextMove();
-    }}
- /> 
 
  <div class="mx-auto flex flex-col xl:flex-row justify-center items-center gap-12">
 
@@ -102,13 +47,7 @@
         </header>
 
         <div class="overflow-hidden card h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
-            <ChessBoard chessStateStore={chessStateStore}  on:move={(event) => {
-                handleMove(
-                    event.detail.from,
-                    event.detail.to,
-                    event.detail.promotion
-                );
-            }} />
+            <OnlineChessBoard chessStateStore={chessStateStore} />
         </div>
 
 
