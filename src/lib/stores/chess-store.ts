@@ -80,7 +80,6 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
             });
         },
         loadLastMove: () => {
-            console.time();
             update(chessState => {
                 chessState.chess.loadPgn(chessState.chessGame.pgn);
                 chessState.moveStack = chessState.moveStack.concat(chessState.undoneMoveStack.reverse());
@@ -88,7 +87,6 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
                 chessState.material = getMaterial(chessState.moveStack);
                 return chessState;
             });
-            console.timeEnd();
         },
         move: (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b')   => {
             let move;
