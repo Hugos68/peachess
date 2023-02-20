@@ -50,6 +50,7 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
                 return chessState;
             });
         },
+        // TODO: Optimize this method (performance wise)
         loadFirstMove: () => {
             update(chessState => {
                 let move;
@@ -84,12 +85,10 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
         },
         loadLastMove: () => {
             update(chessState => {
-                let move;
-                while ((move = chessState.undoneMoveStack.pop())) {
-                    chessState.moveStack.push(move);
-                    chessState.chess.move(move);
-                } 
+                chessState.chess.loadPgn(chessState.chessGame.pgn);
+                chessState.moveStack = chessState.chess.history({verbose: true});
                 chessState.material = getMaterial(chessState.moveStack);
+                chessState.undoneMoveStack = [];
                 return chessState;
             });
         },
