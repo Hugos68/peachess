@@ -33,6 +33,7 @@
             },
             animation: {
                 enabled: $settings.animate,
+                duration: $settings.animationDuration
             },
             draggable: {
                 enabled: $settings.drag

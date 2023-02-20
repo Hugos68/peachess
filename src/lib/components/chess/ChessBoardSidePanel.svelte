@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { clipboard, SlideToggle, Tab, TabGroup, toastStore, type ToastSettings } from "@skeletonlabs/skeleton";
+	import { clipboard, RangeSlider, SlideToggle, Tab, TabGroup, toastStore, type ToastSettings } from "@skeletonlabs/skeleton";
     import { settings } from "$lib/stores/settings-store";
     import type { ChessStateStore } from "$lib/stores/chess-store";
 	import { page } from "$app/stores";
@@ -55,6 +55,10 @@
                 <label class="flex items-center gap-2 justify-between" for="animate">
                     Animate
                     <SlideToggle class="variant-ghost-secondary" name="animate" bind:checked={$settings.animate}  />
+                </label>
+                <label class="flex items-center gap-2 justify-between" for="animate">
+                    Animation duration ({$settings.animationDuration} ms)
+                    <RangeSlider name="animation-duration" bind:value={$settings.animationDuration} min={0} max={1000} step={50} ticked />
                 </label>
                 <label class="flex items-center gap-2 justify-between" for="drag">
                     Drag
