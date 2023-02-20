@@ -3,13 +3,15 @@
 	import { Chessground } from "chessground";
 	import { fly } from "svelte/transition";
 	import { onMount } from "svelte";
-    import { settings, type ChessStateStore } from "$lib/stores";
+    import type { ChessStateStore } from "$lib/stores/chess-store";
+    import { settings } from "$lib/stores/settings-store";
     import { createEventDispatcher } from "svelte";
 	import { focusTrap } from "@skeletonlabs/skeleton";
 	import { getLastMoveHighlight, getOrientation, getPlayingColor, getValidMoves as getValidDestinations, getViewOnly } from "$lib/util";
 	import { page } from "$app/stores";
 
     export let chessStateStore: ChessStateStore;
+    export let config;
 
     let board: any;
     let boardElement: HTMLElement;

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { clipboard, SlideToggle, Tab, TabGroup, toastStore, type ToastSettings } from "@skeletonlabs/skeleton";
-    import { settings, type ChessStateStore } from "$lib/stores";
+    import { settings } from "$lib/stores/settings-store";
+    import type { ChessStateStore } from "$lib/stores/chess-store";
 	import { page } from "$app/stores";
 
     export let chessStateStore: ChessStateStore;

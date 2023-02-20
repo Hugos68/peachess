@@ -2,7 +2,7 @@
 	import { BLACK, WHITE, type Square } from "chess.js";
     import type { PageData } from "./$types";
 	import { supabase } from "$lib/supabase";
-    import { createChessStateStore, type ChessStateStore } from "$lib/stores";
+    import { createChessStateStore, type ChessStateStore } from "$lib/stores/chess-store";
 	import MoveControls from "$lib/components/chess/MoveControls.svelte";
     import MaterialTracker from "$lib/components/chess/MaterialTracker.svelte";
 	import ChessBoardSidePanel from "$lib/components/chess/ChessBoardSidePanel.svelte";

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ChessStateStore } from "$lib/stores";
+	import type { ChessStateStore } from "$lib/stores/stores";
 
     export let chessStateStore: ChessStateStore;
 </script>

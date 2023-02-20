@@ -1,15 +1,8 @@
 import { Chess, type Move, type Square } from "chess.js";
 import { writable, type Writable, get } from "svelte/store";
-import { localStorageStore } from "@skeletonlabs/skeleton";
 import { Howl } from 'howler';
 import { getMaterial } from "$lib/util";
-
-export const settings: Writable<Settings> = localStorageStore('settings',  {
-    animate: true,
-    sfx: true,
-    premove: false,
-    drag: true
-});
+import { settings} from './settings-store';
 
 export function createChessStateStore(chessGame: ChessGame): ChessStateStore {
 
@@ -30,53 +23,9 @@ export function createChessStateStore(chessGame: ChessGame): ChessStateStore {
     return chessStateStore(chessState);
 }
 
-const moveSFX = new Howl({
-    src: '/sfx/move.mp3'
-});
-const captureSFX = new Howl({
-    src: '/sfx/capture.mp3'
-});
-const castleSFX = new Howl({
-    src: '/sfx/castle.mp3'
-});
-const checkSFX = new Howl({
-    src: '/sfx/check.mp3'
-});
-const gameOverSFX = new Howl({
-    src: '/sfx/gameover.mp3'
-});
-
-const playMoveSound = (move: Move): void => {
-    if (!get(settings).sfx) return;
-
-    // '#' is when a piece checkmates the opponents king
-    else if (move.san.includes('#')) gameOverSFX.play();
-
-    // '+' is when a piece checks the opponents king
-    else if (move.san.includes('+')) checkSFX.play();
-
-    // 'k' is when castling kingside, 'q' is when castling queenside
-    else if (move.flags.includes('k') || move.flags.includes('q')) castleSFX.play();
-
-    // 'c' is when a piece captures
-    else if (move.flags.includes('c')) captureSFX.play();
-
-    // 'n' is when a piece moves, 'b' is when a pawn moves 2 squares
-    else if (move.flags.includes('n') || move.flags.includes('b')) moveSFX.play();
-}
-
-export interface ChessStateStore extends Writable<ChessState> {
-    loadGame: (chessGame: ChessGame) => void
-    loadFirstMove: () => void
-    loadPreviousMove: () => void
-    loadNextMove: () => void
-    loadLastMove: () => void
-    move: (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b') => Move
-}
-
 const chessStateStore: ChessStateStore = (chessState: ChessState) => {
 
-    const { set, update, subscribe }: Writable<ChessState> = writable(chessState);
+const { set, update, subscribe }: Writable<ChessState> = writable(chessState);
 
     return {
         set,
@@ -92,6 +41,7 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
 
                 chessState.undoneMoveStack = [];
                 chessState.moveStack = chessState.chess.history({verbose: true});
+                chessState.material = getMaterial(moveStack);    
 
                 const moveAmountAfterUpdating = chessState.moveStack.length + chessState.undoneMoveStack.length;
                 
@@ -164,4 +114,48 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
             return move;
         }
     }
+}
+
+const moveSFX = new Howl({
+    src: '/sfx/move.mp3'
+});
+const captureSFX = new Howl({
+    src: '/sfx/capture.mp3'
+});
+const castleSFX = new Howl({
+    src: '/sfx/castle.mp3'
+});
+const checkSFX = new Howl({
+    src: '/sfx/check.mp3'
+});
+const gameOverSFX = new Howl({
+    src: '/sfx/gameover.mp3'
+});
+
+const playMoveSound = (move: Move): void => {
+    if (!get(settings).sfx) return;
+
+    // '#' is when a piece checkmates the opponents king
+    else if (move.san.includes('#')) gameOverSFX.play();
+
+    // '+' is when a piece checks the opponents king
+    else if (move.san.includes('+')) checkSFX.play();
+
+    // 'k' is when castling kingside, 'q' is when castling queenside
+    else if (move.flags.includes('k') || move.flags.includes('q')) castleSFX.play();
+
+    // 'c' is when a piece captures
+    else if (move.flags.includes('c')) captureSFX.play();
+
+    // 'n' is when a piece moves, 'b' is when a pawn moves 2 squares
+    else if (move.flags.includes('n') || move.flags.includes('b')) moveSFX.play();
+}
+
+export interface ChessStateStore extends Writable<ChessState> {
+    loadGame: (chessGame: ChessGame) => void
+    loadFirstMove: () => void
+    loadPreviousMove: () => void
+    loadNextMove: () => void
+    loadLastMove: () => void
+    move: (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b') => Move
 }
