@@ -53,20 +53,38 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
         // TODO: Optimize this method (performance wise)
         loadFirstMove: () => {
             update(chessState => {
-                let move;
-                while ((move = chessState.chess.undo({verbose: true}))) {
-                    chessState.moveStack.pop();
-                    chessState.undoneMoveStack.push(move);
+                while (chessState.chess.undo()) chessState.undoneMoveStack.push(chessState.moveStack.pop());
+                chessState.material = {
+                    w: {
+                        captures: {
+                            k: 0,
+                            q: 0,
+                            r: 0,
+                            n: 0,
+                            b: 0,
+                            p: 0
+                        },
+                        total: 0
+                    },
+                    b: {
+                        captures: {
+                            k: 0,
+                            q: 0,
+                            r: 0,
+                            n: 0,
+                            b: 0,
+                            p: 0
+                        },
+                        total: 0
+                    }
                 }
-                chessState.material = getMaterial(chessState.moveStack);
                 return chessState;
             });
         },
         loadPreviousMove: () => {
-            const move = chessState.chess.undo({verbose: true});
-            if (!move) return;
+            if (!chessState.chess.undo()) return;
             update(chessState => {
-                chessState.moveStack.pop();
+                const move = chessState.moveStack.pop()
                 chessState.undoneMoveStack.push(move);
                 chessState.material = updateMaterial(chessState.material, move, 'subtract');
                 return chessState;
