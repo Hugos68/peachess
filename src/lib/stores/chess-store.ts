@@ -52,7 +52,9 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
         },
         loadFirstMove: () => {
             update(chessState => {
+                const headers = chessState.chess.header();
                 chessState.chess.reset();
+                for (const [key, value] of Object.entries(headers)) chessState.chess.header(key, value);
                 chessState.undoneMoveStack = chessState.undoneMoveStack.concat(chessState.moveStack.reverse());
                 chessState.moveStack = [];
                 chessState.material = getMaterial(chessState.moveStack);
@@ -69,6 +71,7 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
             });
         },
         loadNextMove: () => {
+            console.time();
             const move = chessState.undoneMoveStack.pop();
             if (!move) return;
             playMoveSound(move);
@@ -78,6 +81,7 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
                 chessState.material = updateMaterial(chessState.material, move, 'add');
                 return chessState;
             });
+            console.timeEnd();
         },
         loadLastMove: () => {
             update(chessState => {
@@ -87,6 +91,7 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
                 chessState.material = getMaterial(chessState.moveStack);
                 return chessState;
             });
+            
         },
         move: (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b')   => {
             let move;
