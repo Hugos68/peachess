@@ -68,6 +68,14 @@
                     Premove
                     <SlideToggle name="premove" bind:checked={$settings.premove} />
                 </label>
+                <label class="flex items-center gap-2 justify-between" for="lastmovehighlight">
+                    Highlight last move
+                    <SlideToggle name="lastmovehighlight" bind:checked={$settings.lastMoveHighlight} />
+                </label>
+                <label class="flex items-center gap-2 justify-between" for="checkhighlight">
+                    Highlight checks
+                    <SlideToggle name="checkhighlight" bind:checked={$settings.checkHighlight} />
+                </label>
             </div>
         {:else if tabSet === 3}
             <p class="text-xl font-bold text-center">Click to copy</p>

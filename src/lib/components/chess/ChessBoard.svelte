@@ -38,6 +38,10 @@
             draggable: {
                 enabled: $settings.drag
             },
+            highlight: {
+                lastMove: $settings.lastMoveHighlight,
+                check: $settings.checkHighlight
+            }
         });
     }
 
@@ -50,9 +54,6 @@
             lastMove: getLastMoveHighlight(moveStack),
             viewOnly: getViewOnly(chessGame, chess, undoneMoveStack, $page.data.session),
             check: chess.inCheck(),
-            highlight: {
-                lastMove: true,  
-            },
             movable: {
                 color: getPlayingColor(chessGame, $page.data.session),
                 free: false,

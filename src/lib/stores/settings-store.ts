@@ -4,5 +4,7 @@ export const settings: Writable<Settings> = localStorageStore('settings',  {
     animate: true,
     sfx: true,
     premove: false,
-    drag: true
+    drag: true,
+    lastMoveHighlight: true,
+    checkHighlight: true
 });
