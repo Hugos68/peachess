@@ -41,7 +41,7 @@ const { set, update, subscribe }: Writable<ChessState> = writable(chessState);
 
                 chessState.undoneMoveStack = [];
                 chessState.moveStack = chessState.chess.history({verbose: true});
-                chessState.material = getMaterial(moveStack);    
+                chessState.material = getMaterial(chessState.moveStack);    
 
                 const moveAmountAfterUpdating = chessState.moveStack.length + chessState.undoneMoveStack.length;
                 
