@@ -9,7 +9,7 @@ export function getPieceWeight(piece: 'k' | 'q' | 'r' | 'n' | 'b' | 'p'): number
             return 9;
             break;
         case 'r':
-            return 4;
+            return 5;
             break;
         case 'n':
             return 3;
