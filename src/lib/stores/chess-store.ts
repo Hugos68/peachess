@@ -1,7 +1,7 @@
 import { Chess, type Move, type Square } from "chess.js";
 import { writable, type Writable, get } from "svelte/store";
 import { Howl } from 'howler';
-import { getMaterial } from "$lib/util";
+import { getMaterial, updateMaterial } from "$lib/util";
 import { settings} from './settings-store';
 
 export function createChessStateStore(chessGame: ChessGame): ChessStateStore {
@@ -62,25 +62,23 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
             });
         },
         loadPreviousMove: () => {
+            const move = chessState.chess.undo({verbose: true});
+            if (!move) return;
             update(chessState => {
-                const move = chessState.chess.undo({verbose: true});
-                if (move) {
-                    chessState.moveStack.pop();
-                    chessState.undoneMoveStack.push(move);
-                }
-                chessState.material = getMaterial(chessState.moveStack);
+                chessState.moveStack.pop();
+                chessState.undoneMoveStack.push(move);
+                chessState.material = updateMaterial(chessState.material, move);
                 return chessState;
             });
         },
         loadNextMove: () => {
+            const move = chessState.undoneMoveStack.pop();
+            if (!move) return;
+            playMoveSound(move);
             update(chessState => {          
-                const move = chessState.undoneMoveStack.pop();
-                if (move)  {
-                    playMoveSound(move);
-                    chessState.moveStack.push(move);
-                    chessState.chess.move(move);
-                } 
-                chessState.material = getMaterial(chessState.moveStack);
+                chessState.moveStack.push(move);
+                chessState.chess.move(move);
+                chessState.material = updateMaterial(chessState.material, move);
                 return chessState;
             });
         },
