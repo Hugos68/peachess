@@ -21,5 +21,7 @@
                 <div style="left: {i*4-10}px;" class="absolute w-6 aspect-square bg-cover {color===WHITE ? "white" : "black"} {getPieceName(piece)}" in:scale></div>
             {/each} 
         </div>
+    {:else}
+        <p>~</p>
     {/each}
 </div>

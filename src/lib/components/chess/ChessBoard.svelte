@@ -21,10 +21,13 @@
 
     onMount(() => {
         board = Chessground(boardElement);
-    })
+    });
 
     $: if (board) {
+        const movesAmountBefore = $chessStateStore.moveStack.length + $chessStateStore.undoneMoveStack.length;
         board.set(getConfig($chessStateStore));
+        const movesAmountAfter = $chessStateStore.moveStack.length + $chessStateStore.undoneMoveStack.length;
+        if (movesAmountAfter > movesAmountBefore) board.playPremove();
     }
     $: if (board) {
         board.set({
@@ -103,7 +106,7 @@
         const percentage = (number-1) * 12.5;
 
         // We check color here to deal with the board orientation
-        return getOrientation($chessStateStore.chessGame) === 'white' ? percentage : 87.5-percentage;
+        return getOrientation($chessStateStore.chessGame, $page.data.session) === 'white' ? percentage : 87.5-percentage;
     }
 
     const handlePromotion = (promotion: 'q' | 'r' | 'n' | 'b') => {

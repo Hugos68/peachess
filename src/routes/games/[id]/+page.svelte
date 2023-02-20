@@ -118,11 +118,11 @@
 
             <div class="flex flex-col items-end">
                 {#if getOrientation($chessStateStore.chessGame, $page.data.session) === 'black'}
-                    <MaterialTracker chessStateStore={chessStateStore} color={WHITE} />
                     <p class="font-bold">{$chessStateStore.chess.header()['Black']}</p>
+                    <MaterialTracker chessStateStore={chessStateStore} color={WHITE} />
                 {:else}
-                    <MaterialTracker chessStateStore={chessStateStore} color={BLACK} />
                     <p class="font-bold">{$chessStateStore.chess.header()['White']}</p>
+                    <MaterialTracker chessStateStore={chessStateStore} color={BLACK} />
                 {/if}
             </div>
         </footer>

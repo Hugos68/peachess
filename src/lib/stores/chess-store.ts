@@ -25,7 +25,7 @@ export function createChessStateStore(chessGame: ChessGame): ChessStateStore {
 
 const chessStateStore: ChessStateStore = (chessState: ChessState) => {
 
-const { set, update, subscribe }: Writable<ChessState> = writable(chessState);
+    const { set, update, subscribe }: Writable<ChessState> = writable(chessState);
 
     return {
         set,
