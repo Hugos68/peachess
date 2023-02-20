@@ -131,7 +131,7 @@
     }} 
     on:keydown={(event) => {
         if (event.key==='ArrowLeft' && $chessStateStore.moveStack.length!==0) chessStateStore.loadPreviousMove();
-        if (event.key==='ArrowRight' && $chessStateStore.undoneMoveStack.length!==0) chessStateStore.loadLastMove();
+        if (event.key==='ArrowRight' && $chessStateStore.undoneMoveStack.length!==0) chessStateStore.loadNextMove();
     }}
 />
 
