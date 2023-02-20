@@ -49,6 +49,7 @@ cg-board {
   user-select: none;
   line-height: 0;
   background-size: cover;
+  @apply !bg-primary-100;
   cursor: pointer;
 }
 cg-board square {
