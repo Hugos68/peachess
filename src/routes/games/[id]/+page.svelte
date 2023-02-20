@@ -14,7 +14,7 @@
     const chessStateStore: ChessStateStore = createChessStateStore(data.chessGame);
 </script>
 
- <div class="mx-auto flex flex-col xl:flex-row justify-center items-center gap-12">
+ <div class="mx-auto xl:h-[calc(100vh-2rem)] flex flex-col xl:flex-row justify-center items-center gap-12">
 
     <div class="flex flex-col gap-2">
         <header class="flex justify-between">
