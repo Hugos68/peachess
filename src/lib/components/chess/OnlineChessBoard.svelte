@@ -40,7 +40,7 @@
         // Execute the move to the database
         const {error} = await supabase.functions.invoke('move', {
             body : {
-                gameId: data.chessGame.id,
+                gameId: $chessStateStore.chessGame.id,
                 move: {
                     from, 
                     to,
