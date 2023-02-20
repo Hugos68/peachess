@@ -50,34 +50,12 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
                 return chessState;
             });
         },
-        // TODO: Optimize this method (performance wise)
         loadFirstMove: () => {
             update(chessState => {
-                while (chessState.chess.undo()) chessState.undoneMoveStack.push(chessState.moveStack.pop());
-                chessState.material = {
-                    w: {
-                        captures: {
-                            k: 0,
-                            q: 0,
-                            r: 0,
-                            n: 0,
-                            b: 0,
-                            p: 0
-                        },
-                        total: 0
-                    },
-                    b: {
-                        captures: {
-                            k: 0,
-                            q: 0,
-                            r: 0,
-                            n: 0,
-                            b: 0,
-                            p: 0
-                        },
-                        total: 0
-                    }
-                }
+                chessState.chess.reset();
+                chessState.undoneMoveStack = chessState.undoneMoveStack.concat(chessState.moveStack.reverse());
+                chessState.moveStack = [];
+                chessState.material = getMaterial(chessState.moveStack);
                 return chessState;
             });
         },
@@ -102,6 +80,7 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
             });
         },
         loadLastMove: () => {
+            console.time();
             update(chessState => {
                 chessState.chess.loadPgn(chessState.chessGame.pgn);
                 chessState.moveStack = chessState.moveStack.concat(chessState.undoneMoveStack.reverse());
@@ -109,6 +88,7 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
                 chessState.material = getMaterial(chessState.moveStack);
                 return chessState;
             });
+            console.timeEnd();
         },
         move: (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b')   => {
             let move;
