@@ -43,7 +43,8 @@
     let pageProps = {
         offset: 0,
         limit: data.chessGames.length,
-        size: data.totalChessGameAmount || 0,
+        // We do plus one because our db is one-based and pagination is zero-based
+        size: data.totalChessGameAmount ? data.totalChessGameAmount + 1 : 1,
         amounts: [data.chessGames.length],
     };
 </script>

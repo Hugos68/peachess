@@ -3,10 +3,10 @@ import type { PageServerLoad } from './$types';
 
 export const load = (async (event) => {;
     const {supabaseClient} = await getSupabase(event);
-    if (!event.url.searchParams.get('page')) event.url.searchParams.set('page', "0");
+    if (!event.url.searchParams.get('page') || event.url.searchParams.get('page') < 0 ) event.url.searchParams.set('page', "0");
     const pageNumber = event.url.searchParams.get('page') as number;
-    const from = 0 + 16 * pageNumber;
-    const to = 16 + 16 * pageNumber;
+    const from = 0 + 15 * pageNumber;
+    const to = 15 + 15 * pageNumber;
 
     const { data, count } = await supabaseClient
     .from("games")
