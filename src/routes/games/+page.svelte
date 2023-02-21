@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
 	import { page } from "$app/stores";
-	import OnlineChessBoard from "$lib/components/chess/OnlineChessBoard.svelte";
 	import NewGameModal from "$lib/components/modal/NewGameModal.svelte";
 	import { createChessStateStore } from "$lib/stores/chess-store";
 	import { modalStore, Paginator, ProgressRadial, toastStore, type ModalComponent, type ModalSettings, type ToastSettings } from "@skeletonlabs/skeleton";
 	import { get } from "svelte/store";
-	import { flip } from "svelte/animate";
 	import type { PageData } from "./$types";
+	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
+    import { supabase } from "$lib/supabase";
 
     export let data: PageData;
     
@@ -63,7 +63,7 @@
     {/if}
     <div class="flex flex-wrap gap-8">
         {#each data.chessGames as chessGame}     
-            {@const chessStateStore = createChessStateStore(chessGame)}
+            {@const chessStateStore = createChessStateStore(chessGame, supabase)}
             {@const {chess} = get(chessStateStore)}
             <a class="card h-full w-full flex-[20rem] p-4 gap-2 flex flex-col group" href="/games/{chessGame.id}" class:hidden={loading} data-sveltekit-preload-data="hover">
 
@@ -78,7 +78,7 @@
                 </div>
          
                 <div class="group-hover:brightness-75 transition-[filter] duration-250">
-                    <OnlineChessBoard chessStateStore={chessStateStore} />
+                    <ChessBoard chessStateStore={chessStateStore} />
                 </div>
 
                 {#if loading}

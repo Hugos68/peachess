@@ -7,11 +7,12 @@
 	import ChessBoardSidePanel from "$lib/components/chess/ChessInfoPanel.svelte";
 	import { getOrientation } from "$lib/util";
 	import { page } from "$app/stores";
-	import OnlineChessBoard from "$lib/components/chess/OnlineChessBoard.svelte";
+	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
+	import { supabase } from "$lib/supabase";
 
     export let data: PageData;
 
-    const chessStateStore: ChessStateStore = createChessStateStore(data.chessGame);
+    const chessStateStore: ChessStateStore = createChessStateStore(data.chessGame, supabase);
 </script>
 
  <div class="mx-auto xl:h-[calc(100vh-2rem)] flex flex-col xl:flex-row justify-center items-center gap-12">
@@ -48,7 +49,7 @@
         </header>
 
         <div class="overflow-hidden card h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
-            <OnlineChessBoard chessStateStore={chessStateStore} />
+            <ChessBoard chessStateStore={chessStateStore} />
         </div>
 
 

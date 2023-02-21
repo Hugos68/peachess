@@ -4,7 +4,7 @@ import { Howl } from 'howler';
 import { getMaterial, updateMaterial } from "$lib/util";
 import { settings} from './settings-store';
 
-export function createChessStateStore(chessGame: ChessGame): ChessStateStore {
+export function createChessStateStore(chessGame: ChessGame, supabase: SupabaseClient): ChessStateStore {
 
     // Init chessState by loading pgn into chess and loading history into the move stack
     const chess = new Chess();
@@ -20,14 +20,15 @@ export function createChessStateStore(chessGame: ChessGame): ChessStateStore {
         undoneMoveStack,
         material
     }
-    return chessStateStore(chessState);
+
+    return chessStateStore(chessState, supabase);
 }
 
-const chessStateStore: ChessStateStore = (chessState: ChessState) => {
+const chessStateStore: ChessStateStore = (chessState: ChessState, supabase: SupabaseClient) => {
 
     const { set, update, subscribe }: Writable<ChessState> = writable(chessState);
 
-    return {
+    const store = {
         set,
         update,
         subscribe,
@@ -98,10 +99,21 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
 
                     // Move (throws exception if move is invalid)
                     move = chessState.chess.move({from, to, promotion});
+                    playMoveSound(move);
                     chessState.moveStack.push(move);
                     chessState.material = getMaterial(chessState.moveStack);
-                    playMoveSound(move);
 
+                    // Execute the move to the database
+                    supabase.functions.invoke('move', {
+                        body : {
+                            gameId: chessState.chessGame.id,
+                            move: {
+                                from, 
+                                to,
+                                promotion
+                            }
+                        }
+                    });
                 } catch(error) {
                     console.error(error);
                 }
@@ -110,6 +122,26 @@ const chessStateStore: ChessStateStore = (chessState: ChessState) => {
             return move;
         }
     }
+
+    supabase
+    .channel('table-db-changes')
+    .on(
+        'postgres_changes',
+        {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'games',
+            filter: `id=eq.${chessState.chessGame.id}`
+        },
+        // This callback is called whenever this game gets an update, payload contains the old and new version
+        (payload) => {
+            const updatedChessGame: ChessGame = payload.new as ChessGame
+            store.loadGame(updatedChessGame);
+        }
+    )
+    .subscribe();
+
+    return store;
 }
 
 const moveSFX = new Howl({

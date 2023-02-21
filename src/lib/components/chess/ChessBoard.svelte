@@ -6,7 +6,7 @@
     import type { ChessStateStore } from "$lib/stores/chess-store";
     import { settings } from "$lib/stores/settings-store";
     import { createEventDispatcher } from "svelte";
-	import { focusTrap, ProgressRadial } from "@skeletonlabs/skeleton";
+	import { focusTrap } from "@skeletonlabs/skeleton";
 	import { getLastMoveHighlight, getOrientation, getPlayingColor, getValidMoves as getValidDestinations, getViewOnly } from "$lib/util";
 	import { page } from "$app/stores";
 
@@ -16,8 +16,6 @@
     let boardElement: HTMLElement;
     let promotionModal: HTMLElement;
     let promotionMove: CustomMove | null = null;
-
-    const dispatch = createEventDispatcher();
 
     onMount(() =>  board = Chessground(boardElement));
 
@@ -82,10 +80,7 @@
             return;
         }
 
-        dispatch('move', {
-            from,
-            to
-        });
+        chessStateStore.move(from, to);
     }
 
     const isMovePromotion = (from: Square, to: Square,): boolean => {
@@ -112,11 +107,7 @@
 
     const handlePromotion = (promotion: 'q' | 'r' | 'n' | 'b') => {
         if (!promotionMove) return;
-        dispatch('move', {
-            from: promotionMove.from,
-            to: promotionMove.to,
-            promotion: promotion
-        });
+        chessStateStore.move(promotionMove.from as Square, promotionMove.to as Square, promotion);
         promotionMove = null;
     }
     
