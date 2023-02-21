@@ -16,7 +16,19 @@
     let promotionModal: HTMLElement;
     let promotionMove: CustomMove | null = null;
 
-    onMount(() =>  board = Chessground(boardElement));
+    onMount(() =>   {
+        // Load board and initialize boards defaults (values that will never change throughout the match)
+        board = Chessground(boardElement, {
+            movable: {
+                free: false,
+                showDests: true
+            },
+            drawable: {
+                enabled: true,
+                eraseOnClick: true
+            }
+        });
+    });
 
     let moveAmountBefore: number;
     $: if (board) {
@@ -57,13 +69,7 @@
             check: chess.inCheck(),
             movable: {
                 color: getPlayingColor(chessGame, $page.data.session),
-                free: false,
                 dests: getValidDestinations(chess),
-                showDests: true
-            },
-            drawable: {
-                enabled: true,
-                eraseOnClick: true
             },
             events: {
                 move: moveCallback
