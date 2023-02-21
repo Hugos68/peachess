@@ -46,8 +46,6 @@
         size: data.totalChessGameAmount || 0,
         amounts: [data.chessGames.length],
     };
-
-    let ownGamesOnly, ongoingGamesOnly;
 </script>
 
 <div class="mt-[5vh] flex flex-col gap-8">
