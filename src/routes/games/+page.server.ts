@@ -8,14 +8,10 @@ export const load = (async (event) => {;
     const from = 0 + 8 * pageNumber;
     const to = 8 + 8 * pageNumber;
 
-    const { data } = await supabaseClient
+    const { data, count } = await supabaseClient
     .from("games")
-    .select("*")
+    .select("*", { count: 'exact' })
     .range(from, to);
-
-    const { count } = await supabaseClient
-    .from("games")
-    .select("*", { count: 'exact', head: true });
     
     return {    
         chessGames: data as ChessGame[],
