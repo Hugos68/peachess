@@ -3,12 +3,22 @@ import type { PageServerLoad } from './$types';
 
 export const load = (async (event) => {;
     const {supabaseClient} = await getSupabase(event);
-    
-    const {data} = await supabaseClient
+    if (!event.url.searchParams.get('page')) event.url.searchParams.set('page', "0");
+    const pageNumber = event.url.searchParams.get('page') as number;
+    const from = 0 + 8 * pageNumber;
+    const to = 8 + 8 * pageNumber;
+
+    const { data } = await supabaseClient
     .from("games")
-    .select("*");
+    .select("*")
+    .range(from, to);
+
+    const { count } = await supabaseClient
+    .from("games")
+    .select("*", { count: 'exact', head: true });
     
-    return {
-        chessGames: data as ChessGame[]
+    return {    
+        chessGames: data as ChessGame[],
+        totalChessGameAmount: count
     }
 }) satisfies PageServerLoad;

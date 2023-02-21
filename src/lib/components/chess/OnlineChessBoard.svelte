@@ -8,6 +8,7 @@
     export let chessStateStore: ChessStateStore;
     
     onMount(() => {
+        console.log("game: "+$chessStateStore.chessGame.id+" was loaded");
         
         // Only open a channel when the game is ongoing 
         if (!$chessStateStore.chess.isGameOver()) {
@@ -55,10 +56,12 @@
     }
 </script>
 
-<ChessBoard chessStateStore={chessStateStore} on:move={(event) => {
-    handleMove(
-        event.detail.from,
-        event.detail.to,
-        event.detail.promotion
-    );
-}} />
+<ChessBoard chessStateStore={chessStateStore} 
+    on:move={(event) => {
+        handleMove(
+            event.detail.from,
+            event.detail.to,
+            event.detail.promotion
+        );
+    }}
+ />

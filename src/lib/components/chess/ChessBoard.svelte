@@ -19,9 +19,7 @@
 
     const dispatch = createEventDispatcher();
 
-    onMount(() => {
-        board = Chessground(boardElement);
-    });
+    onMount(() =>  board = Chessground(boardElement));
 
     let moveAmountBefore: number;
     $: if (board) {

@@ -1,10 +1,10 @@
 <script lang="ts">
+	import { goto } from "$app/navigation";
 	import { page } from "$app/stores";
 	import OnlineChessBoard from "$lib/components/chess/OnlineChessBoard.svelte";
 	import NewGameModal from "$lib/components/modal/NewGameModal.svelte";
-	import { createChessStateStore, type ChessStateStore } from "$lib/stores/chess-store";
-	import { modalStore, toastStore, type ModalComponent, type ModalSettings, type ToastSettings } from "@skeletonlabs/skeleton";
-	import { onMount } from "svelte";
+	import { createChessStateStore } from "$lib/stores/chess-store";
+	import { Accordion, AccordionItem, modalStore, Paginator, ProgressRadial, toastStore, type ModalComponent, type ModalSettings, type ToastSettings } from "@skeletonlabs/skeleton";
 	import { get } from "svelte/store";
 	import type { PageData } from "./$types";
 
@@ -19,16 +19,6 @@
         toastStore.trigger(toast);
     } 
 
-    let mounted: boolean = false;
-    const chessStateStores: ChessStateStore[] = [];
-    onMount(() => {
-        data.chessGames.forEach(chessGame =>  {
-            const store = createChessStateStore(chessGame);
-            chessStateStores.push(store);
-        });
-        mounted = true;
-    });
-
     const handleCreateNewGame = () => {
         const modalComponent: ModalComponent = {
 		    ref: NewGameModal,
@@ -40,6 +30,24 @@
         };
         modalStore.trigger(modal);
     }
+    
+    let loading: boolean = false;
+    const loadPage = async (e: CustomEvent) => {
+        loading = true;
+        const query = new URLSearchParams($page.url.searchParams);
+        query.set('page', e.detail);
+        await goto(`?${query.toString()}`);
+        loading = false;
+    }
+
+    let pageProps = {
+        offset: 0,
+        limit: data.chessGames.length,
+        size: data.totalChessGameAmount || 0,
+        amounts: [data.chessGames.length],
+    };
+
+    let ownGamesOnly, ongoingGamesOnly;
 </script>
 
 <div class="mt-[5vh] flex flex-col gap-8">
@@ -48,18 +56,20 @@
         <button class=" btn btn-sm variant-filled-primary" on:click={handleCreateNewGame}>+ New Game</button>
     </div>
 
-    {#if !mounted}
-        <p class="mx-auto my-auto mt-[15vh]">Loading boards...</p>
-    {:else}
-    <div class="flex flex-wrap gap-8" class:hidden={!mounted}>
-        
-        {#each chessStateStores as chessStateStore}     
-            {@const chessState = get(chessStateStore)}
-            <a class="card h-full w-full flex-[25rem] p-4 gap-2 flex flex-col group" href="/games/{chessState.chessGame.id}">
-      
+    <Paginator bind:settings={pageProps} on:page={loadPage} />
+
+    {#if loading}
+        <ProgressRadial stroke={128} class="w-8 mx-auto mt-[5vh]" font={16} value={undefined}>{0}%</ProgressRadial>
+    {/if}
+    <div class="flex flex-wrap gap-8">
+        {#each data.chessGames as chessGame}     
+            {@const chessStateStore = createChessStateStore(chessGame)}
+            {@const {chess} = get(chessStateStore)}
+            <a class="card h-full w-full flex-[25rem] p-4 gap-2 flex flex-col group" href="/games/{chessGame.id}" class:hidden={loading}>
+
                 <div class="flex justify-between">
-                    <p><strong>Game {chessState.chessGame.id}: {chessState.chess.header()['White']} vs {chessState.chess.header()['Black']}</strong></p>
-                    {#if !chessState.chess.isGameOver()}
+                    <p><strong>Game {chessGame.id}: {chess.header()['White']} vs {chess.header()['Black']}</strong></p>
+                    {#if !chess.isGameOver()}
                         <div class="badge bg-red-400">
                             <div class="w-2 aspect-square rounded-full bg-white"></div>
                             <span class="font-bold">Live</span>
@@ -70,10 +80,14 @@
                 <div class="group-hover:brightness-75 transition-[filter] duration-250">
                     <OnlineChessBoard chessStateStore={chessStateStore} />
                 </div>
+
+                {#if loading}
+                    <p class="h-full w-full flex-1">Loading board</p>
+                {/if}
             </a>
+        {:else}
+        <p class="text-center mt-[5vh]">You've reached the end</p>
         {/each}
         <div class="flex-[1_0_25rem] p-4 h-0"></div>
     </div>
-    {/if}
-
 </div>
