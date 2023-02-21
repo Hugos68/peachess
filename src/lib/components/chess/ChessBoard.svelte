@@ -23,13 +23,13 @@
         board = Chessground(boardElement);
     });
 
-    // We keep track of the move amount after the last update to compare it to the new move amount to know when the enemy has played because our client is out of sync with the server
     let moveAmountBefore: number;
     $: if (board) {
         board.set(getConfig($chessStateStore));
+        const enemyMoved: boolean = moveAmountBefore < $chessStateStore.moveStack.length + $chessStateStore.undoneMoveStack.length;
+        if (enemyMoved && $settings.premove) board.playPremove();
         
-        if (moveAmountBefore < $chessStateStore.moveStack.length + $chessStateStore.undoneMoveStack.length && $settings.premove) board.playPremove();
-        
+        // We keep track of the move amount after the last update to compare it to the new move amount to know when the enemy has played because our client is out of sync with the server
         moveAmountBefore = $chessStateStore.moveStack.length + $chessStateStore.undoneMoveStack.length;
     }
     $: if (board) {
