@@ -19,6 +19,7 @@
                     event: 'UPDATE',
                     schema: 'public',
                     table: 'games',
+                    filter: `id=eq.${$chessStateStore.chessGame.id}`
                 },
                 // This callback is called whenever this game gets an update, payload contains the old and new version
                 (payload) => {
