@@ -63,7 +63,7 @@
         {#each data.chessGames as chessGame}     
             {@const chessStateStore = createChessStateStore(chessGame)}
             {@const {chess} = get(chessStateStore)}
-            <a class="card h-full w-full flex-[25rem] p-4 gap-2 flex flex-col group" href="/games/{chessGame.id}" class:hidden={loading}>
+            <a class="card h-full w-full flex-[25rem] p-4 gap-2 flex flex-col group" href="/games/{chessGame.id}" class:hidden={loading} data-sveltekit-preload-data="hover">
 
                 <div class="flex justify-between">
                     <p><strong>Game {chessGame.id}: {chess.header()['White']} vs {chess.header()['Black']}</strong></p>
