@@ -57,7 +57,7 @@
     <Paginator bind:settings={pageProps} on:page={loadPage} />
 
     {#if loading}
-        <ProgressRadial stroke={128} class="w-8 mx-auto mt-[5vh]" font={16} value={undefined}>{0}%</ProgressRadial>
+        <ProgressRadial stroke={128} class="w-8 mx-auto mt-[5vh]" font={16} value={undefined} />
     {/if}
     <div class="flex flex-wrap gap-8">
         {#each data.chessGames as chessGame}     

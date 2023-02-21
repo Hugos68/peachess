@@ -6,7 +6,7 @@
     import type { ChessStateStore } from "$lib/stores/chess-store";
     import { settings } from "$lib/stores/settings-store";
     import { createEventDispatcher } from "svelte";
-	import { focusTrap } from "@skeletonlabs/skeleton";
+	import { focusTrap, ProgressRadial } from "@skeletonlabs/skeleton";
 	import { getLastMoveHighlight, getOrientation, getPlayingColor, getValidMoves as getValidDestinations, getViewOnly } from "$lib/util";
 	import { page } from "$app/stores";
 
@@ -140,20 +140,19 @@
 <div class="relative h-full w-full aspect-square">
 
     <!-- BOARD -->
-    <div class="flex justify-center items-center w-full h-full transition-[filter]" class:brightness-50={promotionMove!==null} bind:this={boardElement}>
-        <p class="!text-[2rem] animate-bounce">
-            Loading board...
-        </p>
+    <div class="transition-[filter] card h-full flex justify-center items-center" class:brightness-50={promotionMove!==null} bind:this={boardElement}>
+        <p class="animate-bounce text-lg"><strong>Loading board...</strong></p>
     </div>
 
     <!-- PROMOTION-MODAL -->
     <div bind:this={promotionModal} class:hidden={promotionMove===null} class="absolute top-0 w-[12.5%] h-[50%] z-[50] bg-primary-500">
         {#if promotionMove}
+        {@const orientation = getOrientation($chessStateStore.chessGame, $page.data.session)}
             <div class="h-full w-full" transition:fly={{y: -100, duration: 200}} use:focusTrap={promotionMove!==null}>
-                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover queen {getOrientation($chessStateStore.chessGame)}" on:click={() => handlePromotion('q')}></button>
-                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover rook {getOrientation($chessStateStore.chessGame)}" on:click={() => handlePromotion('r')}></button>
-                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover knight {getOrientation($chessStateStore.chessGame)}" on:click={() => handlePromotion('n')}></button>
-                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover bishop {getOrientation($chessStateStore.chessGame)}" on:click={() => handlePromotion('b')}></button>
+                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover queen {orientation}" on:click={() => handlePromotion('q')}></button>
+                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover rook {orientation}" on:click={() => handlePromotion('r')}></button>
+                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover knight {orientation}" on:click={() => handlePromotion('n')}></button>
+                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover bishop {orientation}" on:click={() => handlePromotion('b')}></button>
             </div>
         {/if}
     </div>
