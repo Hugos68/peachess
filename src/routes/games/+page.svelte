@@ -4,8 +4,9 @@
 	import OnlineChessBoard from "$lib/components/chess/OnlineChessBoard.svelte";
 	import NewGameModal from "$lib/components/modal/NewGameModal.svelte";
 	import { createChessStateStore } from "$lib/stores/chess-store";
-	import { Accordion, AccordionItem, modalStore, Paginator, ProgressRadial, toastStore, type ModalComponent, type ModalSettings, type ToastSettings } from "@skeletonlabs/skeleton";
+	import { modalStore, Paginator, ProgressRadial, toastStore, type ModalComponent, type ModalSettings, type ToastSettings } from "@skeletonlabs/skeleton";
 	import { get } from "svelte/store";
+	import { flip } from "svelte/animate";
 	import type { PageData } from "./$types";
 
     export let data: PageData;
