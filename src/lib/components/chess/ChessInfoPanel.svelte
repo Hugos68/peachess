@@ -40,7 +40,7 @@
     <svelte:fragment slot="panel">
         {#if tabSet === 0}
         {@const activeMoveIndex = $chessStateStore.moveStack.length-1}
-            <ul class="overflow-y-scroll flex-1 grid grid-cols-3 place-items-center" id="move-list">
+            <ul class="overflow-y-scroll flex-1 grid grid-cols-3 place-items-start justify-items-center" id="move-list">
                 <span class="p-1"><strong>Move</strong></span>
                 <span class="p-1"><strong>White</strong></span>
                 <span class="p-1"><strong>Black</strong></span>
