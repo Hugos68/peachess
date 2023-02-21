@@ -5,6 +5,8 @@
 
     export let chessStateStore: ChessStateStore;
     export let color: 'w' | 'b';
+
+    
 </script>
 
 <div class="flex h-5 gap-2">

@@ -52,7 +52,7 @@
         });
 
         // Reload to last known stable state if anything goes wrong
-        if (error) chessStateStore.loadGame(data.chessGame);
+        if (error) chessStateStore.loadGame($chessStateStore.chessGame);
     }
 </script>
 

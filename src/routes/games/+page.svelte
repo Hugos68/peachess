@@ -63,7 +63,7 @@
         {#each data.chessGames as chessGame}     
             {@const chessStateStore = createChessStateStore(chessGame)}
             {@const {chess} = get(chessStateStore)}
-            <a class="card h-full w-full flex-[25rem] p-4 gap-2 flex flex-col group" href="/games/{chessGame.id}" class:hidden={loading} data-sveltekit-preload-data="hover">
+            <a class="card h-full w-full flex-[20rem] p-4 gap-2 flex flex-col group" href="/games/{chessGame.id}" class:hidden={loading} data-sveltekit-preload-data="hover">
 
                 <div class="flex justify-between">
                     <p><strong>Game {chessGame.id}: {chess.header()['White']} vs {chess.header()['Black']}</strong></p>
@@ -86,6 +86,9 @@
         {:else}
         <p class="text-center mt-[5vh]">You've reached the end</p>
         {/each}
-        <div class="flex-[1_0_25rem] p-4 h-0"></div>
+        <div class="flex-[1_0_20rem] h-0"></div>
+        <div class="flex-[1_0_20rem] h-0"></div>
+        <div class="flex-[1_0_20rem] h-0"></div>
     </div>
+    <Paginator bind:settings={pageProps} on:page={loadPage} />
 </div>
