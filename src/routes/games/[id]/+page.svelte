@@ -5,18 +5,16 @@
 	import MoveControls from "$lib/components/chess/MoveControls.svelte";
     import MaterialTracker from "$lib/components/chess/MaterialTracker.svelte";
 	import ChessBoardSidePanel from "$lib/components/chess/ChessInfoPanel.svelte";
-	import { getOrientation, getPlayingColor } from "$lib/util";
+	import { getPlayingColor } from "$lib/util";
 	import { page } from "$app/stores";
 	import { supabase } from "$lib/supabase";
 	import OnlineChessBoard from "$lib/components/chess/OnlineChessboard.svelte";
-	import type { OnlineChessStateStore } from "$lib/types";
-	import type { Writable } from "svelte/store";
 
     export let data: PageData;
     
-    const playingColor = getPlayingColor(data.chessGame, $page.data.session) || 'w';
+    const playingColor = getPlayingColor(data.chessGame, $page.data.session);
 
-    const chessStateStore: Writable<OnlineChessStateStore> = createOnlineChessStateStore(data.chessGame, playingColor, supabase);
+    const chessStateStore: OnlineChessStateStore = createOnlineChessStateStore(data.chessGame, playingColor, supabase);
 </script>
 
  <div class="mx-auto xl:h-[calc(100vh-2rem)] flex flex-col xl:flex-row justify-center items-center gap-12">
@@ -41,7 +39,7 @@
             {/if}
 
             <div class="flex flex-col items-end">
-                {#if getOrientation($chessStateStore.chessGame, $page.data.session) === 'white'}
+                {#if (playingColor ? playingColor==='w' : true)}
                     <p class="font-bold">{$chessStateStore.chess.header()['Black']}</p>
                     <MaterialTracker chessStateStore={chessStateStore} color={WHITE} />
                 {:else}
@@ -62,7 +60,7 @@
             <MoveControls chessStateStore={chessStateStore} />
 
             <div class="flex flex-col items-end">
-                {#if getOrientation($chessStateStore.chessGame, $page.data.session) === 'black'}
+                {#if (playingColor ? playingColor==='b' : false)}
                     <p class="font-bold">{$chessStateStore.chess.header()['Black']}</p>
                     <MaterialTracker chessStateStore={chessStateStore} color={WHITE} />
                 {:else}

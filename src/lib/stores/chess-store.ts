@@ -3,7 +3,7 @@ import { writable, type Writable, get } from "svelte/store";
 import { getConfig, getMaterial, updateMaterial, playMoveSound } from "$lib/util";
 import { settings} from './settings-store';
 
-export function createOnlineChessStateStore(chessGame: ChessGame, playingColor: 'w' | 'b', supabase: SupabaseClient): OnlineChessStateStore {
+export function createOnlineChessStateStore(chessGame: ChessGame, playingColor: 'w' | 'b' | undefined, supabase: SupabaseClient): OnlineChessStateStore {
 
     // Init chessState by loading pgn into chess and loading history into the move stack
     const chess = new Chess();
@@ -26,7 +26,7 @@ export function createOnlineChessStateStore(chessGame: ChessGame, playingColor: 
     return onlineChessStateStore(onlineChessState, supabase);
 }
 
-const onlineChessStateStore: OnlineChessStateStore = (chessState: OnlineChessState, supabase: SupabaseClient) => {
+const onlineChessStateStore = (chessState: OnlineChessState, supabase: SupabaseClient): OnlineChessStateStore => {
 
     const { set, update, subscribe }: Writable<OnlineChessState> = writable(chessState);
 
@@ -156,7 +156,7 @@ const onlineChessStateStore: OnlineChessStateStore = (chessState: OnlineChessSta
     return store;
 }
 
-export function createAIChessStateStore(pgn: string, AIDifficulity: 0 | 1 | 2 | 3 | 4, playingColor: 'w' | 'b'): AIChessStateStore {
+export function createAIChessStateStore(pgn: string, AIDifficulity: 0 | 1 | 2 | 3 | 4, playingColor: 'w' | 'b' | undefined): AIChessStateStore {
         
     const chess = new Chess();
     chess.loadPgn(pgn);
@@ -179,7 +179,7 @@ export function createAIChessStateStore(pgn: string, AIDifficulity: 0 | 1 | 2 | 
     return AIChessStateStore(AIChessState)
 }
 
-const AIChessStateStore: AIChessStateStore = (chessState: ChessState) => {
+const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
 
     const { set, update, subscribe }: Writable<AIChessState> = writable(chessState);
 

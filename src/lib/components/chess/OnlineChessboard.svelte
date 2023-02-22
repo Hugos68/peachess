@@ -1,8 +1,7 @@
 <script lang="ts">
-	import type { Writable } from "svelte/store";
 	import Chessboard from "./Chessboard.svelte";
 
-    export let chessStateStore: OnlineChessStateStore
+    export let chessStateStore: OnlineChessStateStore;
 </script>
 
 <Chessboard bind:config={$chessStateStore.boardConfig} on:move={(event) => {

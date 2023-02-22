@@ -173,16 +173,17 @@ export function getViewOnly(chessGame: ChessGame, chess: Chess, undoneMoveStack:
     return false;
 }
 
-export const getConfig = (chess: Chess, playingColor: 'w' | 'b', moveStack: Move[]) => {
+export const getConfig = (chess: Chess, playingColor: 'w' | 'b' | undefined, moveStack: Move[]) => {
+    const viewOnly = playingColor === undefined;
     return {
         fen: chess.fen(),
         turnColor: chess.turn() === WHITE ? 'white' : 'black',
+        viewOnly: viewOnly,
         lastMove: getLastMoveHighlight(moveStack),
         check: chess.inCheck(),
         movable: {
             free: false,
             dests: getValidMoves(chess),
-            movable: playingColor,
             showDests: true,
         },
         drawable: {
