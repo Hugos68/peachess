@@ -24,7 +24,7 @@
         else {
             const toast: ToastSettings = {
                 preset: 'success',
-                message: 'Success, redirecting...',
+                message: 'Success, redirecting you to the game...',
                 autohide: true
             }
             toastStore.trigger(toast);
