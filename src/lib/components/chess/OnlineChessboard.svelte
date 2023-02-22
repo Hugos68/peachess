@@ -1,12 +1,8 @@
 <script lang="ts">
-	import { page } from "$app/stores";
-	import { getLastMoveHighlight, getOrientation, getPlayingColor, getViewOnly, getValidMoves } from "$lib/util";
-	import { WHITE } from "chess.js";
+	import type { Writable } from "svelte/store";
 	import Chessboard from "./Chessboard.svelte";
 
-    export let chessStateStore: OnlineChessStateStore;
-    
-    
+    export let chessStateStore: Writable<OnlineChessState>;
 </script>
 
 <Chessboard bind:config={$chessStateStore.boardConfig} on:move={(event) => {

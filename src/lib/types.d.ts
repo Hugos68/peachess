@@ -37,8 +37,9 @@ interface AIChessState extends ChessState {
     AIDifficulity: 0 | 1 | 2 | 3 | 4
 }
 
-export interface ChessStateStore {
-    chessState: Writable<ChessState>
+// TODO FIX THESE TYPES
+
+interface ChessStateStore {
     loadpgn: (pgn: string) => void
     loadFirstMove: () => void
     loadPreviousMove: () => void
@@ -47,15 +48,15 @@ export interface ChessStateStore {
     move: (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b') => Move
 }
 
-
-export interface OnlineChessStateStore extends Writable<OnlineChessState>, ChessStateStore {
-    chessGame: ChessGame
+interface OnlineChessStateStore extends ChessStateStore {
+    chessState: OnlineChessState
 }
 
-export interface AIChessStateStore extends Writable<AIChessState>, ChessStateStore {
-    pgn: string,
-    AIDifficulity: 0 | 1 | 2 | 3 | 4
+interface AIChessStateStore extends ChessStateStore {
+    chessState: AIChessState
 }
+
+
 
 interface Material {
     w: {

@@ -9,12 +9,14 @@
 	import { page } from "$app/stores";
 	import { supabase } from "$lib/supabase";
 	import OnlineChessBoard from "$lib/components/chess/OnlineChessboard.svelte";
+	import type { OnlineChessStateStore } from "$lib/types";
+	import type { Writable } from "svelte/store";
 
     export let data: PageData;
     
-    const playingColor = getPlayingColor(data.chessGame, $page.data.session);
+    const playingColor = getPlayingColor(data.chessGame, $page.data.session) || 'w';
 
-    const chessStateStore: OnlineChessStateStore = createOnlineChessStateStore(data.chessGame, playingColor, supabase);
+    const chessStateStore: Writable<OnlineChessStateStore> = createOnlineChessStateStore(data.chessGame, playingColor, supabase);
 </script>
 
  <div class="mx-auto xl:h-[calc(100vh-2rem)] flex flex-col xl:flex-row justify-center items-center gap-12">

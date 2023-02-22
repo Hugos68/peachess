@@ -54,7 +54,8 @@
 
     const chessGameBoardConfigMap: Map<ChessGame, OnlineChessState> = new Map();
     data.chessGames.forEach(chessGame => {
-        const onlineChessStateStore = createOnlineChessStateStore(chessGame, getPlayingColor(chessGame, $page.data.session) || 'w', supabase);
+        const playingColor = getPlayingColor(chessGame, $page.data.session) || 'w';
+        const onlineChessStateStore = createOnlineChessStateStore(chessGame, playingColor, supabase);
         chessGameBoardConfigMap.set(chessGame, get(onlineChessStateStore));
     });
 </script>
