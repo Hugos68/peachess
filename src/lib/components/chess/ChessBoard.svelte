@@ -127,8 +127,10 @@
             if (!promotionModal.contains(event.target) && promotionMove!==null) cancelPromotion();
     }} 
     on:keydown={(event) => {
-        if (event.key==='ArrowLeft' && $chessStateStore.moveStack.length!==0) chessStateStore.loadPreviousMove();
-        if (event.key==='ArrowRight' && $chessStateStore.undoneMoveStack.length!==0) chessStateStore.loadNextMove();
+        if (event.key==='ArrowLeft') chessStateStore.loadPreviousMove();
+        else if (event.key==='ArrowRight') chessStateStore.loadNextMove();
+        else if (event.key==='ArrowUp') chessStateStore.loadLastMove();
+        else if (event.key==='ArrowDown') chessStateStore.loadFirstMove();
     }}
 />
 
