@@ -57,7 +57,7 @@
             <div class="flex flex-col">
                 <label class="flex items-center gap-2 justify-between" for="animate">
                     Animate
-                    <SlideToggle class="variant-ghost-secondary" name="animate" bind:checked={$settings.animate}  />
+                    <SlideToggle active="variant-ghost-secondary" name="animate" bind:checked={$settings.animate}  />
                 </label>
                 <label class="flex items-center gap-2 justify-between" for="animate">
                     Animation duration ({$settings.animationDuration} ms)
@@ -65,23 +65,23 @@
                 </label>
                 <label class="flex items-center gap-2 justify-between" for="drag">
                     Drag
-                    <SlideToggle name="drag" bind:checked={$settings.drag} />
+                    <SlideToggle active="variant-ghost-secondary" name="drag" bind:checked={$settings.drag} />
                 </label>
                 <label class="flex items-center gap-2 justify-between" for="sfx">
                     Sound Effects
-                    <SlideToggle name="sfx" bind:checked={$settings.sfx} />
+                    <SlideToggle active="variant-ghost-secondary" name="sfx" bind:checked={$settings.sfx} />
                 </label>
                 <label class="flex items-center gap-2 justify-between" for="premove">
                     Premove
-                    <SlideToggle name="premove" bind:checked={$settings.premove} />
+                    <SlideToggle active="variant-ghost-secondary" name="premove" bind:checked={$settings.premove} />
                 </label>
                 <label class="flex items-center gap-2 justify-between" for="lastmovehighlight">
                     Highlight last move
-                    <SlideToggle name="lastmovehighlight" bind:checked={$settings.lastMoveHighlight} />
+                    <SlideToggle active="variant-ghost-secondary" name="lastmovehighlight" bind:checked={$settings.lastMoveHighlight} />
                 </label>
                 <label class="flex items-center gap-2 justify-between" for="checkhighlight">
                     Highlight checks
-                    <SlideToggle name="checkhighlight" bind:checked={$settings.checkHighlight} />
+                    <SlideToggle active="variant-ghost-secondary" name="checkhighlight" bind:checked={$settings.checkHighlight} />
                 </label>
             </div>
         {:else if tabSet === 3}
