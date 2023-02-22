@@ -173,8 +173,8 @@ export function getViewOnly(chessGame: ChessGame, chess: Chess, undoneMoveStack:
     return false;
 }
 
-export const getConfig = (chess: Chess, playingColor: 'w' | 'b' | undefined, moveStack: Move[]) => {
-    const viewOnly = playingColor === undefined;
+export const getConfig = (chess: Chess, playingColor: 'w' | 'b' | undefined, moveStack: Move[], undoneMoveStack: Move[]) => {
+    const viewOnly = playingColor === undefined || undoneMoveStack.length!==0;
     return {
         fen: chess.fen(),
         turnColor: chess.turn() === WHITE ? 'white' : 'black',

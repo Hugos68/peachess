@@ -5,6 +5,7 @@
 	import { onMount } from "svelte";
 	import { createEventDispatcher } from "svelte";
 	import { focusTrap } from "@skeletonlabs/skeleton";
+	import { settings } from "$lib/stores/settings-store";
 
     export let config: any;
 
@@ -23,7 +24,23 @@
     });
 
     $: if (board) {
+        config.animation = {
+            enabled: $settings.animate,
+            duration: $settings.animationDuration
+        }
+        config.premovable = {
+            enabled: $settings.premove
+        }
+        config.draggable = {
+            enabled: $settings.drag
+        }
+        config.highlight = {
+            lastMove: $settings.lastMoveHighlight,
+            check: $settings.checkHighlight
+        }
+        
         board.set(config);
+        board.playPremove();
     }
 
     const dispatch = createEventDispatcher();

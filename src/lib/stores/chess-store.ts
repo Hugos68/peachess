@@ -11,7 +11,7 @@ export function createOnlineChessStateStore(chessGame: ChessGame, playingColor: 
     const moveStack: Move[] = chess.history({verbose: true});
     const undoneMoveStack: Move[] = [];
     const material = getMaterial(moveStack);
-    const boardConfig = getConfig(chess, playingColor, moveStack);
+    const boardConfig = getConfig(chess, playingColor, moveStack, undoneMoveStack);
 
     const onlineChessState: OnlineChessState = {
         chessGame,
@@ -45,7 +45,7 @@ const onlineChessStateStore = (chessState: OnlineChessState, supabase: SupabaseC
                 chessState.undoneMoveStack = [];
                 chessState.moveStack = chessState.chess.history({verbose: true});
                 chessState.material = getMaterial(chessState.moveStack);
-                chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack); 
+                chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack); 
 
                 const moveAmountAfterUpdating = chessState.moveStack.length + chessState.undoneMoveStack.length;
                 
@@ -63,7 +63,7 @@ const onlineChessStateStore = (chessState: OnlineChessState, supabase: SupabaseC
                 chessState.undoneMoveStack = chessState.undoneMoveStack.concat(chessState.moveStack.reverse());
                 chessState.moveStack = [];
                 chessState.material = getMaterial(chessState.moveStack);
-                chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack);
+                chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
                 return chessState;
             });
         },
@@ -74,7 +74,7 @@ const onlineChessStateStore = (chessState: OnlineChessState, supabase: SupabaseC
                 const move = chessState.moveStack.pop()
                 chessState.undoneMoveStack.push(move);
                 chessState.material = updateMaterial(chessState.material, move, 'subtract');
-                chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack);
+                chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
                 return chessState;
             });
         },
@@ -87,7 +87,7 @@ const onlineChessStateStore = (chessState: OnlineChessState, supabase: SupabaseC
                 chessState.moveStack.push(move);
                 chessState.chess.move(move);
                 chessState.material = updateMaterial(chessState.material, move, 'add');
-                chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack);
+                chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
                 return chessState;
             });
         },
@@ -98,7 +98,7 @@ const onlineChessStateStore = (chessState: OnlineChessState, supabase: SupabaseC
                 chessState.moveStack = chessState.moveStack.concat(chessState.undoneMoveStack.reverse());
                 chessState.undoneMoveStack = [];
                 chessState.material = getMaterial(chessState.moveStack);
-                chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack);
+                chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
                 return chessState;
             });
             
@@ -113,7 +113,7 @@ const onlineChessStateStore = (chessState: OnlineChessState, supabase: SupabaseC
                     if (get(settings).sfx) playMoveSound(move)
                     chessState.moveStack.push(move);
                     chessState.material = getMaterial(chessState.moveStack);
-                    chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack);
+                    chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
 
                     // Execute the move to the database
                     supabase.functions.invoke('move', {
@@ -163,7 +163,7 @@ export function createAIChessStateStore(pgn: string, AIDifficulity: 0 | 1 | 2 | 
     const moveStack: Move[] = chess.history({verbose: true});
     const undoneMoveStack: Move[] = [];
     const material = getMaterial(moveStack);
-    const boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack);
+    const boardConfig = getConfig(chess, playingColor, moveStack, undoneMoveStack);
 
     const AIChessState: AIChessState = {
         pgn,
@@ -198,7 +198,7 @@ const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
                 chessState.undoneMoveStack = [];
                 chessState.moveStack = chessState.chess.history({verbose: true});
                 chessState.material = getMaterial(chessState.moveStack);
-                chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack);
+                chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
 
                 const moveAmountAfterUpdating = chessState.moveStack.length + chessState.undoneMoveStack.length;
                 
@@ -216,7 +216,7 @@ const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
                 chessState.undoneMoveStack = chessState.undoneMoveStack.concat(chessState.moveStack.reverse());
                 chessState.moveStack = [];
                 chessState.material = getMaterial(chessState.moveStack);
-                chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack);
+                chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
                 return chessState;
             });
         },
@@ -227,7 +227,7 @@ const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
                 const move = chessState.moveStack.pop()
                 chessState.undoneMoveStack.push(move);
                 chessState.material = updateMaterial(chessState.material, move, 'subtract');
-                chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack);
+                chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
                 return chessState;
             });
         },
@@ -240,7 +240,7 @@ const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
                 chessState.moveStack.push(move);
                 chessState.chess.move(move);
                 chessState.material = updateMaterial(chessState.material, move, 'add');
-                chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack);
+                chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
                 return chessState;
             });
         },
@@ -251,7 +251,7 @@ const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
                 chessState.moveStack = chessState.moveStack.concat(chessState.undoneMoveStack.reverse());
                 chessState.undoneMoveStack = [];
                 chessState.material = getMaterial(chessState.moveStack);
-                chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack);
+                chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
                 return chessState;
             });
             
@@ -266,7 +266,7 @@ const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
                     if (get(settings).sfx) playMoveSound(move)
                     chessState.moveStack.push(move);
                     chessState.material = getMaterial(chessState.moveStack);
-                    chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack);
+                    chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
                 } catch(error) {
                     console.error(error);
                 }
