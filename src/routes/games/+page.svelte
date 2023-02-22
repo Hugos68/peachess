@@ -6,7 +6,7 @@
 	import { modalStore, Paginator, ProgressRadial, toastStore, type ModalComponent, type ModalSettings, type ToastSettings } from "@skeletonlabs/skeleton";
 	import { get } from "svelte/store";
 	import type { PageData } from "./$types";
-	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
+	import ChessBoard from "$lib/components/chess/Chessboard.svelte";
     import { supabase } from "$lib/supabase";
 
     export let data: PageData;

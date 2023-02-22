@@ -7,8 +7,8 @@
 	import ChessBoardSidePanel from "$lib/components/chess/ChessInfoPanel.svelte";
 	import { getOrientation } from "$lib/util";
 	import { page } from "$app/stores";
-	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
 	import { supabase } from "$lib/supabase";
+	import OnlineChessBoard from "$lib/components/chess/OnlineChessboard.svelte";
 
     export let data: PageData;
 
@@ -49,7 +49,7 @@
         </header>
 
         <div class="overflow-hidden card h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
-            <ChessBoard chessStateStore={chessStateStore} />
+            <OnlineChessBoard chessStateStore={chessStateStore} />
         </div>
 
 

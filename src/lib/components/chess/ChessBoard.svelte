@@ -1,81 +1,34 @@
 <script lang="ts">
-	import { BLACK, PAWN, WHITE, type Square } from "chess.js";
+	import { BLACK, PAWN, WHITE, type Chess, type Square } from "chess.js";
 	import { Chessground } from "chessground";
 	import { fly } from "svelte/transition";
 	import { onMount } from "svelte";
-    import type { ChessStateStore } from "$lib/stores/chess-store";
-    import { settings } from "$lib/stores/settings-store";
+	import { createEventDispatcher } from "svelte";
 	import { focusTrap } from "@skeletonlabs/skeleton";
-	import { getLastMoveHighlight, getOrientation, getPlayingColor, getValidMoves as getValidDestinations, getViewOnly } from "$lib/util";
-	import { page } from "$app/stores";
 
-    export let chessStateStore: ChessStateStore;
+    export let config: any;
 
     let board: any;
     let boardElement: HTMLElement;
     let promotionModal: HTMLElement;
     let promotionMove: CustomMove | null = null;
 
-    onMount(() =>   {
-        // Load board and initialize boards defaults (values that will never change throughout the match)
-        board = Chessground(boardElement, {
-            movable: {
-                free: false,
-                showDests: true
-            },
-            drawable: {
-                enabled: true,
-                eraseOnClick: true
-            }
-        });
-    });
-
-    let moveAmountBefore: number;
-    $: if (board) {
-        board.set(getConfig($chessStateStore));
-        const enemyMoved: boolean = moveAmountBefore < $chessStateStore.moveStack.length + $chessStateStore.undoneMoveStack.length;
-        if (enemyMoved && $settings.premove) board.playPremove();
-        
-        // We keep track of the move amount after the last update to compare it to the new move amount to know when the enemy has played because our client is out of sync with the server
-        moveAmountBefore = $chessStateStore.moveStack.length + $chessStateStore.undoneMoveStack.length;
-    }
-    $: if (board) {
+    onMount(() => {
+        board = Chessground(boardElement, config);
         board.set({
-            premovable: {
-                enabled: $settings.premove
-            },
-            animation: {
-                enabled: $settings.animate,
-                duration: $settings.animationDuration
-            },
-            draggable: {
-                enabled: $settings.drag
-            },
-            highlight: {
-                lastMove: $settings.lastMoveHighlight,
-                check: $settings.checkHighlight
-            }
-        });
-    }
-
-    const getConfig = (chessState: ChessState) => {
-        const {chessGame, chess, moveStack, undoneMoveStack} = chessState;
-        return {
-            fen: chess.fen(),
-            turnColor: chess.turn() === WHITE ? 'white' : 'black',
-            orientation: getOrientation(chessGame, $page.data.session),
-            lastMove: getLastMoveHighlight(moveStack),
-            viewOnly: getViewOnly(chessGame, chess, undoneMoveStack, $page.data.session),
-            check: chess.inCheck(),
-            movable: {
-                color: getPlayingColor(chessGame, $page.data.session),
-                dests: getValidDestinations(chess),
-            },
             events: {
                 move: moveCallback
             }
-        }
+        });
+        console.log(board.state);
+        
+    });
+
+    $: if (board) {
+        board.set(config);
     }
+
+    const dispatch = createEventDispatcher();
 
     const moveCallback = (from: Square, to: Square) => {        
         // If there is a promotion set the promotionMove and return so that the move doesn't get played yet (in case of a promotion cancel)
@@ -85,16 +38,20 @@
             return;
         }
 
-        chessStateStore.move(from, to);
+        dispatch('move', {
+            from,
+            to
+        });
     }
 
-    const isMovePromotion = (from: Square, to: Square,): boolean => {
-        const {type, color} = $chessStateStore.chess.get(from);
+    const isMovePromotion = (from: Square, to: Square): boolean => {
+
+        const { role, color } = board.state.pieces.get(to);
         const rankNumber =  Number.parseInt(to.charAt(1));
 
-        if (type!==PAWN) return false;
-        if (color===WHITE && rankNumber!==8) return false;
-        if (color===BLACK && rankNumber!==1) return false;
+        if (role!=='pawn') return false;
+        if (color==='white' && rankNumber!==8) return false;
+        if (color==='black' && rankNumber!==1) return false;
 
         // Set the modal offset the correct amount so that the modal appears in the right spot
         promotionModal.style.left = getPromotionModalOffsetPercentage(to) + "%";
@@ -107,18 +64,23 @@
         const percentage = (number-1) * 12.5;
 
         // We check color here to deal with the board orientation
-        return getOrientation($chessStateStore.chessGame, $page.data.session) === 'white' ? percentage : 87.5-percentage;
+        return config.orientation === 'white' ? percentage : 87.5-percentage;
     }
 
     const handlePromotion = (promotion: 'q' | 'r' | 'n' | 'b') => {
         if (!promotionMove) return;
-        chessStateStore.move(promotionMove.from as Square, promotionMove.to as Square, promotion);
+        
+        dispatch('move', {
+            from: promotionMove.from,
+            to: promotionMove.to,
+            promotion
+        });
         promotionMove = null;
     }
     
     const cancelPromotion = () => {
         promotionMove = null;
-        chessStateStore.loadGame($chessStateStore.chessGame);
+        board.set(config);
     }
 </script>
 
@@ -126,12 +88,6 @@
     on:mousedown={(event) => {
             if (!promotionModal.contains(event.target) && promotionMove!==null) cancelPromotion();
     }} 
-    on:keydown={(event) => {
-        if (event.key==='ArrowLeft') chessStateStore.loadPreviousMove();
-        else if (event.key==='ArrowRight') chessStateStore.loadNextMove();
-        else if (event.key==='ArrowUp') chessStateStore.loadLastMove();
-        else if (event.key==='ArrowDown') chessStateStore.loadFirstMove();
-    }}
 />
 
 <!-- BOARD-WRAPPER -->
@@ -145,12 +101,11 @@
     <!-- PROMOTION-MODAL -->
     <div bind:this={promotionModal} class:hidden={promotionMove===null} class="absolute top-0 w-[12.5%] h-[50%] z-[50] bg-primary-500">
         {#if promotionMove}
-        {@const orientation = getOrientation($chessStateStore.chessGame, $page.data.session)}
             <div class="h-full w-full" transition:fly={{y: -100, duration: 200}} use:focusTrap={promotionMove!==null}>
-                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover queen {orientation}" on:click={() => handlePromotion('q')}></button>
-                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover rook {orientation}" on:click={() => handlePromotion('r')}></button>
-                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover knight {orientation}" on:click={() => handlePromotion('n')}></button>
-                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover bishop {orientation}" on:click={() => handlePromotion('b')}></button>
+                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover queen {config.orientation}" on:click={() => handlePromotion('q')}></button>
+                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover rook {config.orientation}" on:click={() => handlePromotion('r')}></button>
+                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover knight {config.orientation}" on:click={() => handlePromotion('n')}></button>
+                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover bishop {config.orientation}" on:click={() => handlePromotion('b')}></button>
             </div>
         {/if}
     </div>
