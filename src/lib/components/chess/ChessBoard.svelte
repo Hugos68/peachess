@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { BLACK, PAWN, WHITE, type Chess, type Square } from "chess.js";
+	import type { Square } from "chess.js";
 	import { Chessground } from "chessground";
 	import { fly } from "svelte/transition";
 	import { onMount } from "svelte";
@@ -20,8 +20,6 @@
                 move: moveCallback
             }
         });
-        console.log(board.state);
-        
     });
 
     $: if (board) {
@@ -30,7 +28,8 @@
 
     const dispatch = createEventDispatcher();
 
-    const moveCallback = (from: Square, to: Square) => {        
+    const moveCallback = (from: Square, to: Square) => {  
+              
         // If there is a promotion set the promotionMove and return so that the move doesn't get played yet (in case of a promotion cancel)
         const promotion = isMovePromotion(from, to);
         if (promotion) { 
