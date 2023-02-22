@@ -9,12 +9,12 @@
 	import { page } from "$app/stores";
 	import { supabase } from "$lib/supabase";
 	import OnlineChessBoard from "$lib/components/chess/OnlineChessboard.svelte";
+	import type { Writable } from "svelte/store";
+	import type { OnlineChessState } from "$lib/types";
 
     export let data: PageData;
-    
-    const playingColor = getPlayingColor(data.chessGame, $page.data.session);
 
-    const chessStateStore: OnlineChessStateStore = createOnlineChessStateStore(data.chessGame, playingColor, supabase);
+    const chessStateStore: Writable<OnlineChessState> = createOnlineChessStateStore(data.chessGame, getPlayingColor(data.chessGame, $page.data.session), supabase);
 </script>
 
  <div class="mx-auto xl:h-[calc(100vh-2rem)] flex flex-col xl:flex-row justify-center items-center gap-12">
@@ -39,7 +39,7 @@
             {/if}
 
             <div class="flex flex-col items-end">
-                {#if (playingColor ? playingColor==='w' : true)}
+                {#if ($chessStateStore.playingColor ? $chessStateStore.playingColor==='w' : true)}
                     <p class="font-bold">{$chessStateStore.chess.header()['Black']}</p>
                     <MaterialTracker chessStateStore={chessStateStore} color={WHITE} />
                 {:else}
@@ -60,7 +60,7 @@
             <MoveControls chessStateStore={chessStateStore} />
 
             <div class="flex flex-col items-end">
-                {#if (playingColor ? playingColor==='b' : false)}
+                {#if ($chessStateStore.playingColor ? $chessStateStore.playingColor==='b' : false)}
                     <p class="font-bold">{$chessStateStore.chess.header()['Black']}</p>
                     <MaterialTracker chessStateStore={chessStateStore} color={WHITE} />
                 {:else}

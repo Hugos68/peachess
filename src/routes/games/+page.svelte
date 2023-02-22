@@ -7,9 +7,9 @@
 	import { get } from "svelte/store";
 	import type { PageData } from "./$types";
     import { supabase } from "$lib/supabase";
-	import Chessboard from "$lib/components/chess/Chessboard.svelte";
 	import { getPlayingColor } from "$lib/util";
 	import type { ChessGame, OnlineChessState } from "$lib/types";
+	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
 
     export let data: PageData;
     
@@ -84,7 +84,7 @@
                 </div>
          
                 <div class="group-hover:brightness-75 transition-[filter] duration-250">
-                    <Chessboard bind:config={onlineChessState.boardConfig} />
+                    <ChessBoard bind:config={onlineChessState.boardConfig} />
                 </div>
 
                 {#if loading}

@@ -40,28 +40,6 @@ interface AIChessState extends ChessState {
     AIDifficulity: 0 | 1 | 2 | 3 | 4
 }
 
-// TODO FIX THESE TYPES
-
-interface OnlineChessStateStore extends Writable<OnlineChessState> {
-    loadpgn: (pgn: string) => void
-    loadFirstMove: () => void
-    loadPreviousMove: () => void
-    loadNextMove: () => void
-    loadLastMove: () => void
-    move: (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b') => Move
-}
-
-interface AIChessStateStore extends Writable<AIChessState>  {
-    loadpgn: (pgn: string) => void
-    loadFirstMove: () => void
-    loadPreviousMove: () => void
-    loadNextMove: () => void
-    loadLastMove: () => void
-    move: (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b') => Move
-}
-
-
-
 interface Material {
     w: {
         captures: {
