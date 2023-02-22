@@ -1,4 +1,40 @@
 import { SQUARES, WHITE, BLACK } from "chess.js";
+import { Howl } from 'howler';
+
+const moveSFX = new Howl({
+    src: '/sfx/move.mp3'
+});
+const captureSFX = new Howl({
+    src: '/sfx/capture.mp3'
+});
+const castleSFX = new Howl({
+    src: '/sfx/castle.mp3'
+});
+const checkSFX = new Howl({
+    src: '/sfx/check.mp3'
+});
+const gameOverSFX = new Howl({
+    src: '/sfx/gameover.mp3'
+});
+
+export const playMoveSound = (move: Move): void => {
+
+    // '#' is when a piece checkmates the opponents king
+    if (move.san.includes('#')) gameOverSFX.play();
+
+    // '+' is when a piece checks the opponents king
+    else if (move.san.includes('+')) checkSFX.play();
+
+    // 'k' is when castling kingside, 'q' is when castling queenside
+    else if (move.flags.includes('k') || move.flags.includes('q')) castleSFX.play();
+
+    // 'c' is when a piece captures
+    else if (move.flags.includes('c')) captureSFX.play();
+
+    // 'n' is when a piece moves, 'b' is when a pawn moves 2 squares
+    else if (move.flags.includes('n') || move.flags.includes('b')) moveSFX.play();
+}
+
 
 export function getPieceWeight(piece: 'k' | 'q' | 'r' | 'n' | 'b' | 'p'): number {
     switch (piece) {

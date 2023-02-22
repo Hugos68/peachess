@@ -65,8 +65,6 @@
         <button class=" btn btn-sm variant-filled-primary" on:click={handleCreateNewGame}>+ New Game</button>
     </div>
 
-    <Paginator bind:settings={pageProps} on:page={loadPage} />
-
     {#if loading}
         <ProgressRadial stroke={128} class="w-8 mx-auto mt-[5vh]" font={16} value={undefined} />
     {/if}
