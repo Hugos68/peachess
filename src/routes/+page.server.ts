@@ -1,7 +1,6 @@
 import { getSupabase } from "@supabase/auth-helpers-sveltekit";
-import { AuthApiError, type Provider } from "@supabase/supabase-js";
+import { AuthApiError } from "@supabase/supabase-js";
 import { fail, type Actions, redirect } from "@sveltejs/kit";
-import { Chess, chess } from 'chess.js';
 
 export const actions: Actions = {
     signUp: async(event) => {
