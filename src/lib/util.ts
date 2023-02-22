@@ -137,3 +137,23 @@ export function getViewOnly(chessGame: ChessGame, chess: Chess, undoneMoveStack:
     if (chess.isGameOver()) return true;
     return false;
 }
+
+export const getConfig = (chessState: ChessState) => {
+    const {chess, moveStack } = chessState;
+    return {
+        fen: chess.fen(),
+        turnColor: chess.turn() === WHITE ? 'white' : 'black',
+        lastMove: getLastMoveHighlight(moveStack),
+        check: chess.inCheck(),
+        movable: {
+            free: false,
+            dests: getValidMoves(chess),
+            showDests: true,
+        },
+        drawable: {
+            enabled: true,
+            eraseOnClick: true
+        },
+
+    }
+}

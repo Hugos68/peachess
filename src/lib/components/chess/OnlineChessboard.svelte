@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { page } from "$app/stores";
-	import type { ChessStateStore } from "$lib/stores/chess-store";
+	import type { OnlineChessStateStore } from "$lib/stores/chess-store";
 	import { getLastMoveHighlight, getOrientation, getPlayingColor, getViewOnly, getValidMoves } from "$lib/util";
 	import { WHITE } from "chess.js";
 	import Chessboard from "./Chessboard.svelte";
 
-    export let chessStateStore: ChessStateStore
+    export let chessStateStore: OnlineChessStateStore;
     
 
-    const getConfig = (chessState: ChessState) => {
+    const getConfig = (chessState: OnlineChessState) => {
         const {chessGame, chess, moveStack, undoneMoveStack} = chessState;
         return {
             fen: chess.fen(),
@@ -27,7 +27,6 @@
                 enabled: true,
                 eraseOnClick: true
             },
-    
         }
     }
     

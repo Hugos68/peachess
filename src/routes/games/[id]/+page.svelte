@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { BLACK, WHITE } from "chess.js";
     import type { PageData } from "./$types";
-    import { createChessStateStore, type ChessStateStore } from "$lib/stores/chess-store";
+    import { createOnlineChessStateStore, type OnlineChessStateStore } from "$lib/stores/chess-store";
 	import MoveControls from "$lib/components/chess/MoveControls.svelte";
     import MaterialTracker from "$lib/components/chess/MaterialTracker.svelte";
 	import ChessBoardSidePanel from "$lib/components/chess/ChessInfoPanel.svelte";
@@ -12,7 +12,7 @@
 
     export let data: PageData;
 
-    const chessStateStore: ChessStateStore = createChessStateStore(data.chessGame, supabase);
+    const chessStateStore: OnlineChessStateStore = createOnlineChessStateStore(data.chessGame, supabase);
 </script>
 
  <div class="mx-auto xl:h-[calc(100vh-2rem)] flex flex-col xl:flex-row justify-center items-center gap-12">

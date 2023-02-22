@@ -28,10 +28,9 @@
 
     const dispatch = createEventDispatcher();
 
-    const moveCallback = (from: Square, to: Square) => {  
-              
+    const moveCallback = (from: Square, to: Square) => {        
         // If there is a promotion set the promotionMove and return so that the move doesn't get played yet (in case of a promotion cancel)
-        const promotion = isMovePromotion(from, to);
+        const promotion = isMovePromotion(to);
         if (promotion) { 
             promotionMove = { from, to };
             return;
@@ -43,7 +42,7 @@
         });
     }
 
-    const isMovePromotion = (from: Square, to: Square): boolean => {
+    const isMovePromotion = (to: Square): boolean => {
 
         const { role, color } = board.state.pieces.get(to);
         const rankNumber =  Number.parseInt(to.charAt(1));

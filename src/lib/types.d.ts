@@ -20,11 +20,20 @@ interface Settings {
 }
 
 interface ChessState {
-    chessGame: ChessGame
     chess: Chess
     moveStack: Move[]
     undoneMoveStack: Move[]
     material: Material
+}
+
+interface OnlineChessState extends ChessState {
+    chessGame: ChessGame
+}
+
+interface AIChessState extends ChessState {
+    pgn: string
+    AIDifficulity: 0 | 1 | 2 | 3 | 4
+    playingColor: 'w' | 'b'
 }
 
 interface Material {

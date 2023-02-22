@@ -2,12 +2,13 @@
 	import { goto } from "$app/navigation";
 	import { page } from "$app/stores";
 	import NewGameModal from "$lib/components/modal/NewGameModal.svelte";
-	import { createChessStateStore } from "$lib/stores/chess-store";
+	import { createOnlineChessStateStore, type OnlineChessStateStore } from "$lib/stores/chess-store";
 	import { modalStore, Paginator, ProgressRadial, toastStore, type ModalComponent, type ModalSettings, type ToastSettings } from "@skeletonlabs/skeleton";
 	import { get } from "svelte/store";
 	import type { PageData } from "./$types";
-	import ChessBoard from "$lib/components/chess/Chessboard.svelte";
     import { supabase } from "$lib/supabase";
+	import Chessboard from "$lib/components/chess/Chessboard.svelte";
+	import { getLastMoveHighlight, getOrientation, getPlayingColor, getValidMoves, getViewOnly } from "$lib/util";
 
     export let data: PageData;
     
@@ -48,6 +49,36 @@
         size: data.totalChessGameAmount ? data.totalChessGameAmount + 1 : 1,
         amounts: [data.chessGames.length],
     };
+
+    const getConfig = (chessState: OnlineChessState) => {
+        const {chessGame, chess, moveStack, undoneMoveStack} = chessState;
+        return {
+            fen: chess.fen(),
+            turnColor: chess.turn() === WHITE ? 'white' : 'black',
+            orientation: getOrientation(chessGame, $page.data.session),
+            lastMove: getLastMoveHighlight(moveStack),
+            viewOnly: getViewOnly(chessGame, chess, undoneMoveStack, $page.data.session),
+            check: chess.inCheck(),
+            movable: {
+                color: getPlayingColor(chessGame, $page.data.session),
+                free: false,
+                dests: getValidMoves(chess),
+                showDests: true,
+            },
+            drawable: {
+                enabled: true,
+                eraseOnClick: true
+            },
+        }
+    }
+
+    const onlineChessStateStores: OnlineChessStateStore[] = [];
+    const chessGameBoardConfigMap: Map<ChessGame, object> = new Map();
+    data.chessGames.forEach(chessGame => {
+        const onlineChessStateStore = createOnlineChessStateStore(chessGame, supabase);
+        onlineChessStateStores.push(onlineChessStateStore);
+        chessGameBoardConfigMap.set(chessGame, getConfig(get(onlineChessStateStore)));
+    });
 </script>
 
 <div class="mt-[5vh] flex flex-col gap-8">
@@ -62,9 +93,9 @@
         <ProgressRadial stroke={128} class="w-8 mx-auto mt-[5vh]" font={16} value={undefined} />
     {/if}
     <div class="flex flex-wrap gap-8">
-        {#each data.chessGames as chessGame}     
-            {@const chessStateStore = createChessStateStore(chessGame, supabase)}
-            {@const {chess} = get(chessStateStore)}
+        {#each onlineChessStateStores as chessStateStore}     
+            {@const chessState = get(chessStateStore)}
+            {@const {chess, chessGame} = chessState}
             <a class="card bg-surface-300-600-token h-full w-full flex-[20rem] p-4 gap-2 flex flex-col group" href="/games/{chessGame.id}" class:hidden={loading} data-sveltekit-preload-data="hover">
 
                 <div class="flex justify-between">
@@ -78,7 +109,7 @@
                 </div>
          
                 <div class="group-hover:brightness-75 transition-[filter] duration-250">
-                    <ChessBoard chessStateStore={chessStateStore} />
+                    <Chessboard config={chessGameBoardConfigMap.get(chessGame)} />
                 </div>
 
                 {#if loading}
