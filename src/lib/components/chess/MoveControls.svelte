@@ -4,6 +4,14 @@
     export let chessStateStore: ChessStateStore;
 </script>
 
+<svelte:window
+    on:keydown={(event) => {
+        if (event.key==='ArrowLeft') chessStateStore.loadPreviousMove();
+        else if (event.key==='ArrowRight') chessStateStore.loadNextMove();
+        else if (event.key==='ArrowUp') chessStateStore.loadLastMove();
+        else if (event.key==='ArrowDown') chessStateStore.loadFirstMove();
+    }}
+/>
 
 <div class="flex gap-0.5 md:gap-1">
             
