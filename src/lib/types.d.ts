@@ -14,9 +14,12 @@ interface CustomMove {
 
 interface Settings {
     animate: boolean
+    animationDuration: number
     sfx: boolean
     premove: boolean
     drag: boolean
+    lastMoveHighlight: boolean
+    checkHighlight: boolean
 }
 
 interface ChessState {
@@ -39,7 +42,7 @@ interface AIChessState extends ChessState {
 
 // TODO FIX THESE TYPES
 
-interface ChessStateStore {
+interface OnlineChessStateStore extends Writable<OnlineChessState> {
     loadpgn: (pgn: string) => void
     loadFirstMove: () => void
     loadPreviousMove: () => void
@@ -48,12 +51,13 @@ interface ChessStateStore {
     move: (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b') => Move
 }
 
-interface OnlineChessStateStore extends ChessStateStore {
-    chessState: OnlineChessState
-}
-
-interface AIChessStateStore extends ChessStateStore {
-    chessState: AIChessState
+interface AIChessStateStore extends Writable<AIChessState>  {
+    loadpgn: (pgn: string) => void
+    loadFirstMove: () => void
+    loadPreviousMove: () => void
+    loadNextMove: () => void
+    loadLastMove: () => void
+    move: (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b') => Move
 }
 
 

@@ -2,7 +2,7 @@
 	import type { Writable } from "svelte/store";
 	import Chessboard from "./Chessboard.svelte";
 
-    export let chessStateStore: Writable<OnlineChessState>;
+    export let chessStateStore: OnlineChessStateStore
 </script>
 
 <Chessboard bind:config={$chessStateStore.boardConfig} on:move={(event) => {

@@ -6,7 +6,7 @@
 
     let opponentUsername: string;
 
-    const createGame = async (opponentName: string) => {
+    const createGame = async () => {
         modalStore.close();
         const {error, data} = await supabase.functions.invoke("create_game", {
             body:  {
@@ -34,5 +34,5 @@
 </script>
 <form class="flex flex-col justify-center gap-4">
     <input type="text" class="input p-2" placeholder="Enter opponents username..." required bind:value={opponentUsername} />
-    <button class="ml-auto btn btn-lg variant-filled-primary" on:click={() => createGame(opponentUsername)}>Create Game</button>
+    <button class="ml-auto btn btn-lg variant-filled-primary" on:click={createGame}>Create Game</button>
 </form>
