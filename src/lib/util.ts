@@ -138,8 +138,7 @@ export function getViewOnly(chessGame: ChessGame, chess: Chess, undoneMoveStack:
     return false;
 }
 
-export const getConfig = (chessState: ChessState) => {
-    const {chess, moveStack } = chessState;
+export const getConfig = (chess: Chess, playingColor: 'w' | 'b', moveStack: Move[]) => {
     return {
         fen: chess.fen(),
         turnColor: chess.turn() === WHITE ? 'white' : 'black',
@@ -148,6 +147,7 @@ export const getConfig = (chessState: ChessState) => {
         movable: {
             free: false,
             dests: getValidMoves(chess),
+            movable: playingColor,
             showDests: true,
         },
         drawable: {

@@ -21,8 +21,10 @@ interface Settings {
 
 interface ChessState {
     chess: Chess
+    playingColor: 'w' | 'b'
     moveStack: Move[]
     undoneMoveStack: Move[]
+    boardConfig: object
     material: Material
 }
 
@@ -33,7 +35,26 @@ interface OnlineChessState extends ChessState {
 interface AIChessState extends ChessState {
     pgn: string
     AIDifficulity: 0 | 1 | 2 | 3 | 4
-    playingColor: 'w' | 'b'
+}
+
+export interface ChessStateStore {
+    chessState: Writable<ChessState>
+    loadpgn: (pgn: string) => void
+    loadFirstMove: () => void
+    loadPreviousMove: () => void
+    loadNextMove: () => void
+    loadLastMove: () => void
+    move: (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b') => Move
+}
+
+
+export interface OnlineChessStateStore extends Writable<OnlineChessState>, ChessStateStore {
+    chessGame: ChessGame
+}
+
+export interface AIChessStateStore extends Writable<AIChessState>, ChessStateStore {
+    pgn: string,
+    AIDifficulity: 0 | 1 | 2 | 3 | 4
 }
 
 interface Material {
