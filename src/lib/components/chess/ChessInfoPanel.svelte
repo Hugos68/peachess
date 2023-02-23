@@ -3,8 +3,15 @@
     import { settings } from "$lib/stores/settings-store";
 	import { page } from "$app/stores";
 	import type { Writable } from "svelte/store";
+	import { onMount } from "svelte";
 
     export let chessStateStore: Writable<ChessState>;
+    export let height: string;
+    export let width: string;
+
+    let mounted: boolean = false;
+    onMount(() => mounted = true);
+    $: if (mounted) scrollMoveIntoView($chessStateStore.moveStack.length-1);
         
 	const triggerCopiedToast = (type: 'Link' | 'FEN' | 'PGN') => {
         const t: ToastSettings = {
@@ -14,11 +21,17 @@
         }
         toastStore.trigger(t);
 	}
+
+    function scrollMoveIntoView(moveId: number) {
+        const moveElement = document.getElementById(`move-${moveId}`);
+        if (!moveElement) return;
+        moveElement.scrollIntoView({ block: 'nearest', inline: 'start' });
+    }
     
     let tabSet: number = 0
 </script>
 
-<TabGroup regionPanel="flex-1 flex flex-col overflow-hidden" class="h-full w-full card bg-surface-300-600-token p-4 flex flex-col">
+<TabGroup regionPanel="flex-1 flex flex-col overflow-hidden" class="card bg-surface-300-600-token p-4 flex flex-col {height} {width}">
     <Tab bind:group={tabSet} name="moves" value={0}>Moves</Tab>
     <Tab bind:group={tabSet} name="chat" value={1}>Chat</Tab>
     <Tab bind:group={tabSet} name="settings" value={2}>Settings</Tab>
