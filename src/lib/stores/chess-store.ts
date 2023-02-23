@@ -299,6 +299,7 @@ const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
 
                 // Load latest pgn in case the user went back moves while computing a move
                 loadPgn(chessState.chessGame.pgn);
+                
                 // Enable autoqueening for the computer
                 const move = chessState.chess.move({
                     from:  data.move.from,

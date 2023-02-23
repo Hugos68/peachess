@@ -1,13 +1,10 @@
 <script lang="ts">
 	import { clipboard, RangeSlider, SlideToggle, Tab, TabGroup, toastStore, type ToastSettings } from "@skeletonlabs/skeleton";
     import { settings } from "$lib/stores/settings-store";
-    import type { ChessStateStore } from "$lib/stores/chess-store";
 	import { page } from "$app/stores";
-	import { onMount } from "svelte";
+	import type { Writable } from "svelte/store";
 
-    export let chessStateStore: ChessStateStore;
-    
-    let tabSet: number = 0
+    export let chessStateStore: Writable<ChessState>;
         
 	const triggerCopiedToast = (type: 'Link' | 'FEN' | 'PGN') => {
         const t: ToastSettings = {
@@ -17,18 +14,8 @@
         }
         toastStore.trigger(t);
 	}
-
-    let mounted: boolean = false;
-    onMount(() => mounted = true)
-    $: if (mounted) {
-        scrollMoveIntoView($chessStateStore.moveStack.length-1);
-    } 
-
-    function scrollMoveIntoView(moveId: number) {
-        const moveElement = document.getElementById(`move-${moveId}`);
-        if (!moveElement) return;
-        moveElement.scrollIntoView({ block: 'nearest', inline: 'start' });
-    }
+    
+    let tabSet: number = 0
 </script>
 
 <TabGroup regionPanel="flex-1 flex flex-col overflow-hidden" class="h-full w-full card bg-surface-300-600-token p-4 flex flex-col">

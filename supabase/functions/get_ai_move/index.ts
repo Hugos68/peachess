@@ -26,8 +26,7 @@ serve(async (req) => {
 
         return new Response(JSON.stringify({ message: 'Successfully generated ai move', move: {
             from: entry[0].toLowerCase(),
-            to: entry[1].toLowerCase(),
-            promotion: entry[2]
+            to: entry[1].toLowerCase()
         } }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             status: 200,
