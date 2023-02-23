@@ -60,7 +60,6 @@
     }
 
     const isMovePromotion = (to: Square): boolean => {
-
         const { role, color } = board.state.pieces.get(to);
         const rankNumber =  Number.parseInt(to.charAt(1));
 
@@ -79,7 +78,7 @@
         const percentage = (number-1) * 12.5;
 
         // We check color here to deal with the board orientation
-        return config.orientation === 'white' ? percentage : 87.5-percentage;
+        return config.orientation === 'White' ? percentage : 87.5-percentage;
     }
 
     const handlePromotion = (promotion: 'q' | 'r' | 'n' | 'b') => {
@@ -117,10 +116,10 @@
     <div bind:this={promotionModal} class:hidden={promotionMove===null} class="absolute top-0 w-[12.5%] h-[50%] z-[50] bg-primary-500">
         {#if promotionMove}
             <div class="h-full w-full" transition:fly={{y: -100, duration: 200}} use:focusTrap={promotionMove!==null}>
-                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover queen {config.orientation.toLowerCase()}" on:click={() => handlePromotion('q')}></button>
-                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover rook {config.orientation.toLowerCase()}" on:click={() => handlePromotion('r')}></button>
-                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover knight {config.orientation.toLowerCase()}" on:click={() => handlePromotion('n')}></button>
-                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover bishop {config.orientation.toLowerCase()}" on:click={() => handlePromotion('b')}></button>
+                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover queen {config.orientation}" on:click={() => handlePromotion('q')}></button>
+                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover rook {config.orientation}" on:click={() => handlePromotion('r')}></button>
+                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover knight {config.orientation}" on:click={() => handlePromotion('n')}></button>
+                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover bishop {config.orientation}" on:click={() => handlePromotion('b')}></button>
             </div>
         {/if}
     </div>
