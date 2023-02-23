@@ -37,21 +37,12 @@ const onlineChessStateStore = (chessState: OnlineChessState, supabase: SupabaseC
         subscribe,
         loadPgn: (pgn: string) => {
             update(chessState => {
-
                 chessState.chessGame.pgn = pgn;
-                chessState.chess.loadPgn(chessState.chessGame.pgn)
-
-                const moveAmountBeforeUpdating = chessState.moveStack.length + chessState.undoneMoveStack.length;
-
+                chessState.chess.loadPgn(chessState.chessGame.pgn);
                 chessState.undoneMoveStack = [];
                 chessState.moveStack = chessState.chess.history({verbose: true});
                 chessState.material = getMaterial(chessState.moveStack);
                 chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack); 
-
-                const moveAmountAfterUpdating = chessState.moveStack.length + chessState.undoneMoveStack.length;
-                
-                if (moveAmountBeforeUpdating < moveAmountAfterUpdating)  playMoveSound(chessState.moveStack[chessState.moveStack.length-1]);
-
                 return chessState;
             });
         },
@@ -115,6 +106,7 @@ const onlineChessStateStore = (chessState: OnlineChessState, supabase: SupabaseC
                     chessState.moveStack.push(move);
                     chessState.material = getMaterial(chessState.moveStack);
                     chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
+                    chessState.chessGame.pgn = chessState.chess.pgn();
 
                     // Execute the move to the database
                     supabase.functions.invoke('move', {
@@ -135,7 +127,7 @@ const onlineChessStateStore = (chessState: OnlineChessState, supabase: SupabaseC
             return move;
         }
     }
-
+    
     supabase
     .channel('table-db-changes')
     .on(
@@ -149,7 +141,13 @@ const onlineChessStateStore = (chessState: OnlineChessState, supabase: SupabaseC
         // This callback is called whenever this game gets an update, payload contains the old and new version
         (payload) => {
             const updatedChessGame: OnlineChessGame = payload.new as OnlineChessGame
-            store.loadPgn(updatedChessGame.pgn);
+            const chessState = get(store);
+
+            // Check if updated game state is in sync with stores gamestate, if not, load the updated game state and play a move sound (because this means the opponent has moved a)
+            if (updatedChessGame.pgn !== chessState.chessGame.pgn) {
+                store.loadPgn(updatedChessGame.pgn);
+                playMoveSound(chessState.moveStack[chessState.moveStack.length-1]);
+            }
         }
     )
     .subscribe();
@@ -191,21 +189,12 @@ const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
 
     const loadPgn = (pgn: string) => {
         update(chessState => {
-
             chessState.chessGame.pgn = pgn;
-            chessState.chess.loadPgn(chessState.chessGame.pgn)
-
-            const moveAmountBeforeUpdating = chessState.moveStack.length + chessState.undoneMoveStack.length;
-
+            chessState.chess.loadPgn(chessState.chessGame.pgn);
             chessState.undoneMoveStack = [];
             chessState.moveStack = chessState.chess.history({verbose: true});
             chessState.material = getMaterial(chessState.moveStack);
             chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
-
-            const moveAmountAfterUpdating = chessState.moveStack.length + chessState.undoneMoveStack.length;
-            
-            if (moveAmountBeforeUpdating < moveAmountAfterUpdating) playMoveSound(chessState.moveStack[chessState.moveStack.length-1]);
-
             return chessState;
         });
     }
@@ -297,8 +286,8 @@ const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
 
             update(chessState => {
 
-                // Load latest pgn in case the user went back moves while computing a move
-                loadPgn(chessState.chessGame.pgn);
+                // Load latest pgn if user is not in sync with server (we do this check by checking if the undoneMoveSTack has any moves since this indicates a user has gone back in moves)
+                if (chessState.undoneMoveStack.length !== 0) loadPgn(chessState.chessGame.pgn);
 
                 // Enable autoqueening for the computer
                 const move = chessState.chess.move({

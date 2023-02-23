@@ -21,7 +21,6 @@
                 move: moveCallback
             }
         });
-        console.log(board.state);
     });
 
     // Apply new settings when settings change
@@ -57,8 +56,6 @@
     function hasOpponentPlayed(fenBefore: string, fenAfter: string, playingColor: 'white' | 'black'): boolean {
         const moveNumberBefore: number = getMoveNumber(fenBefore);
         const moveNumberAfter: number = getMoveNumber(fenAfter);
-        console.log(moveNumberBefore);
-        console.log(moveNumberAfter);
         if (playingColor === 'white' && moveNumberBefore === moveNumberAfter)  return false;
         if (playingColor === 'black' && moveNumberBefore > moveNumberAfter) return false;
         return true;
