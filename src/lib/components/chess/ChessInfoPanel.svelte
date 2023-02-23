@@ -48,7 +48,7 @@
                         {#if i%2===0}
                             <li class="px-4 rounded-token">{i/2+1}</li>
                         {/if}
-                        <li class="px-4 rounded-token" class:bg-primary-500={activeMoveIndex===i} id="move-{i}">{move.from + move.to}</li>
+                        <li class="px-4 rounded-token" class:bg-primary-500={activeMoveIndex===i} id="move-{i}">{move.san}</li>
                 {/each}
             </ul>
         {:else if tabSet === 1}
