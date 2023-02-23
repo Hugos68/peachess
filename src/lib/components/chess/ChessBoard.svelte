@@ -8,7 +8,7 @@
 	import { settings } from "$lib/stores/settings-store";
 
     export let config: any;
-
+    
     let board: any;
     let boardElement: HTMLElement;
     let promotionModal: HTMLElement;
@@ -24,28 +24,27 @@
     });
 
     // Apply new settings when settings change
-    $: $settings, () => {
-        config.animation = {
-            enabled: $settings.animate,
-            duration: $settings.animationDuration
+    $: if (board) {
+        const settingsConfig = {
+            animation: {
+                enabled: $settings.animate,
+                duration: $settings.animationDuration
+            },
+            draggable: {
+                enabled: $settings.drag
+            },
+            highlight: {
+                lastMove: $settings.lastMoveHighlight,
+                check: $settings.checkHighlight
+            },
+            premovable: {
+                enabled: $settings.premove
+            }
         }
-        config.premovable = {
-            enabled: $settings.premove
-        }
-        config.draggable = {
-            enabled: $settings.drag
-        }
-        config.highlight = {
-            lastMove: $settings.lastMoveHighlight,
-            check: $settings.checkHighlight
-        }
-        board.set(config);
+        board.set(settingsConfig);
     }
 
-    $: if (board) {
-        board.set(config);
-        board.playPremove();
-    }
+    $: if (board) board.set(config);
 
     const dispatch = createEventDispatcher();
 

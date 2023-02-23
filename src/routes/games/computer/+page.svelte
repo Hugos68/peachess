@@ -10,7 +10,7 @@
     
     export let data: PageData;
 
-    const chessStateStore: Writable<AIChessState> = createAIChessStateStore(data.difficulity, 'w');
+    const chessStateStore: Writable<AIChessState> = createAIChessStateStore(data.difficulity as 0 | 1 | 2 | 3 | 4, 'w');
 </script>
 
  <div class="mx-auto xl:h-[calc(100vh-2rem)] flex flex-col xl:flex-row justify-center items-center gap-12">

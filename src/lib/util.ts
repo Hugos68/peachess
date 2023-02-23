@@ -214,24 +214,23 @@ export function getViewOnly(chessGame: OnlineChessGame, chess: Chess, undoneMove
 }
 
 export const getConfig = (chess: Chess, playingColor: 'w' | 'b' | undefined, moveStack: Move[], undoneMoveStack: Move[]) => {
-    const viewOnly = playingColor === undefined || playingColor !== chess.turn() || undoneMoveStack.length!==0 || chess.isGameOver();
+    const viewOnly = playingColor === undefined || undoneMoveStack.length!==0 || chess.isGameOver();
     return {
         fen: chess.fen(),
         turnColor: chess.turn() === WHITE ? 'white' : 'black',
-        viewOnly: viewOnly,
         orientation: playingColor==='b' ? 'black' : 'white',
         lastMove: getLastMoveHighlight(moveStack),
+        viewOnly: viewOnly,
         check: chess.inCheck(),
         movable: {
             free: false,
             dests: getValidMoves(chess),
             showDests: true,
-            color: chess.turn() === WHITE ? 'white' : 'black',
+            color: playingColor === WHITE ? 'white' : 'black',
         },
         drawable: {
             enabled: true,
             eraseOnClick: true
-        },
-
+        }
     }
 }

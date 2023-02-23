@@ -50,9 +50,8 @@ const onlineChessStateStore = (chessState: OnlineChessState, supabase: SupabaseC
 
                 const moveAmountAfterUpdating = chessState.moveStack.length + chessState.undoneMoveStack.length;
                 
-                if (moveAmountBeforeUpdating < moveAmountAfterUpdating) playMoveSound(chessState.moveStack[chessState.moveStack.length-1]);
-                console.log(chessState.boardConfig);
-                
+                if (moveAmountBeforeUpdating < moveAmountAfterUpdating)  playMoveSound(chessState.moveStack[chessState.moveStack.length-1]);
+
                 return chessState;
             });
         },
