@@ -10,7 +10,6 @@
 	import { supabase } from "$lib/supabase";
 	import OnlineChessBoard from "$lib/components/chess/OnlineChessboard.svelte";
 	import type { Writable } from "svelte/store";
-	import type { OnlineChessState } from "$lib/types";
 
     export let data: PageData;
 
