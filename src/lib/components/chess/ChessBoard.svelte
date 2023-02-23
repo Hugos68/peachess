@@ -97,13 +97,13 @@
         promotionMove = null;
         board.set(config);
     }
+
+	const handleWindowMouseDown = (event: MouseEvent & { currentTarget: EventTarget & Window; }): void => {
+        if (!promotionModal.contains(event.target as HTMLElement) && promotionMove!==null) cancelPromotion();
+	}
 </script>
 
-<svelte:window 
-    on:mousedown={(event) => {
-            if (!promotionModal.contains(event.target) && promotionMove!==null) cancelPromotion();
-    }} 
-/>
+<svelte:window on:mousedown={handleWindowMouseDown} />
 
 <!-- BOARD-WRAPPER -->
 <div class="relative h-full w-full aspect-square">
