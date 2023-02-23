@@ -3,7 +3,7 @@
 	import { page } from "$app/stores";
 	import NewGameModal from "$lib/components/modal/NewGameModal.svelte";
 	import { createOnlineChessStateStore} from "$lib/stores/chess-store";
-	import { modalStore, Paginator, ProgressRadial, toastStore, type ModalComponent, type ModalSettings, type ToastSettings } from "@skeletonlabs/skeleton";
+	import { modalStore, Paginator, popup, ProgressRadial, toastStore, type ModalComponent, type ModalSettings, type PopupSettings, type ToastSettings } from "@skeletonlabs/skeleton";
 	import { get } from "svelte/store";
 	import type { PageData } from "./$types";
     import { supabase } from "$lib/supabase";
@@ -53,15 +53,27 @@
     const chessGameBoardConfigMap: Map<OnlineChessGame, OnlineChessState> = new Map();
     data.chessGames.forEach(chessGame => {
         const playingColor = getPlayingColor(chessGame, $page.data.session) || 'w';
-        const onlineChessStateStore = createOnlineChessStateStore(chessGame, playingColor, supabase);
+        const onlineChessStateStore = createOnlineChessStateStore(chessGame, playingColor);
         chessGameBoardConfigMap.set(chessGame, get(onlineChessStateStore));
     });
+
+    let notLoggedInPopup: PopupSettings = {
+        // Set the event as: click | hover | hover-click
+        event: 'hover',
+        target: 'not-logged-in-popup'
+    };
 </script>
 
 <div class="mt-[5vh] flex flex-col gap-8">
     <div class="flex justify-between items-center gap-4">
         <h1 >Games</h1>
-        <button class=" btn btn-sm variant-filled-primary" on:click={handleCreateNewGame}>+ New Game</button>
+        <button class="btn btn-sm variant-filled-primary" on:click={handleCreateNewGame} disabled={!$page.data.session} use:popup={notLoggedInPopup}>+ New Game</button>
+        {#if !$page.data.session}
+            <div class="card variant-filled-secondary p-4" data-popup="not-logged-in-popup">
+                You need to be logged in in order to play a game.
+                <div class="arrow variant-filled-secondary" />
+            </div>
+        {/if}
     </div>
 
     {#if loading}
