@@ -43,7 +43,8 @@
     }
 
 
-    $: $config,  if (board) {
+    $: if (board) {
+        board.set(config);
         board.playPremove();
     }
 
