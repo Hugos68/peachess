@@ -12,7 +12,7 @@
 		"format": "prettier --plugin-search-dir . --write ."
 	},
 	"devDependencies": {
-		"@skeletonlabs/skeleton": "^0.124.2",
+		"@skeletonlabs/skeleton": "^0.132.5",
 		"@sveltejs/adapter-auto": "^1.0.0",
 		"@sveltejs/kit": "^1.0.0",
 		"@tailwindcss/forms": "^0.5.3",
@@ -38,11 +38,11 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@floating-ui/dom": "^1.2.1",
 		"@supabase/auth-helpers-sveltekit": "^0.8.7",
 		"@supabase/supabase-js": "^2.7.1",
 		"chess.js": "^1.0.0-beta.3",
 		"chessground": "^8.3.7",
-		"howler": "^2.2.3",
-		"js-chess-engine": "^1.0.2"
+		"howler": "^2.2.3"
 	}
 }

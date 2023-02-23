@@ -4,6 +4,10 @@
 	import '../app.postcss';
 	import '../chessground.css';
 
+
+	import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
+	import { storePopup } from '@skeletonlabs/skeleton';
+	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 	import { AppShell, Drawer, drawerStore, Modal, Toast } from "@skeletonlabs/skeleton";
 	import Header from '$lib/components/layout/Header.svelte';
 	import SideBarLeft from '$lib/components/layout/SideBarLeft.svelte';
