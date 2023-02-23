@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { Writable } from "svelte/store";
 	import ChessBoard from "./ChessBoard.svelte";
-    import { aiMove } from 'js-chess-engine';
     export let chessStateStore: Writable<AIChessState>;
 </script>
 

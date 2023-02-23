@@ -8,7 +8,7 @@ interface OnlineChessGame {
 
 interface AIChessGame {
     AIDifficulity: 0 | 1 | 2 | 3 | 4
-    pgn: string
+    pgn?: string
 }
 
 interface CustomMove {

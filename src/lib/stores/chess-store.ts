@@ -1,6 +1,6 @@
 import { Chess, type Move, type Square } from "chess.js";
 import { writable, type Writable, get } from "svelte/store";
-import { getConfig, getMaterial, updateMaterial, playMoveSound } from "$lib/util";
+import { getConfig, getMaterial, updateMaterial, playMoveSound, getAINameByDifficulity } from "$lib/util";
 import { supabase } from '$lib/supabase';
 import { settings} from './settings-store';
 
@@ -157,10 +157,16 @@ const onlineChessStateStore = (chessState: OnlineChessState, supabase: SupabaseC
     return store;
 }
 
-export function createAIChessStateStore(chessGame: AIChessGame, playingColor: 'w' | 'b' | undefined): AIChessStateStore {
-        
+export function createAIChessStateStore(AIDifficulity: 0 | 1 | 2 | 3 | 4, playingColor: 'w' | 'b' | undefined): AIChessStateStore {
+    
     const chess = new Chess();
-    chess.loadPgn(chessGame.pgn);
+    chess.header(playingColor==='w' ? 'White' : 'Black', "You");
+    chess.header(playingColor==='w' ? 'Black' : 'White', getAINameByDifficulity(AIDifficulity));
+
+    const chessGame: AIChessGame = {
+        AIDifficulity,
+        pgn: chess.pgn()
+    }
     const moveStack: Move[] = chess.history({verbose: true});
     const undoneMoveStack: Move[] = [];
     const material = getMaterial(moveStack);
@@ -176,7 +182,7 @@ export function createAIChessStateStore(chessGame: AIChessGame, playingColor: 'w
         boardConfig
     }
 
-    return AIChessStateStore(AIChessState)
+    return AIChessStateStore(AIChessState);
 }
 
 const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
@@ -283,13 +289,14 @@ const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
                     AIDifficulity: chessState.AIDifficulity
                 }
             });
+            
             update(chessState => {
                 try {
                     // Move (throws exception if move is invalid)
                     const move = chessState.chess.move({
                         from:  data.move.from,
                         to: data.move.to,
-                        promotion: data.move.promotion,
+                        promotion: 'q'
                     });
                     if (get(settings).sfx) playMoveSound(move);
                     chessState.moveStack.push(move);

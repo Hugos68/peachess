@@ -35,6 +35,25 @@ export const playMoveSound = (move: Move): void => {
     else if (move.flags.includes('n') || move.flags.includes('b')) moveSFX.play();
 }
 
+export function getAINameByDifficulity(AIDifficulity: 0 | 1 | 2 | 3 | 4): string {
+    switch (AIDifficulity) {
+        case 0:
+            return "George";
+            break;
+        case 1:
+            return "Bob";
+            break;
+        case 2:
+            return "Will";
+            break;
+        case 3:
+            return "Matt";
+            break;
+        case 4:
+            return "Peter";
+            break;
+    }
+}
 
 export function getPieceWeight(piece: 'k' | 'q' | 'r' | 'n' | 'b' | 'p'): number {
     switch (piece) {
