@@ -193,7 +193,7 @@ export function getViewOnly(chessGame: OnlineChessGame, chess: Chess, undoneMove
 }
 
 export const getConfig = (chess: Chess, playingColor: 'w' | 'b' | undefined, moveStack: Move[], undoneMoveStack: Move[]) => {
-    const viewOnly = playingColor === undefined || undoneMoveStack.length!==0;
+    const viewOnly = playingColor === undefined || undoneMoveStack.length!==0 || chess.isGameOver();
     return {
         fen: chess.fen(),
         turnColor: chess.turn() === WHITE ? 'white' : 'black',
