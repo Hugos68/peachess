@@ -148,6 +148,7 @@ const onlineChessStateStore = (chessState: OnlineChessState, supabase: SupabaseC
         },
         // This callback is called whenever this game gets an update, payload contains the old and new version
         (payload) => {
+            console.log('UPDATE');
             const updatedChessGame: OnlineChessGame = payload.new as OnlineChessGame
             store.loadPgn(updatedChessGame.pgn);
         }
@@ -299,7 +300,7 @@ const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
 
                 // Load latest pgn in case the user went back moves while computing a move
                 loadPgn(chessState.chessGame.pgn);
-                
+
                 // Enable autoqueening for the computer
                 const move = chessState.chess.move({
                     from:  data.move.from,
