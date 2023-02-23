@@ -189,30 +189,32 @@ const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
 
     const { set, update, subscribe }: Writable<AIChessState> = writable(chessState);
 
+    const loadPgn = (pgn: string) => {
+        update(chessState => {
+
+            chessState.chessGame.pgn = pgn;
+            chessState.chess.loadPgn(chessState.chessGame.pgn)
+
+            const moveAmountBeforeUpdating = chessState.moveStack.length + chessState.undoneMoveStack.length;
+
+            chessState.undoneMoveStack = [];
+            chessState.moveStack = chessState.chess.history({verbose: true});
+            chessState.material = getMaterial(chessState.moveStack);
+            chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
+
+            const moveAmountAfterUpdating = chessState.moveStack.length + chessState.undoneMoveStack.length;
+            
+            if (moveAmountBeforeUpdating < moveAmountAfterUpdating) playMoveSound(chessState.moveStack[chessState.moveStack.length-1]);
+
+            return chessState;
+        });
+    }
+
     return {
         set,
         update,
         subscribe,
-        loadPgn: (pgn: string) => {
-            update(chessState => {
-
-                chessState.pgn = pgn;
-                chessState.chess.loadPgn(chessState.pgn)
-
-                const moveAmountBeforeUpdating = chessState.moveStack.length + chessState.undoneMoveStack.length;
-
-                chessState.undoneMoveStack = [];
-                chessState.moveStack = chessState.chess.history({verbose: true});
-                chessState.material = getMaterial(chessState.moveStack);
-                chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
-
-                const moveAmountAfterUpdating = chessState.moveStack.length + chessState.undoneMoveStack.length;
-                
-                if (moveAmountBeforeUpdating < moveAmountAfterUpdating) playMoveSound(chessState.moveStack[chessState.moveStack.length-1]);
-
-                return chessState;
-            });
-        },
+        loadPgn,
         loadFirstMove: () => {
             update(chessState => {
                 if (chessState.moveStack.length===0) return chessState;
@@ -253,7 +255,7 @@ const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
         loadLastMove: () => {
             update(chessState => {
                 if (chessState.undoneMoveStack.length===0) return chessState;
-                chessState.chess.loadPgn(chessState.pgn);
+                chessState.chess.loadPgn(chessState.chessGame.pgn);
                 chessState.moveStack = chessState.moveStack.concat(chessState.undoneMoveStack.reverse());
                 chessState.undoneMoveStack = [];
                 chessState.material = getMaterial(chessState.moveStack);
@@ -267,11 +269,12 @@ const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
                 try {
                     // Move (throws exception if move is invalid)
                     const move = chessState.chess.move({from, to, promotion});
+ 
                     if (get(settings).sfx) playMoveSound(move);
                     chessState.moveStack.push(move);
                     chessState.material = getMaterial(chessState.moveStack);
                     chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
-                    chessState.pgn = chessState.chess.pgn();
+                    chessState.chessGame.pgn = chessState.chess.pgn();
                 } catch(error) {
                     console.error(error);
                 }
@@ -279,9 +282,11 @@ const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
             });
 
             let chessState;
-            subscribe(value => {
+            const unsubscribe = subscribe(value => {
                 chessState = value;
-            })
+            });
+            unsubscribe();
+
 
             const { data } = await supabase.functions.invoke('get_ai_move', {
                 body:  {
@@ -289,27 +294,23 @@ const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
                     AIDifficulity: chessState.AIDifficulity
                 }
             });
-            
-            update(chessState => {
-                try {
-                    
-                    // Load latest pgn in case the user went back moves while computing a move
-                    chessState.loadPgn(chessState.chessGame.pgn);
 
-                    // Enable autoqueening for the computer
-                    const move = chessState.chess.move({
-                        from:  data.move.from,
-                        to: data.move.to,
-                        promotion: 'q'
-                    });
-                    if (get(settings).sfx) playMoveSound(move);
-                    chessState.moveStack.push(move);
-                    chessState.material = getMaterial(chessState.moveStack);
-                    chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
-                    chessState.pgn = chessState.chess.pgn();
-                } catch(error) {
-                    console.error(error);
-                }
+            update(chessState => {
+
+                // Load latest pgn in case the user went back moves while computing a move
+                loadPgn(chessState.chessGame.pgn);
+                // Enable autoqueening for the computer
+                const move = chessState.chess.move({
+                    from:  data.move.from,
+                    to: data.move.to,
+                    promotion: 'q'
+                });
+
+                if (get(settings).sfx) playMoveSound(move);
+                chessState.moveStack.push(move);
+                chessState.material = getMaterial(chessState.moveStack);
+                chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
+                chessState.chessGame.pgn = chessState.chess.pgn();
                 return chessState;
             });
         }
