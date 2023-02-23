@@ -21,6 +21,7 @@
                 move: moveCallback
             }
         });
+        console.log(board.state);
     });
 
     // Apply new settings when settings change
@@ -44,7 +45,28 @@
         board.set(settingsConfig);
     }
 
-    $: if (board) board.set(config);
+    let latestKnownFen: string = config.fen;
+    $: if (board) {
+        board.set(config);
+        if (hasOpponentPlayed(latestKnownFen, config.fen, config.orientation)) board.playPremove();
+        else board.cancelPremove();
+        latestKnownFen = config.fen;
+    }
+
+    // This method checks if the playingColor is not the one who played the last move
+    function hasOpponentPlayed(fenBefore: string, fenAfter: string, playingColor: 'white' | 'black'): boolean {
+        const moveNumberBefore: number = getMoveNumber(fenBefore);
+        const moveNumberAfter: number = getMoveNumber(fenAfter);
+        console.log(moveNumberBefore);
+        console.log(moveNumberAfter);
+        if (playingColor === 'white' && moveNumberBefore === moveNumberAfter)  return false;
+        if (playingColor === 'black' && moveNumberBefore > moveNumberAfter) return false;
+        return true;
+    }
+
+    function getMoveNumber(fen: string): number {
+        return Number.parseInt(fen.slice(fen.lastIndexOf(' ')));
+    }
 
     const dispatch = createEventDispatcher();
 
