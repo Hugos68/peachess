@@ -23,7 +23,8 @@
         });
     });
 
-    $: if (board) {
+    // Apply new settings when settings change
+    $: $settings, () => {
         config.animation = {
             enabled: $settings.animate,
             duration: $settings.animationDuration
@@ -38,8 +39,11 @@
             lastMove: $settings.lastMoveHighlight,
             check: $settings.checkHighlight
         }
-        
         board.set(config);
+    }
+
+
+    $: $config,  if (board) {
         board.playPremove();
     }
 

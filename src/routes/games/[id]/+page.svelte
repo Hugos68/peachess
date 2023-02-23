@@ -49,7 +49,7 @@
         </header>
 
         <div class="overflow-hidden card h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
-            <ChessBoard bind:config={$chessStateStore.boardConfig} on:move={(event) => {
+            <ChessBoard config={$chessStateStore.boardConfig} on:move={(event) => {
                 chessStateStore.move(event.detail.from, event.detail.to, event.detail?.promotion);
             }}/>
         </div>

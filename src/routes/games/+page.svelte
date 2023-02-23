@@ -94,7 +94,7 @@
                 </div>
          
                 <div class="group-hover:brightness-75 transition-[filter] duration-250">
-                    <ChessBoard bind:config={onlineChessState.boardConfig} />
+                    <ChessBoard config={onlineChessState.boardConfig} />
                 </div>
 
                 {#if loading}
