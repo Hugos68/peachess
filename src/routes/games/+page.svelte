@@ -8,7 +8,7 @@
 	import type { PageData } from "./$types";
     import { supabase } from "$lib/supabase";
 	import { getPlayingColor } from "$lib/util";
-	import type { ChessGame, OnlineChessState } from "$lib/types";
+	import type { OnlineChessGame, OnlineChessState } from "$lib/types";
 	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
 
     export let data: PageData;
@@ -52,7 +52,7 @@
     };
 
 
-    const chessGameBoardConfigMap: Map<ChessGame, OnlineChessState> = new Map();
+    const chessGameBoardConfigMap: Map<OnlineChessGame, OnlineChessState> = new Map();
     data.chessGames.forEach(chessGame => {
         const playingColor = getPlayingColor(chessGame, $page.data.session) || 'w';
         const onlineChessStateStore = createOnlineChessStateStore(chessGame, playingColor, supabase);

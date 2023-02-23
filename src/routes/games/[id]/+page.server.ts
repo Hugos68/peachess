@@ -15,6 +15,6 @@ export const load = (async (event) => {
     if (error) throw redirect(303, `/games?${new URLSearchParams({message: 'The game you tried to visit does not exist'})}`);
 
     return {
-        chessGame: data as ChessGame
+        chessGame: data as OnlineChessGame
     }
 }) satisfies PageServerLoad;

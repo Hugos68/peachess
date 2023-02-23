@@ -1,18 +1,16 @@
 <script lang="ts">
 	import { BLACK, WHITE } from "chess.js";
     import type { PageData } from "./$types";
-    import { createOnlineChessStateStore } from "$lib/stores/chess-store";
+    import { createAIChessStateStore } from "$lib/stores/chess-store";
 	import MoveControls from "$lib/components/chess/MoveControls.svelte";
     import MaterialTracker from "$lib/components/chess/MaterialTracker.svelte";
 	import ChessBoardSidePanel from "$lib/components/chess/ChessInfoPanel.svelte";
-	import { getPlayingColor } from "$lib/util";
-	import { page } from "$app/stores";
-	import OnlineChessBoard from "$lib/components/chess/OnlineChessboard.svelte";
 	import type { Writable } from "svelte/store";
+	import AiChessboard from "$lib/components/chess/AIChessboard.svelte";
 
     export let data: PageData;
 
-    const chessStateStore: Writable<OnlineChessState> = createOnlineChessStateStore(data.chessGame, getPlayingColor(data.chessGame, $page.data.session));
+    const chessStateStore: Writable<AIChessState> = createAIChessStateStore(undefined, 4, 'w');
 </script>
 
  <div class="mx-auto xl:h-[calc(100vh-2rem)] flex flex-col xl:flex-row justify-center items-center gap-12">
@@ -49,7 +47,7 @@
         </header>
 
         <div class="overflow-hidden card h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
-            <OnlineChessBoard chessStateStore={chessStateStore} />
+            <AiChessboard chessStateStore={chessStateStore} />
         </div>
 
 

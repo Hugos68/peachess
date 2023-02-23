@@ -138,14 +138,14 @@ export function getValidMoves(chess: Chess): Map<Square, Square> {
     return dests;
 }
 
-export function getOrientation(chessGame: ChessGame, session: Session) {
+export function getOrientation(chessGame: OnlineChessGame, session: Session) {
     const playingColor = getPlayingColor(chessGame, session);
 
     // Default to white (for spectators)
     return playingColor || 'w';
 }
 
-export function getPlayingColor(chessGame: ChessGame, session: Session | undefined) {
+export function getPlayingColor(chessGame: OnlineChessGame, session: Session | undefined) {
     if (!session) return;
     return session.user.id === chessGame.player_id_white ? 'w' : 'b';
 }
@@ -157,7 +157,7 @@ export const getLastMoveHighlight = (moves: Move[]) => {
     return [move.from, move.to];
 }
 
-export function getViewOnly(chessGame: ChessGame, chess: Chess, undoneMoveStack: Move[], session: Session | undefined) {
+export function getViewOnly(chessGame: OnlineChessGame, chess: Chess, undoneMoveStack: Move[], session: Session | undefined) {
 
     // If someone is not logged in they cannot make moves
     if (!session) return true;

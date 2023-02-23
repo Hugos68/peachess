@@ -14,7 +14,7 @@ export const load = (async (event) => {;
     .range(from, to);
 
     return {    
-        chessGames: data as ChessGame[],
+        chessGames: data as OnlineChessGame[],
         totalChessGameAmount: count
     }
 }) satisfies PageServerLoad;

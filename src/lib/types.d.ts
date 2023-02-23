@@ -1,8 +1,13 @@
-interface ChessGame {
+interface OnlineChessGame {
     id: number
     created_at: string
     player_id_white: string
     player_id_black: string
+    pgn: string
+}
+
+interface AIChessGame {
+    AIDifficulity: 0 | 1 | 2 | 3 | 4
     pgn: string
 }
 
@@ -32,7 +37,7 @@ interface ChessState {
 }
 
 interface OnlineChessState extends ChessState {
-    chessGame: ChessGame
+    chessGame: OnlineChessGame
 }
 
 interface AIChessState extends ChessState {
