@@ -21,7 +21,7 @@
         toastStore.trigger(toast);
     } 
 
-    const handleCreateNewGame = () => {
+    const openNewGameModal = () => {
         const modalComponent: ModalComponent = {
 		    ref: NewGameModal,
         };
@@ -67,7 +67,7 @@
 <div class="mt-[5vh] flex flex-col gap-8">
     <div class="flex justify-between items-center gap-4">
         <h1 >Games</h1>
-        <button class="btn btn-sm variant-filled-primary" on:click={handleCreateNewGame} disabled={!$page.data.session} use:popup={notLoggedInPopup}>+ New Game</button>
+        <button class="btn btn-sm variant-filled-primary" on:click={openNewGameModal} disabled={!$page.data.session} use:popup={notLoggedInPopup}>+ New Game</button>
         <div class="card variant-filled-secondary" data-popup="not-logged-in-popup">
             {#if !$page.data.session}
                 <p class="p-4">You need to be logged in in order to play a game.</p>

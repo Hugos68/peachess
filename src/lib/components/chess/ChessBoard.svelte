@@ -42,7 +42,6 @@
         board.set(config);
     }
 
-
     $: if (board) {
         board.set(config);
         board.playPremove();
