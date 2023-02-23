@@ -1,6 +1,4 @@
 <script lang="ts">
-	import type { ChessStateStore } from "$lib/stores/chess-store";
-
     export let chessStateStore: ChessStateStore;
 </script>
 

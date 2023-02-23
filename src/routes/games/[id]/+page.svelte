@@ -7,8 +7,8 @@
 	import ChessBoardSidePanel from "$lib/components/chess/ChessInfoPanel.svelte";
 	import { getPlayingColor } from "$lib/util";
 	import { page } from "$app/stores";
-	import OnlineChessBoard from "$lib/components/chess/OnlineChessboard.svelte";
 	import type { Writable } from "svelte/store";
+	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
 
     export let data: PageData;
 
@@ -49,7 +49,9 @@
         </header>
 
         <div class="overflow-hidden card h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
-            <OnlineChessBoard chessStateStore={chessStateStore} />
+            <ChessBoard bind:config={$chessStateStore.boardConfig} on:move={(event) => {
+                chessStateStore.move(event.detail.from, event.detail.to, event.detail?.promotion);
+            }}/>
         </div>
 
 

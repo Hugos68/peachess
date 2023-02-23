@@ -6,8 +6,8 @@
     import MaterialTracker from "$lib/components/chess/MaterialTracker.svelte";
 	import ChessBoardSidePanel from "$lib/components/chess/ChessInfoPanel.svelte";
 	import type { Writable } from "svelte/store";
-	import AiChessboard from "$lib/components/chess/AIChessboard.svelte";
-
+	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
+    
     export let data: PageData;
 
     const chessStateStore: Writable<AIChessState> = createAIChessStateStore(data.difficulity, 'w');
@@ -47,7 +47,9 @@
         </header>
 
         <div class="overflow-hidden card h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
-            <AiChessboard chessStateStore={chessStateStore} />
+            <ChessBoard bind:config={$chessStateStore.boardConfig} on:move={(event) => {
+                chessStateStore.move(event.detail.from, event.detail.to, event.detail?.promotion);
+            }}/>
         </div>
 
 
