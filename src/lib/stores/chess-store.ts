@@ -283,7 +283,7 @@ const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
                 chessState = value;
             })
 
-            const {data, error} = await supabase.functions.invoke('get_ai_move', {
+            const { data } = await supabase.functions.invoke('get_ai_move', {
                 body:  {
                     fen: chessState.chess.fen(),
                     AIDifficulity: chessState.AIDifficulity
@@ -292,7 +292,11 @@ const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
             
             update(chessState => {
                 try {
-                    // Move (throws exception if move is invalid)
+                    
+                    // Load latest pgn in case the user went back moves while computing a move
+                    chessState.loadPgn(chessState.chessGame.pgn);
+
+                    // Enable autoqueening for the computer
                     const move = chessState.chess.move({
                         from:  data.move.from,
                         to: data.move.to,

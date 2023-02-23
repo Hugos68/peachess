@@ -9,7 +9,7 @@
 	import AiChessboard from "$lib/components/chess/AIChessboard.svelte";
 
     export let data: PageData;
-    const chessStateStore: Writable<AIChessState> = createAIChessStateStore(1, 'w');
+    const chessStateStore: Writable<AIChessState> = createAIChessStateStore(4, 'w');
 </script>
 
  <div class="mx-auto xl:h-[calc(100vh-2rem)] flex flex-col xl:flex-row justify-center items-center gap-12">
