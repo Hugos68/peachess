@@ -1,67 +1,38 @@
 <script lang="ts">
-	import { goto } from "$app/navigation";
-	import { supabase } from "$lib/supabase";
-	import { modalStore, Tab, TabGroup, toastStore, type ToastSettings } from "@skeletonlabs/skeleton";
+	import { modalStore, type ModalComponent, type ModalSettings } from "@skeletonlabs/skeleton";
+	import NewGameComputerModal from "./NewGameComputerModal.svelte";
+	import NewGamePlayerModal from "./NewGamePlayerModal.svelte";
 
-
-    let opponentUsername: string, AIDifficulity: 0 | 1 | 2 | 3 | 4;
-
-    const createOnlineGame = async () => {
+    const openNewGamePlayerModal = () => {
+        const modalComponent: ModalComponent = {
+		    ref: NewGamePlayerModal,
+        };
+	    const modal: ModalSettings = {
+            type: 'component',
+            component: modalComponent,
+        };
         modalStore.close();
-        const {error, data} = await supabase.functions.invoke("create_game", {
-            body:  {
-                opponentUsername: opponentUsername
-            }
-        }); 
-        if (error) {
-            const toast: ToastSettings = {
-                preset: 'error',
-                message: 'Oops, something went wrong, did you spel their username correctly?',
-                autohide: true
-            }
-            toastStore.trigger(toast);
-        }
-        else {
-            const toast: ToastSettings = {
-                preset: 'success',
-                message: 'Success, redirecting you to the game...',
-                autohide: true
-            }
-            toastStore.trigger(toast);
-            await goto(`/games/${data.game.id}`);
-        }
+        modalStore.trigger(modal);
     }
 
-    const createComputerGame = async () => {
+    const openNewGameComputerModal = () => {
         modalStore.close();
-        const toast: ToastSettings = {
-                preset: 'success',
-                message: 'Success, redirecting you to the game...',
-                autohide: true
-            }
-            toastStore.trigger(toast);
-        await goto(`/games/computer?difficulity=${AIDifficulity}`);
+        const modalComponent: ModalComponent = {
+		    ref: NewGameComputerModal,
+        };
+	    const modal: ModalSettings = {
+            type: 'component',
+            component: modalComponent,
+        };
+        modalStore.trigger(modal);
     }
-
-    let tabSet: number = 0;
 </script>
-<TabGroup>
-	<Tab bind:group={tabSet} name="vs-player" value={0}>VS Player</Tab>
-    <Tab bind:group={tabSet} name="vs-computer" value={1}>VS Computer</Tab>
 
+<div class="card p-8 flex flex-col gap-4">
+    <h2 class="text-center"><strong>Start a new game</strong></h2>
+    <div class="flex justify-between gap-4">
+        <button class="btn variant-ghost-primary rounded-md !aspect-square w-[calc(50%-1rem)]" on:click={openNewGamePlayerModal}>VS Player</button>
+        <button class="btn variant-ghost-primary rounded-md !aspect-square w-[calc(50%-1rem)]" on:click={openNewGameComputerModal}>VS Computer</button>
+    </div>
+</div>
 
-
-    <svelte:fragment slot="panel">
-		{#if tabSet === 0}
-            <div class="flex flex-col justify-center gap-4">
-                <input type="text" class="input p-2" placeholder="Enter opponents username..." required bind:value={opponentUsername} />
-                <button class="ml-auto btn btn-lg variant-filled-primary" on:click={createOnlineGame}>Create Game</button>
-            </div>
-		{:else if tabSet === 1}
-        <div class="flex flex-col justify-center gap-4">
-            <input type="number" min="0" max="4" class="input p-2" placeholder="Enter computers difficulity..." required bind:value={AIDifficulity} />
-            <button class="ml-auto btn btn-lg variant-filled-primary" on:click={createComputerGame}>Create Game</button>
-        </div>
-		{/if}
-	</svelte:fragment>
-</TabGroup>

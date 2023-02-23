@@ -48,7 +48,7 @@
                 </label>
                 <label class="flex items-center gap-2 justify-between" for="animate">
                     Animation duration ({$settings.animationDuration} ms)
-                    <RangeSlider name="animation-duration" bind:value={$settings.animationDuration} min={0} max={1000} step={50} ticked />
+                    <RangeSlider name="animation-duration" bind:value={$settings.animationDuration} min={100} max={500} step={100} ticked />
                 </label>
                 <label class="flex items-center gap-2 justify-between" for="drag">
                     Drag

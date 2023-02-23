@@ -8,7 +8,6 @@
 	import type { PageData } from "./$types";
     import { supabase } from "$lib/supabase";
 	import { getPlayingColor } from "$lib/util";
-	import type { OnlineChessGame, OnlineChessState } from "$lib/types";
 	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
 
     export let data: PageData;
@@ -28,7 +27,6 @@
         };
 	    const modal: ModalSettings = {
             type: 'component',
-            title: 'Create a new game',
             component: modalComponent,
         };
         modalStore.trigger(modal);

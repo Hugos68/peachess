@@ -55,6 +55,26 @@ export function getAINameByDifficulity(AIDifficulity: 0 | 1 | 2 | 3 | 4): string
     }
 }
 
+export function getAIDifficulityByName(name: 'George' | 'Bob' | 'Will' | 'Matt' | 'Peter'): number {
+    switch (name) {
+        case 'George':
+            return 0;
+            break;
+        case 'Bob':
+            return 1;
+            break;
+        case 'Will':
+            return 2;
+            break;
+        case 'Matt':
+            return 3;
+            break;
+        case 'Peter':
+            return 4;
+            break;
+    }
+}
+
 export function getPieceWeight(piece: 'k' | 'q' | 'r' | 'n' | 'b' | 'p'): number {
     switch (piece) {
         case 'k':
