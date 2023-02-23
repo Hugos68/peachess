@@ -41,10 +41,10 @@
             <div class="flex flex-col items-end">
                 {#if ($chessStateStore.playingColor ? $chessStateStore.playingColor==='w' : true)}
                     <p class="font-bold">{$chessStateStore.chess.header()['Black']}</p>
-                    <MaterialTracker chessStateStore={chessStateStore} color={WHITE} />
+                    <MaterialTracker material={$chessStateStore.material} color={WHITE} />
                 {:else}
                     <p class="font-bold">{$chessStateStore.chess.header()['White']}</p>
-                    <MaterialTracker chessStateStore={chessStateStore} color={BLACK} />
+                    <MaterialTracker material={$chessStateStore.material} color={BLACK} />
                 {/if}
             </div>
 
@@ -62,10 +62,10 @@
             <div class="flex flex-col items-end">
                 {#if ($chessStateStore.playingColor ? $chessStateStore.playingColor==='b' : false)}
                     <p class="font-bold">{$chessStateStore.chess.header()['Black']}</p>
-                    <MaterialTracker chessStateStore={chessStateStore} color={WHITE} />
+                    <MaterialTracker material={$chessStateStore.material} color={WHITE} />
                 {:else}
                     <p class="font-bold">{$chessStateStore.chess.header()['White']}</p>
-                    <MaterialTracker chessStateStore={chessStateStore} color={BLACK} />
+                    <MaterialTracker material={$chessStateStore.material} color={BLACK} />
                 {/if}
             </div>
         </footer>
