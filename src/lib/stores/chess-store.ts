@@ -1,9 +1,10 @@
 import { Chess, type Move, type Square } from "chess.js";
 import { writable, type Writable, get } from "svelte/store";
 import { getConfig, getMaterial, updateMaterial, playMoveSound } from "$lib/util";
+import { supabase } from '$lib/supabase';
 import { settings} from './settings-store';
 
-export function createOnlineChessStateStore(chessGame: ChessGame, playingColor: 'w' | 'b' | undefined, supabase: SupabaseClient): OnlineChessStateStore {
+export function createOnlineChessStateStore(chessGame: OnlineChessGame, playingColor: 'w' | 'b' | undefined): OnlineChessStateStore {
 
     // Init chessState by loading pgn into chess and loading history into the move stack
     const chess = new Chess();
@@ -147,7 +148,7 @@ const onlineChessStateStore = (chessState: OnlineChessState, supabase: SupabaseC
         },
         // This callback is called whenever this game gets an update, payload contains the old and new version
         (payload) => {
-            const updatedChessGame: ChessGame = payload.new as ChessGame
+            const updatedChessGame: OnlineChessGame = payload.new as OnlineChessGame
             store.loadPgn(updatedChessGame.pgn);
         }
     )
@@ -156,18 +157,17 @@ const onlineChessStateStore = (chessState: OnlineChessState, supabase: SupabaseC
     return store;
 }
 
-export function createAIChessStateStore(pgn: string, AIDifficulity: 0 | 1 | 2 | 3 | 4, playingColor: 'w' | 'b' | undefined): AIChessStateStore {
+export function createAIChessStateStore(chessGame: AIChessGame, playingColor: 'w' | 'b' | undefined): AIChessStateStore {
         
     const chess = new Chess();
-    chess.loadPgn(pgn);
+    chess.loadPgn(chessGame.pgn);
     const moveStack: Move[] = chess.history({verbose: true});
     const undoneMoveStack: Move[] = [];
     const material = getMaterial(moveStack);
     const boardConfig = getConfig(chess, playingColor, moveStack, undoneMoveStack);
 
     const AIChessState: AIChessState = {
-        pgn,
-        AIDifficulity,
+        chessGame,
         playingColor,
         chess,
         moveStack,
@@ -190,8 +190,8 @@ const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
         loadPgn: (pgn: string) => {
             update(chessState => {
 
-                chessState.chessGame.pgn = pgn;
-                chessState.chess.loadPgn(chessState.chessGame.pgn)
+                chessState.pgn = pgn;
+                chessState.chess.loadPgn(chessState.pgn)
 
                 const moveAmountBeforeUpdating = chessState.moveStack.length + chessState.undoneMoveStack.length;
 
@@ -247,7 +247,7 @@ const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
         loadLastMove: () => {
             update(chessState => {
                 if (chessState.undoneMoveStack.length===0) return chessState;
-                chessState.chess.loadPgn(chessState.chessGame.pgn);
+                chessState.chess.loadPgn(chessState.pgn);
                 chessState.moveStack = chessState.moveStack.concat(chessState.undoneMoveStack.reverse());
                 chessState.undoneMoveStack = [];
                 chessState.material = getMaterial(chessState.moveStack);
@@ -256,23 +256,51 @@ const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
             });
             
         },
-        move: (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b')   => {
-            let move;
+        move: async (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b')  => {
             update(chessState => {
                 try {
-
                     // Move (throws exception if move is invalid)
-                    move = chessState.chess.move({from, to, promotion});
-                    if (get(settings).sfx) playMoveSound(move)
+                    const move = chessState.chess.move({from, to, promotion});
+                    if (get(settings).sfx) playMoveSound(move);
                     chessState.moveStack.push(move);
                     chessState.material = getMaterial(chessState.moveStack);
                     chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
+                    chessState.pgn = chessState.chess.pgn();
                 } catch(error) {
                     console.error(error);
                 }
                 return chessState;
             });
-            return move;
+
+            let chessState;
+            subscribe(value => {
+                chessState = value;
+            })
+
+            const {data, error} = await supabase.functions.invoke('get_ai_move', {
+                body:  {
+                    fen: chessState.chess.fen(),
+                    AIDifficulity: chessState.AIDifficulity
+                }
+            });
+            update(chessState => {
+                try {
+                    // Move (throws exception if move is invalid)
+                    const move = chessState.chess.move({
+                        from:  data.move.from,
+                        to: data.move.to,
+                        promotion: data.move.promotion,
+                    });
+                    if (get(settings).sfx) playMoveSound(move);
+                    chessState.moveStack.push(move);
+                    chessState.material = getMaterial(chessState.moveStack);
+                    chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
+                    chessState.pgn = chessState.chess.pgn();
+                } catch(error) {
+                    console.error(error);
+                }
+                return chessState;
+            });
         }
     }
 }
