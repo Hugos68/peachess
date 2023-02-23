@@ -68,12 +68,12 @@
     <div class="flex justify-between items-center gap-4">
         <h1 >Games</h1>
         <button class="btn btn-sm variant-filled-primary" on:click={handleCreateNewGame} disabled={!$page.data.session} use:popup={notLoggedInPopup}>+ New Game</button>
-        {#if !$page.data.session}
-            <div class="card variant-filled-secondary p-4" data-popup="not-logged-in-popup">
-                You need to be logged in in order to play a game.
+        <div class="card variant-filled-secondary" data-popup="not-logged-in-popup">
+            {#if !$page.data.session}
+                <p class="p-4">You need to be logged in in order to play a game.</p>
                 <div class="arrow variant-filled-secondary" />
-            </div>
-        {/if}
+            {/if}
+        </div>
     </div>
 
     {#if loading}
