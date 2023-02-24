@@ -158,9 +158,14 @@ const onlineChessStateStore = (chessState: OnlineChessState): OnlineChessStateSt
 export function createAIChessStateStore(AIDifficulity: 0 | 1 | 2 | 3 | 4, playingColor: 'w' | 'b' | undefined): AIChessStateStore {
     
     const chess = new Chess();
+    chess.header('Event', 'Chess Game');
+    chess.header('Site', 'https://peachess.vercel.app/');
+    chess.header('Date', new Date());
+    chess.header('Round', null);
     chess.header(playingColor==='w' ? 'White' : 'Black', "You");
     chess.header(playingColor==='w' ? 'Black' : 'White', getAINameByDifficulity(AIDifficulity));
-
+    chess.header('Result', '*');
+    
     const chessGame: AIChessGame = {
         AIDifficulity,
         pgn: chess.pgn()

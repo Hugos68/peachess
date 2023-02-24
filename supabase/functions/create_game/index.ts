@@ -98,7 +98,7 @@ serve(async (req) => {
         chess.header('Event', 'Chess Game');
         chess.header('Site', 'https://peachess.vercel.app/');
         chess.header('Date', new Date());
-        chess.header('Round', null)
+        chess.header('Round', null);
         chess.header('White', playerWhite.user_name);
         chess.header('Black', playerBlack.user_name);
         chess.header('Result', '*');
