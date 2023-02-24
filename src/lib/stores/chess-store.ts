@@ -71,12 +71,11 @@ const onlineChessStateStore = (chessState: OnlineChessState): OnlineChessStateSt
             });
         },
         loadNextMove: () => {
-                     // TODO FIX THIS
-            if (chessState.undoneMoveStack.length===0) return chessState;
-            const move = chessState.undoneMoveStack.pop();
-            if (!move) return;
-            if (get(settings).sfx) playMoveSound(move)
-            update(chessState => {          
+            update(chessState => {   
+                if (chessState.undoneMoveStack.length===0) return chessState;
+                const move = chessState.undoneMoveStack.pop();
+                if (!move) return chessState;
+                if (get(settings).sfx) playMoveSound(move)            
                 chessState.moveStack.push(move);
                 chessState.chess.move(move);
                 chessState.material = updateMaterial(chessState.material, move, 'add');
@@ -235,13 +234,11 @@ const AIChessStateStore = (chessState: AIChessState): AIChessStateStore => {
             });
         },
         loadNextMove: () => {
-
-            // TODO FIX THIS
-            if (chessState.undoneMoveStack.length===0) return chessState;
-            const move = chessState.undoneMoveStack.pop();
-            if (!move) return;
-            if (get(settings).sfx) playMoveSound(move)
-            update(chessState => {          
+            update(chessState => {     
+                if (chessState.undoneMoveStack.length===0) return chessState;
+                const move = chessState.undoneMoveStack.pop();
+                if (!move) return chessState;
+                if (get(settings).sfx) playMoveSound(move)     
                 chessState.moveStack.push(move);
                 chessState.chess.move(move);
                 chessState.material = updateMaterial(chessState.material, move, 'add');
