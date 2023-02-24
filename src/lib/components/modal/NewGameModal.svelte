@@ -31,8 +31,8 @@
 <div class="card p-8 flex flex-col gap-4">
     <h2 class="text-center"><strong>Start a new game</strong></h2>
     <div class="flex justify-between gap-4">
-        <button class="btn variant-ghost-primary rounded-md !aspect-square w-[calc(50%-1rem)]" on:click={openNewGamePlayerModal}>VS Player</button>
-        <button class="btn variant-ghost-primary rounded-md !aspect-square w-[calc(50%-1rem)]" on:click={openNewGameComputerModal}>VS Computer</button>
+        <button class="btn variant-ghost-primary !aspect-square w-[calc(50%-1rem)]" on:click={openNewGamePlayerModal}>VS Player</button>
+        <button class="btn variant-ghost-primary !aspect-square w-[calc(50%-1rem)]" on:click={openNewGameComputerModal}>VS Computer</button>
     </div>
 </div>
 
