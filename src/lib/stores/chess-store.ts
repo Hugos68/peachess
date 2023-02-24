@@ -24,12 +24,12 @@ export function createOnlineChessStateStore(chessGame: OnlineChessGame, playingC
         boardConfig
     }
 
-    return onlineChessStateStore(onlineChessState, supabase);
+    return onlineChessStateStore(onlineChessState);
 }
 
-const onlineChessStateStore = (chessState: OnlineChessState, supabase: SupabaseClient): OnlineChessStateStore => {
+const onlineChessStateStore = (chessState: OnlineChessState): OnlineChessStateStore => {
 
-    const { set, update, subscribe }: Writable<OnlineChessState> = writable(chessState);
+    const { set, update, subscribe }: Writable<OnlineChessState> = writable<OnlineChessState>(chessState);
 
     const store = {
         set,
@@ -183,9 +183,9 @@ export function createAIChessStateStore(AIDifficulity: 0 | 1 | 2 | 3 | 4, playin
     return AIChessStateStore(AIChessState);
 }
 
-const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
+const AIChessStateStore = (chessState: AIChessState): AIChessStateStore => {
 
-    const { set, update, subscribe }: Writable<AIChessState> = writable(chessState);
+    const { set, update, subscribe }: Writable<AIChessState> = writable<AIChessState>(chessState);
 
     const loadPgn = (pgn: string) => {
         update(chessState => {
