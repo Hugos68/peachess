@@ -38,38 +38,38 @@ export const playMoveSound = (move: Move): void => {
 export function getAINameByDifficulity(AIDifficulity: 0 | 1 | 2 | 3 | 4): string {
     switch (AIDifficulity) {
         case 0:
-            return "George";
+            return "george";
             break;
         case 1:
-            return "Bob";
+            return "bob";
             break;
         case 2:
-            return "Will";
+            return "will";
             break;
         case 3:
-            return "Matt";
+            return "matt";
             break;
         case 4:
-            return "Peter";
+            return "peter";
             break;
     }
 }
 
-export function getAIDifficulityByName(name: 'George' | 'Bob' | 'Will' | 'Matt' | 'Peter'): number {
+export function getAIDifficulityByName(name: 'george' | 'bob' | 'will' | 'matt' | 'peter'): number {
     switch (name) {
-        case 'George':
+        case 'george':
             return 0;
             break;
-        case 'Bob':
+        case 'bob':
             return 1;
             break;
-        case 'Will':
+        case 'will':
             return 2;
             break;
-        case 'Matt':
+        case 'matt':
             return 3;
             break;
-        case 'Peter':
+        case 'peter':
             return 4;
             break;
     }

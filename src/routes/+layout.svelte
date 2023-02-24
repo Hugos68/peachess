@@ -6,13 +6,13 @@
 	import '../chessground.css';
 
 	import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
-	import { storePopup, toastStore, type ToastSettings } from '@skeletonlabs/skeleton';
+	import { storePopup } from '@skeletonlabs/skeleton';
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 	import { AppShell, Drawer, drawerStore, Modal, Toast } from "@skeletonlabs/skeleton";
 	import Header from '$lib/components/layout/Header.svelte';
 	import SideBarLeft from '$lib/components/layout/SideBarLeft.svelte';
 	import Footer from '$lib/components/layout/Footer.svelte';
-	import { goto, invalidate } from '$app/navigation';
+	import { invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { supabase } from '$lib/supabase';
 	import { page } from '$app/stores';
