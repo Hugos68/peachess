@@ -16,7 +16,7 @@
 	const triggerCopiedToast = (type: 'Link' | 'FEN' | 'PGN') => {
         const t: ToastSettings = {
             message: 'Successfully copied: '+type,
-            preset: 'success',
+            background: 'success',
             autohide: true
         }
         toastStore.trigger(t);

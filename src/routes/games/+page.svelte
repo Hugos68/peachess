@@ -6,7 +6,6 @@
 	import { modalStore, Paginator, popup, ProgressRadial, toastStore, type ModalComponent, type ModalSettings, type PopupSettings, type ToastSettings } from "@skeletonlabs/skeleton";
 	import { get } from "svelte/store";
 	import type { PageData } from "./$types";
-    import { supabase } from "$lib/supabase";
 	import { getPlayingColor } from "$lib/util";
 	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
 

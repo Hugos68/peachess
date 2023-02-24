@@ -14,7 +14,7 @@
         }); 
         if (error) {
             const toast: ToastSettings = {
-                preset: 'error',
+                background: 'error',
                 message: 'Oops, something went wrong, did you spel their username correctly?',
                 autohide: true
             }
@@ -22,7 +22,7 @@
         }
         else {
             const toast: ToastSettings = {
-                preset: 'success',
+                background: 'success',
                 message: 'Success, redirecting you to the game...',
                 autohide: true
             }

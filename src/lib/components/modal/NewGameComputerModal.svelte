@@ -8,7 +8,7 @@
     const createComputerGame = async () => {
         modalStore.close();
         const toast: ToastSettings = {
-            preset: 'success',
+            background: 'success',
             message: 'Success, redirecting you to the game...',
             autohide: true
         }
