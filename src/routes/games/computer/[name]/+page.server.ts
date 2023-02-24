@@ -10,6 +10,6 @@ export const load: PageServerLoad = async (event) => {
     }
 
     return {
-        name
+        name: name as 'george' | 'bob' | 'will' | 'matt' | 'peter'
     }
 };
