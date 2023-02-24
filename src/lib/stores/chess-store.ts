@@ -24,12 +24,12 @@ export function createOnlineChessStateStore(chessGame: OnlineChessGame, playingC
         boardConfig
     }
 
-    return onlineChessStateStore(onlineChessState, supabase);
+    return onlineChessStateStore(onlineChessState);
 }
 
-const onlineChessStateStore = (chessState: OnlineChessState, supabase: SupabaseClient): OnlineChessStateStore => {
+const onlineChessStateStore = (chessState: OnlineChessState): OnlineChessStateStore => {
 
-    const { set, update, subscribe }: Writable<OnlineChessState> = writable(chessState);
+    const { set, update, subscribe }: Writable<OnlineChessState> = writable<OnlineChessState>(chessState);
 
     const store = {
         set,
@@ -158,9 +158,14 @@ const onlineChessStateStore = (chessState: OnlineChessState, supabase: SupabaseC
 export function createAIChessStateStore(AIDifficulity: 0 | 1 | 2 | 3 | 4, playingColor: 'w' | 'b' | undefined): AIChessStateStore {
     
     const chess = new Chess();
+    chess.header('Event', 'Chess Game');
+    chess.header('Site', 'https://peachess.vercel.app/');
+    chess.header('Date', new Date());
+    chess.header('Round', null);
     chess.header(playingColor==='w' ? 'White' : 'Black', "You");
     chess.header(playingColor==='w' ? 'Black' : 'White', getAINameByDifficulity(AIDifficulity));
-
+    chess.header('Result', '*');
+    
     const chessGame: AIChessGame = {
         AIDifficulity,
         pgn: chess.pgn()
@@ -183,9 +188,9 @@ export function createAIChessStateStore(AIDifficulity: 0 | 1 | 2 | 3 | 4, playin
     return AIChessStateStore(AIChessState);
 }
 
-const AIChessStateStore = (chessState: ChessState): AIChessStateStore => {
+const AIChessStateStore = (chessState: AIChessState): AIChessStateStore => {
 
-    const { set, update, subscribe }: Writable<AIChessState> = writable(chessState);
+    const { set, update, subscribe }: Writable<AIChessState> = writable<AIChessState>(chessState);
 
     const loadPgn = (pgn: string) => {
         update(chessState => {
