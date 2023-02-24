@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
 	import { getAIDifficulityByName } from "$lib/util";
-	import { ListBox, ListBoxItem, modalStore, popup, toastStore, type PopupSettings, type ToastSettings, type ToastSettings } from "@skeletonlabs/skeleton";
+	import { ListBox, ListBoxItem, modalStore, popup, toastStore, type PopupSettings, type ToastSettings } from "@skeletonlabs/skeleton";
 
     let computerName: 'george' | 'bob' | 'will' | 'matt' | 'peter' | undefined;
 

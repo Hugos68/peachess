@@ -23,7 +23,7 @@
         });
     });
 
-    // Apply new settings when settings change
+    // Apply new settings when settings are changed
     $: if (board) {
         const settingsConfig = {
             animation: {

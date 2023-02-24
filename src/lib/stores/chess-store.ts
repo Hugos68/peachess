@@ -60,10 +60,10 @@ const onlineChessStateStore = (chessState: OnlineChessState): OnlineChessStateSt
             });
         },
         loadPreviousMove: () => {
-            if (!chessState.chess.undo()) return;
             update(chessState => {
-                if (chessState.moveStack.length===0) return chessState;
-                const move = chessState.moveStack.pop()
+                if (!chessState.chess.undo() && chessState.moveStack.length===0) return chessState;
+                const move = chessState.moveStack.pop();
+                if (get(settings).sfx) playMoveSound(move);
                 chessState.undoneMoveStack.push(move);
                 chessState.material = updateMaterial(chessState.material, move, 'subtract');
                 chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
@@ -71,6 +71,7 @@ const onlineChessStateStore = (chessState: OnlineChessState): OnlineChessStateSt
             });
         },
         loadNextMove: () => {
+                     // TODO FIX THIS
             if (chessState.undoneMoveStack.length===0) return chessState;
             const move = chessState.undoneMoveStack.pop();
             if (!move) return;
@@ -223,10 +224,10 @@ const AIChessStateStore = (chessState: AIChessState): AIChessStateStore => {
             });
         },
         loadPreviousMove: () => {
-            if (!chessState.chess.undo()) return;
             update(chessState => {
-                if (chessState.moveStack.length===0) return chessState;
-                const move = chessState.moveStack.pop()
+                if (!chessState.chess.undo() && chessState.moveStack.length===0) return chessState;
+                const move = chessState.moveStack.pop();
+                if (get(settings).sfx) playMoveSound(move);
                 chessState.undoneMoveStack.push(move);
                 chessState.material = updateMaterial(chessState.material, move, 'subtract');
                 chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
@@ -234,6 +235,8 @@ const AIChessStateStore = (chessState: AIChessState): AIChessStateStore => {
             });
         },
         loadNextMove: () => {
+
+            // TODO FIX THIS
             if (chessState.undoneMoveStack.length===0) return chessState;
             const move = chessState.undoneMoveStack.pop();
             if (!move) return;
