@@ -34,7 +34,7 @@
 </script>
 
 <div class="card p-8 flex flex-col gap-4">
-    <h2 class="text-center"><strong>Play agaisnt a Player</strong></h2>
+    <h2 class="text-center"><strong>Play against a Player</strong></h2>
     <div class="flex flex-col justify-center gap-4">
         <input type="text" class="input p-2" placeholder="Enter opponents username..." required bind:value={opponentUsername} />
         <button class="ml-auto btn btn-lg variant-filled-primary" on:click={createOnlineGame}>Create Game</button>
