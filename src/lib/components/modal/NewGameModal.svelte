@@ -16,7 +16,6 @@
     }
 
     const openNewGameComputerModal = () => {
-        modalStore.close();
         const modalComponent: ModalComponent = {
 		    ref: NewGameComputerModal,
         };
@@ -24,6 +23,7 @@
             type: 'component',
             component: modalComponent,
         };
+        modalStore.close();
         modalStore.trigger(modal);
     }
 </script>
