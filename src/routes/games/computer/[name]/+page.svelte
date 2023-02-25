@@ -72,7 +72,7 @@
 
         <footer class="flex justify-between items-end">
     
-            <!-- <MoveControls {chessStateStore} /> -->
+            <MoveControls {chessStateStore} />
     
             <div class="flex flex-col items-end">
                 {#if ($chessStateStore.playingColor ? $chessStateStore.playingColor==='b' : false)}
@@ -86,9 +86,9 @@
         </footer>
     </div>
    
-    <!-- <div class="hidden xl:block">
+    <div class="hidden xl:block">
         <ChessBoardSidePanel height="h-full" width="h-full" {chessStateStore} />
-    </div> -->
+    </div>
 
     <button class="btn variant-filled-primary xl:hidden" on:click={openGamePanel}>Open Game Panel</button>
  </div>

@@ -126,7 +126,7 @@
 <svelte:window on:mousedown={handleWindowMouseDown} />
 
 <!-- BOARD-WRAPPER -->
-<div class="relative h-full w-full aspect-square">
+<div class="relative  aspect-square">
 
     <!-- BOARD -->
     <div class="transition-[filter] flex justify-center items-center" class:brightness-50={promotionMove!==null} bind:this={boardElement}>
@@ -134,14 +134,10 @@
     </div>
 
     <!-- PROMOTION-MODAL -->
-    <div bind:this={promotionModal} class:hidden={promotionMove===null} class="absolute top-0 w-[12.5%] h-[50%] z-[50] bg-primary-500">
-        {#if promotionMove}
-            <div class="h-full w-full" transition:fly={{y: -100, duration: 200}} use:focusTrap={promotionMove!==null}>
-                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover queen {config.orientation}" on:click={() => handlePromotion('q')}></button>
-                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover rook {config.orientation}" on:click={() => handlePromotion('r')}></button>
-                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover knight {config.orientation}" on:click={() => handlePromotion('n')}></button>
-                <button class="btn variant-filled-primary rounded-none hover:rounded-3xl transition-[border-radius] w-full h-[25%] bg-cover bishop {config.orientation}" on:click={() => handlePromotion('b')}></button>
-            </div>
-        {/if}
+    <div bind:this={promotionModal} class:hidden={promotionMove===null} use:focusTrap={promotionMove!==null} class="absolute top-0 w-[12.5%] h-[50%] z-[50]">
+        <button class="btn variant-filled-surface w-full h-[25%] bg-cover queen {config.orientation}" on:click={() => handlePromotion('q')}></button>
+        <button class="btn variant-filled-surface w-full h-[25%] bg-cover rook {config.orientation}" on:click={() => handlePromotion('r')}></button>
+        <button class="btn variant-filled-surface w-full h-[25%] bg-cover knight {config.orientation}" on:click={() => handlePromotion('n')}></button>
+        <button class="btn variant-filled-surface w-full h-[25%] bg-cover bishop {config.orientation}" on:click={() => handlePromotion('b')}></button>
     </div>
 </div>
