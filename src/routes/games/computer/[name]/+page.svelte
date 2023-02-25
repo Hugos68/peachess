@@ -32,9 +32,10 @@
     }
 </script>
 
- <div class="mx-auto xl:h-[calc(100vh-2rem)] flex flex-col xl:flex-row justify-center items-center gap-12">
+ <div class="flex items-stretch justify-center gap-4 max-h-[calc(100vh-2rem)]">
     
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-2 flex-auto">
+
         <header class="flex justify-between">
             {#if $chessStateStore.chess.isCheckmate()}
                 <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Checkmate</p>
@@ -45,7 +46,7 @@
             {:else}
                 {@const turn = $chessStateStore.chess.turn()}
                 <p
-                class="my-auto p-2 rounded-token font-semibold text-center"
+                class="p-2 rounded-token font-semibold text-center"
                 class:text-white={turn===BLACK}
                 class:text-black={turn===WHITE}
                 class:bg-white={turn===WHITE} 
@@ -65,16 +66,13 @@
     
         </header>
     
-        <div class="overflow-hidden card h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
-            <ChessBoard config={$chessStateStore.boardConfig} on:move={(event) => {
-                chessStateStore.move(event.detail.from, event.detail.to, event.detail?.promotion);
-            }}/>
-        </div>
-    
-    
+        <ChessBoard config={$chessStateStore.boardConfig} on:move={(event) => {
+            chessStateStore.move(event.detail.from, event.detail.to, event.detail?.promotion);
+        }}/>
+
         <footer class="flex justify-between items-end">
     
-            <MoveControls {chessStateStore} />
+            <!-- <MoveControls {chessStateStore} /> -->
     
             <div class="flex flex-col items-end">
                 {#if ($chessStateStore.playingColor ? $chessStateStore.playingColor==='b' : false)}
@@ -88,9 +86,9 @@
         </footer>
     </div>
    
-    <div class="hidden xl:block">
-        <ChessBoardSidePanel height="h-[min(calc(100vw)-1rem,calc(95vh-12rem))]" width="w-[min(calc(100vw)-1rem,calc(95vh-12rem))]" {chessStateStore} />
-    </div>
+    <!-- <div class="hidden xl:block">
+        <ChessBoardSidePanel height="h-full" width="h-full" {chessStateStore} />
+    </div> -->
 
     <button class="btn variant-filled-primary xl:hidden" on:click={openGamePanel}>Open Game Panel</button>
  </div>

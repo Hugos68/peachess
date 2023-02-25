@@ -129,7 +129,7 @@
 <div class="relative h-full w-full aspect-square">
 
     <!-- BOARD -->
-    <div class="transition-[filter] card h-full flex justify-center items-center" class:brightness-50={promotionMove!==null} bind:this={boardElement}>
+    <div class="transition-[filter] flex justify-center items-center" class:brightness-50={promotionMove!==null} bind:this={boardElement}>
         <p class="animate-bounce text-lg"><strong>Loading board...</strong></p>
     </div>
 

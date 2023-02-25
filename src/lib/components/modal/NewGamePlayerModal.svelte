@@ -22,7 +22,6 @@
         }
         else {
             const toast: ToastSettings = {
-                background: 'success',
                 message: 'Success, redirecting you to the game...',
                 autohide: true
             }
