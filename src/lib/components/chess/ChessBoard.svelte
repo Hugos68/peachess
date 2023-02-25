@@ -27,8 +27,7 @@
     $: if (board) {
         const settingsConfig = {
             animation: {
-                enabled: $settings.animate,
-                duration: $settings.animationDuration
+                enabled: $settings.animate
             },
             draggable: {
                 enabled: $settings.drag

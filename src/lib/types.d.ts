@@ -19,7 +19,6 @@ interface CustomMove {
 
 interface Settings {
     animate: boolean
-    animationDuration: number
     sfx: boolean
     premove: boolean
     drag: boolean

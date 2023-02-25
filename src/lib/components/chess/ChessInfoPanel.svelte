@@ -59,10 +59,6 @@
                     Animate
                     <SlideToggle active="variant-ghost-secondary" name="animate" bind:checked={$settings.animate}  />
                 </label>
-                <label class="flex items-center gap-2 justify-between" for="animate">
-                    Animation duration ({$settings.animationDuration} ms)
-                    <RangeSlider name="animation-duration" bind:value={$settings.animationDuration} min={100} max={500} step={100} ticked />
-                </label>
                 <label class="flex items-center gap-2 justify-between" for="drag">
                     Drag
                     <SlideToggle active="variant-ghost-secondary" name="drag" bind:checked={$settings.drag} />
