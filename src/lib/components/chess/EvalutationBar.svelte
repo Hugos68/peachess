@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { ProgressBar } from "@skeletonlabs/skeleton";
-	import { BLACK, KING, type Chess } from "chess.js";
+	import { BLACK, type Chess } from "chess.js";
 	import { onMount } from "svelte";
     import { tweened } from 'svelte/motion';
     import { cubicOut } from "svelte/easing";
