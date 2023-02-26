@@ -12,6 +12,8 @@
     let stockfish: Worker | undefined;
     let currentDepth = 0;
     let currentEvaluation = 0;
+
+    let ready = false;
     onMount(() => {
         if (!window.Worker) return;
         stockfish = new Worker('/stockfish/src/stockfish.js');
@@ -31,7 +33,7 @@
         }
     });
 
-    $: if (stockfish) {
+    $: if (stockfish && ready) {
         if (chess.fen()==='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1') {
             currentDepth = 0;
             currentEvaluation = 0;
