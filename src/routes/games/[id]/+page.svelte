@@ -53,8 +53,6 @@
                 class:bg-black={turn===BLACK}
                 >{turn===WHITE ? 'White' : 'Black'}'s turn</p>
             {/if}
-            <EvalutationBar orientation={$chessStateStore.playingColor} chess={$chessStateStore.chess} />
-
             <div class="flex flex-col items-end">
                 {#if ($chessStateStore.playingColor ? $chessStateStore.playingColor==='w' : true)}
                     <p class="font-bold capitalize">{$chessStateStore.chess.header()['Black']}</p>
@@ -72,7 +70,8 @@
                 chessStateStore.move(event.detail.from, event.detail.to, event.detail?.promotion);
             }}/>
         </div>
-    
+        <EvalutationBar orientation={$chessStateStore.playingColor} chess={$chessStateStore.chess} />
+
     
         <footer class="flex justify-between items-end">
     

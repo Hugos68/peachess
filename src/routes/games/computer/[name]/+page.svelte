@@ -72,7 +72,8 @@
                 chessStateStore.move(event.detail.from, event.detail.to, event.detail?.promotion);
             }}/>
         </div>
-    
+        <EvalutationBar orientation={$chessStateStore.playingColor} chess={$chessStateStore.chess} />
+
     
         <footer class="flex justify-between items-end">
     
@@ -88,9 +89,7 @@
                 {/if}
             </div>
         </footer>
-        <EvalutationBar orientation={$chessStateStore.playingColor} chess={$chessStateStore.chess} />
     </div>
-
     <div class="hidden xl:block">
         <ChessBoardSidePanel height="h-[min(calc(100vw)-1rem,calc(95vh-12rem))]" width="w-[min(calc(100vw)-1rem,calc(95vh-12rem))]" {chessStateStore} />
     </div>
