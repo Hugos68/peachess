@@ -264,31 +264,34 @@ const AIChessStateStore = (chessState: AIChessState): AIChessStateStore => {
             if (!stockfish) {
                 const wasmSupported = typeof WebAssembly === 'object' && WebAssembly.validate(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
                 stockfish = new Worker(wasmSupported ? '/stockfish/stockfish.wasm.js' : '/stockfish/stockfish.js');
-                stockfish.postMessage('uci');
-                stockfish.postMessage('isready');
-            }
 
-            stockfish.onmessage = function(e) {
-                if (!e.data.includes('bestmove')) return;
-                const segments = e.data.split(' ');
-                const move = segments[1];
-                const from = move.substring(0, 2);
-                const to = move.substring(2, 4);
-                const promotion = move.substring(4);
-                update(chessState => {
-
-                    // Load latest pgn if user is not in sync with server (we do this check by checking if the undoneMoveSTack has any moves since this indicates a user has gone back in moves)
-                    if (chessState.undoneMoveStack.length !== 0) loadPgn(chessState.chessGame.pgn);
+                stockfish.onmessage = function(e) {
+                    if (!e.data.includes('bestmove')) return;
+                    const segments = e.data.split(' ');
+                    const move = segments[1];
+                    const from = move.substring(0, 2);
+                    const to = move.substring(2, 4);
+                    const promotion = move.substring(4);
+                    update(chessState => {
     
-                    // Move (t  hrows exception if move is invalid)
-                    const move = chessState.chess.move({from, to, promotion});
-                    if (get(settings).sfx) playMoveSound(move);
-                    chessState.moveStack.push(move);
-                    chessState.material = getMaterial(chessState.moveStack);
-                    chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
-                    chessState.chessGame.pgn = chessState.chess.pgn();
-                    return chessState;
-                });
+                        // Load latest pgn if user is not in sync with server (we do this check by checking if the undoneMoveSTack has any moves since this indicates a user has gone back in moves)
+                        if (chessState.undoneMoveStack.length !== 0) loadPgn(chessState.chessGame.pgn);
+        
+                        // Move (t  hrows exception if move is invalid)
+                        const move = chessState.chess.move({from, to, promotion});
+                        if (get(settings).sfx) playMoveSound(move);
+                        chessState.moveStack.push(move);
+                        chessState.material = getMaterial(chessState.moveStack);
+                        chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
+                        chessState.chessGame.pgn = chessState.chess.pgn();
+                        return chessState;
+                    });
+                }
+
+                stockfish.postMessage('uci');
+                stockfish.postMessage('setoption name UCI_LimitStrength value true');
+                stockfish.postMessage(`setoption name UCI_Elo value ${250 + chessState.chessGame.AIDifficulity * 325}`)
+                stockfish.postMessage('isready');
             }
         
             update(chessState => {

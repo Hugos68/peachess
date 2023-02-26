@@ -184,7 +184,6 @@ export function getValidMoves(chess: Chess): Map<Square, Square> {
 
 export function getOrientation(chessGame: OnlineChessGame, session: Session) {
     const playingColor = getPlayingColor(chessGame, session);
-    console.log(playingColor);
     
     // Default to white (for spectators)
     return playingColor || 'w';

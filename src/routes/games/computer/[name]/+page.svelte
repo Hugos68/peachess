@@ -14,7 +14,7 @@
     
     export let data: PageData;
 
-    const chessStateStore: Writable<AIChessState> = createAIChessStateStore(getAIDifficulityByName(data.name) as 0 | 1 | 2 | 3 | 4, 'b');
+    const chessStateStore: Writable<AIChessState> = createAIChessStateStore(getAIDifficulityByName(data.name) as 0 | 1 | 2 | 3 | 4, 'w');
 
         const openGamePanel = () => {
         const modalComponent: ModalComponent = {
