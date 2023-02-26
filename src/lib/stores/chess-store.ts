@@ -262,7 +262,7 @@ const AIChessStateStore = (chessState: AIChessState): AIChessStateStore => {
         move: async (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b')  => {
             if (!window.Worker) return;
             if (!stockfish) {
-                stockfish = new Worker('../../node_modules/stockfish/src/stockfish.js');
+                stockfish = new Worker('./../../node_modules/stockfish/src/stockfish.js');
                 stockfish.postMessage('ucinewgame');
             }
 
