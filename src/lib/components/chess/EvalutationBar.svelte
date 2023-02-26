@@ -4,7 +4,7 @@
 	import { onMount } from "svelte";
     import { tweened } from 'svelte/motion';
     import { cubicOut } from "svelte/easing";
-	import { onDestroy } from "svelte/types/runtime/internal/lifecycle";
+	import { onDestroy } from "svelte";
 
     export let chess: Chess;
     export let orientation: 'w' | 'b'
