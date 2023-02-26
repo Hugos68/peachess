@@ -53,7 +53,8 @@
                 class:bg-black={turn===BLACK}
                 >{turn===WHITE ? 'White' : 'Black'}'s turn</p>
             {/if}
-    
+            <EvalutationBar orientation={$chessStateStore.playingColor} chess={$chessStateStore.chess} />
+
             <div class="flex flex-col items-end">
                 {#if ($chessStateStore.playingColor ? $chessStateStore.playingColor==='w' : true)}
                     <p class="font-bold capitalize">{$chessStateStore.chess.header()['Black']}</p>
@@ -87,9 +88,7 @@
                 {/if}
             </div>
         </footer>
-        <EvalutationBar orientation={$chessStateStore.playingColor} chess={$chessStateStore.chess} />
     </div>
-
     <div class="hidden xl:block">
         <ChessBoardSidePanel height="h-[min(calc(100vw)-1rem,calc(95vh-12rem))]" width="w-[min(calc(100vw)-1rem,calc(95vh-12rem))]" {chessStateStore} />
     </div>

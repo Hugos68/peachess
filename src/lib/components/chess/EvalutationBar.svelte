@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { ProgressBar } from "@skeletonlabs/skeleton";
-	import { BLACK, type Chess } from "chess.js";
+	import { BLACK, WHITE, type Chess } from "chess.js";
 	import { onMount } from "svelte";
     import { tweened } from 'svelte/motion';
     import { cubicInOut } from "svelte/easing";
@@ -11,36 +11,42 @@
 
     let stockfish: Worker | undefined;
     let currentDepth = 0;
-    const currentEvaluation = tweened(0, {
-        duration: 1500,
-        easing: cubicInOut
-    });
+    let currentEvaluation = 0;
     onMount(() => {
         if (!window.Worker) return;
         stockfish = new Worker('/stockfish/src/stockfish.js');
+        stockfish.postMessage("uci");
         stockfish.postMessage('ucinewgame');
-        stockfish.onmessage = function(e) {
+        stockfish.onmessage = function(e) {      
+            console.log(e.data);
+            
             if (!e.data.includes('info depth')) return;
             try {
-                const depth = e.data.split('depth')[1].split(' ')[1];
+                currentDepth = e.data.split('depth')[1].split(' ')[1];
+                if (currentDepth < 15) return;
                 const score = Number(e.data.split('cp')[1].split(' ')[1]);
-                if (score >= 100 || score <= 0) return;
-                currentDepth = depth;
-                currentEvaluation.set(score);                
+                currentEvaluation = score;
+                if (chess.turn()===BLACK) 
             } catch {}
         }
     });
 
     $: if (stockfish) {
-        stockfish.postMessage('ucinewgame');
-        stockfish.postMessage('position fen '+chess.fen());
-        stockfish.postMessage('go infinite 250');
+        if (chess.fen()==='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1') {
+            currentDepth = 0;
+            currentEvaluation = 0;
+        }
+        else {
+            stockfish.postMessage('ucinewgame');
+            stockfish.postMessage('position fen '+chess.fen());
+            stockfish.postMessage('go movetime 3000')
+        }
     }
     onDestroy(() => {
         if (stockfish) stockfish.terminate();
     });
 </script>
 
-<p>Evalutation: {Math.round($currentEvaluation * 10) / 10} Depth {currentDepth}</p>
-<ProgressBar class="{orientation===BLACK ? "rotate-180" : ""}" meter="bg-white" track="bg-black"  height="h-8" label="Evaluation bar" max={100} 
-value={$currentEvaluation}/>
+
+<p>{chess.turn()} : {currentEvaluation}</p>
+
