@@ -13,7 +13,7 @@
     
     if ($page.url.searchParams.get('message')) {
         const toast: ToastSettings = {
-            preset: 'error',
+            background: 'error',
             message: $page.url.searchParams.get('message') || 'Something went wrong',
             autohide: true,
         }
