@@ -10,6 +10,7 @@
 	import ChessInfoPanel from "$lib/components/chess/ChessInfoPanel.svelte";
 	import { getAIDifficulityByName } from "$lib/util";
 	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
+	import { onMount } from "svelte";
     
     export let data: PageData;
 

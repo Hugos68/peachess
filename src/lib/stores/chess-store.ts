@@ -188,6 +188,7 @@ export function createAIChessStateStore(AIDifficulity: 0 | 1 | 2 | 3 | 4, playin
     return AIChessStateStore(AIChessState);
 }
 
+let stockfish;
 const AIChessStateStore = (chessState: AIChessState): AIChessStateStore => {
 
     const { set, update, subscribe }: Writable<AIChessState> = writable<AIChessState>(chessState);
@@ -259,11 +260,39 @@ const AIChessStateStore = (chessState: AIChessState): AIChessStateStore => {
             
         },
         move: async (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b')  => {
+            if (!window.Worker) return;
+            if (!stockfish) {
+                stockfish = new Worker('../../node_modules/stockfish/src/stockfish.js');
+                stockfish.postMessage('ucinewgame');
+            }
+
+            stockfish.onmessage = function(e) {
+                if (!e.data.includes('bestmove')) return;
+                const segments = e.data.split(' ');
+                const move = segments[1];
+                const from = move.substring(0, 2);
+                const to = move.substring(2, 4);
+                const promotion = move.substring(4);
+                update(chessState => {
+
+                    // Load latest pgn if user is not in sync with server (we do this check by checking if the undoneMoveSTack has any moves since this indicates a user has gone back in moves)
+                    if (chessState.undoneMoveStack.length !== 0) loadPgn(chessState.chessGame.pgn);
+    
+                    // Move (t  hrows exception if move is invalid)
+                    const move = chessState.chess.move({from, to, promotion});
+                    if (get(settings).sfx) playMoveSound(move);
+                    chessState.moveStack.push(move);
+                    chessState.material = getMaterial(chessState.moveStack);
+                    chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
+                    chessState.chessGame.pgn = chessState.chess.pgn();
+                    return chessState;
+                });
+            }
+        
             update(chessState => {
                 try {
                     // Move (throws exception if move is invalid)
                     const move = chessState.chess.move({from, to, promotion});
- 
                     if (get(settings).sfx) playMoveSound(move);
                     chessState.moveStack.push(move);
                     chessState.material = getMaterial(chessState.moveStack);
@@ -272,40 +301,8 @@ const AIChessStateStore = (chessState: AIChessState): AIChessStateStore => {
                 } catch(error) {
                     console.error(error);
                 }
-                return chessState;
-            });
-
-            let chessState;
-            const unsubscribe = subscribe(value => {
-                chessState = value;
-            });
-            unsubscribe();
-
-
-            const { data } = await supabase.functions.invoke('get_ai_move', {
-                body:  {
-                    fen: chessState.chess.fen(),
-                    AIDifficulity: chessState.AIDifficulity
-                }
-            });
-
-            update(chessState => {
-
-                // Load latest pgn if user is not in sync with server (we do this check by checking if the undoneMoveSTack has any moves since this indicates a user has gone back in moves)
-                if (chessState.undoneMoveStack.length !== 0) loadPgn(chessState.chessGame.pgn);
-
-                // Enable autoqueening for the computer
-                const move = chessState.chess.move({
-                    from:  data.move.from,
-                    to: data.move.to,
-                    promotion: 'q'
-                });
-
-                if (get(settings).sfx) playMoveSound(move);
-                chessState.moveStack.push(move);
-                chessState.material = getMaterial(chessState.moveStack);
-                chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
-                chessState.chessGame.pgn = chessState.chess.pgn();
+                stockfish.postMessage('position fen '+ chessState.chess.fen());
+                stockfish.postMessage('go');
                 return chessState;
             });
         }
