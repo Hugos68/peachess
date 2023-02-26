@@ -3,7 +3,7 @@
 	import { BLACK, type Chess } from "chess.js";
 	import { onMount } from "svelte";
     import { tweened } from 'svelte/motion';
-    import { cubicOut } from "svelte/easing";
+    import { cubicInOut } from "svelte/easing";
 	import { onDestroy } from "svelte";
 
     export let chess: Chess;
@@ -12,8 +12,8 @@
     let stockfish: Worker | undefined;
     let currentDepth = 0;
     const currentEvaluation = tweened(0, {
-        duration: 5000,
-        easing: cubicOut
+        duration: 1500,
+        easing: cubicInOut
     });
     onMount(() => {
         if (!window.Worker) return;
@@ -26,20 +26,15 @@
                 const score = Number(e.data.split('cp')[1].split(' ')[1]);
                 if (score >= 100 || score <= 0) return;
                 currentDepth = depth;
-                currentEvaluation.set(score);
+                currentEvaluation.set(score);                
             } catch {}
         }
     });
 
-    let debounceTimer: any;
     $: if (stockfish) {
-        if (debounceTimer) clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-            if (!stockfish) return;
-            stockfish.postMessage('stop');
-            stockfish.postMessage('position fen '+chess.fen());
-            stockfish.postMessage('go depth 25');
-        }, 500);
+        stockfish.postMessage('ucinewgame');
+        stockfish.postMessage('position fen '+chess.fen());
+        stockfish.postMessage('go infinite 250');
     }
     onDestroy(() => {
         if (stockfish) stockfish.terminate();
