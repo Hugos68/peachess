@@ -262,8 +262,10 @@ const AIChessStateStore = (chessState: AIChessState): AIChessStateStore => {
         move: async (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b')  => {
             if (!window.Worker) return;
             if (!stockfish) {
-                stockfish = new Worker('/stockfish/src/stockfish.js');
-                stockfish.postMessage('ucinewgame');
+                const wasmSupported = typeof WebAssembly === 'object' && WebAssembly.validate(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+                stockfish = new Worker(wasmSupported ? '/stockfish/stockfish.wasm.js' : '/stockfish/stockfish.js');
+                stockfish.postMessage('uci');
+                stockfish.postMessage('isready');
             }
 
             stockfish.onmessage = function(e) {
@@ -301,6 +303,7 @@ const AIChessStateStore = (chessState: AIChessState): AIChessStateStore => {
                 } catch(error) {
                     console.error(error);
                 }
+                stockfish.postMessage('ucinewgame');
                 stockfish.postMessage('position fen '+ chessState.chess.fen());
                 stockfish.postMessage('go');
                 return chessState;

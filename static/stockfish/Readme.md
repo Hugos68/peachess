@@ -1,71 +1,71 @@
-### Stockfish.js
+stockfish.js
+============
 
-<a href="https://github.com/nmrugg/stockfish.js">Stockfish.js</a> is a pure JavaScript implementation of <a href="https://github.com/official-stockfish/Stockfish">Stockfish</a>, the world's strongest chess engine.
+The strong open source chess engine
+[Stockfish](https://github.com/official-stockfish/Stockfish)
+compiled to JavaScript and WebAssembly using
+[Emscripten](https://kripken.github.io/emscripten-site/). See it in action
+for [local computer analysis on lichess.org](https://lichess.org/analysis).
 
-Stockfish.js is currently updated to Stockfish 11.
+[![npm](https://badge.fury.io/js/stockfish.js.svg)](https://badge.fury.io/js/stockfish.js)
+[![Build status](https://travis-ci.org/niklasf/stockfish.js.svg?branch=ddugovic)](https://travis-ci.org/niklasf/stockfish.js)
+[![Passively maintained](https://img.shields.io/badge/passively%20maintained-x-yellow.svg)](#)
 
-### API
+Maintained with bugfixes to keep supporting older browsers, but active
+development is happening on [stockfish.wasm](https://github.com/niklasf/stockfish.wasm).
 
-You can run Stockfish.js directly from the command line with Node.js.
+Releases
+--------
 
-In a web browser, Stockfish.js can be run in a web-worker, which can be created like this:
+[About 1.4MB uncompressed, 250 KB gzipped.](https://github.com/niklasf/stockfish.js/releases)
 
-    var stockfish = new Worker("stockfish.js");
+Building
+--------
 
-If you don't want to use Web Workers, simply add a script tag, like this:
+[Install Emscripten](https://kripken.github.io/emscripten-site/docs/getting_started/downloads.html) and 
+[uglifyjs](https://github.com/mishoo/UglifyJS2),
+then:
 
-    <script src="stockfish.js"></script>
+```
+./build.sh
+```
 
-Then you can create a new instance by calling the `STOCKFISH()` function.
+Or using Docker:
 
-    var stockfish = STOCKFISH();
+```
+docker run --user $(id -u):$(id -g) --volume $(pwd):/home/builder/stockfish.js:rw niklasf/emscripten-for-stockfish
+```
 
-Input (standard UCI commands) to the engine is posted as a message to the worker:
+Usage
+-----
 
-    stockfish.postMessage("go depth 15");
+```javascript
+var wasmSupported = typeof WebAssembly === 'object' && WebAssembly.validate(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
 
-The output of the engine is again posted as a message. To receive it, you need to add a message handler:
+var stockfish = new Worker(wasmSupported ? 'stockfish.wasm.js' : 'stockfish.js');
 
-    stockfish.onmessage = function(event) {
-        //NOTE: Web Workers wrap the response in an object.
-        console.log(event.data ? event.data : event);
-    };
+stockfish.addEventListener('message', function (e) {
+  console.log(e.data);
+});
 
-Stockfish.js can be found in the npm repository and installed like this: `npm install stockfish`.
+stockfish.postMessage('uci');
+```
 
-If you want to use it from the command line, you may want to simply install it globally: `npm install -g stockfish`. Then you can simply run `stockfishjs`.
+Changes to original Stockfish
+-----------------------------
 
-In Node.js, you can either run it directly from the command line (i.e., `node src/stockfish.js`) or require() it as a module (i.e., `var stockfish = require("stockfish");`).
+* Expose as web worker.
+* Web workers are inherently single threaded. Limit to one thread.
+* Break down main iterative deepening loop to allow interrupting search.
+* Limit total memory to 32 MB.
+* Disable Syzygy tablebases.
+* Disable benchmark.
 
-### Note about pondering
+Acknowledgements
+----------------
 
-The code has been refactored to allow for pondering. However, it can take a long time for Stockfish.js to process the "stop" or "ponderhit" commands. So it could be dangerous to use in a timed game.
-
-In the future, it may be improved upon.
-
-### Compiling
-
-You need to have the <a href="http://kripken.github.io/emscripten-site/docs/getting_started/downloads.html">emscripten</a> compiler installed and in your path. Then you can compile Stockfish.js with the build script: `./build.js`. See `./build.js --help` for details.
-
-### Example
-
-You can try out Stockfish.js online <a href="https://nmrugg.github.io/kingdom/">here</a>.
-
-There are also examples in the example folder. You can either open the example/index.html directly in a web browser or run a small static server to try it out.
-If you have Node.js, you can start a simple web server in that directory
-like this: `node server.js`.
-
-There is also a simple example using Node.js (example/simple_node.js).
-
-Alternatively, you can also run Stockfish.js from the command line via `./stockfish.js` or `node src/stockfish.js`.
-
-### Thanks
-
-- <a href="https://github.com/mcostalba/Stockfish">The Stockfish team</a>
-- <a href="https://github.com/exoticorn/stockfish-js">exoticorn</a>
-- <a href="https://github.com/ddugovic/Stockfish">ddugovic</a>
-- <a href="https://github.com/niklasf/stockfish.js">niklasf</a>
-
-### License
-
-GPLv3 (see <a href="https://raw.githubusercontent.com/nmrugg/stockfish.js/master/license.txt">license.txt</a>)
+Thanks to [@nmrugg](https://github.com/nmrugg/stockfish.js) for doing the same
+thing with Stockfish 6, to [@ddugovic](https://github.com/ddugovic) for his
+[multi-variant Stockfish fork](https://github.com/ddugovic/Stockfish) and to
+the Stockfish team for ...
+[Stockfish](https://github.com/official-stockfish/Stockfish).

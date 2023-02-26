@@ -1,29 +1,24 @@
 {
-  "name": "stockfish",
-  "description": "The Stockfish chess engine in Web Assembly (WASM) and JavaScript.",
-  "version": "11.0.0",
-  "author": {
-    "name": "Nathan Rugg",
-    "email": "nmrugg@gmail.com"
+  "name": "stockfish.js",
+  "version": "10.0.2",
+  "description": "The strong chess engine Stockfish with multi-variant support compiled to JavaScript and WebAssembly",
+  "keywords": ["chess", "stockfish", "emscripten", "lichess", "asmjs", "webassembly"],
+  "author": "Niklas Fiekas <niklas.fiekas@backscattering.de>",
+  "license": "GPL-3.0",
+  "repository": "github:niklasf/stockfish.js",
+  "homepage": "https://github.com/niklasf/stockfish.js#readme",
+  "bugs": {
+    "url": "https://github.com/niklasf/stockfish.js/issues",
+    "email": "niklas.fiekas@backscattering.de"
   },
-  "contributors": [
-    {
-      "name": "Chess.com",
-      "url": "https://www.chess.com"
-    }
+  "main": "stockfish.wasm.js",
+  "files": [
+    "Copying.txt",
+    "stockfish.js",
+    "stockfish.wasm",
+    "stockfish.wasm.js"
   ],
-  "dependencies": {},
-  "keywords": [
-    "chess"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/nmrugg/stockfish.js"
-  },
-  "license": "GPL",
-  "main": "src/stockfish.js",
-  "bin": {
-    "stockfishjs": "./stockfishjs"
-  },
-  "readmeFilename": "readme.md"
+  "scripts": {
+    "prepare": "./build.sh"
+  }
 }
