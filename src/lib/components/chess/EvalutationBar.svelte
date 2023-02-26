@@ -16,7 +16,7 @@
         if (!window.Worker) return;
         stockfish = new Worker('/stockfish/src/stockfish.js');
         stockfish.postMessage("uci");
-        stockfish.postMessage('ucinewgame');
+        stockfish.postMessage('isready');
         stockfish.onmessage = function(e) {      
             console.log(e.data);
             
@@ -37,9 +37,10 @@
             currentEvaluation = 0;
         }
         else {
+            stockfish.postMessage('stop');
             stockfish.postMessage('ucinewgame');
             stockfish.postMessage('position fen '+chess.fen());
-            stockfish.postMessage('go movetime 3000')
+            stockfish.postMessage('go infinite');
         }
     }
     onDestroy(() => {
