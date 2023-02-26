@@ -11,6 +11,7 @@
 	import { getAIDifficulityByName } from "$lib/util";
 	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
 	import { onMount } from "svelte";
+	import EvalutationBar from "$lib/components/chess/EvalutationBar.svelte";
     
     export let data: PageData;
 
@@ -87,6 +88,7 @@
                 {/if}
             </div>
         </footer>
+        <EvalutationBar orientation={$chessStateStore.playingColor} chess={$chessStateStore.chess} />
     </div>
 
     <div class="hidden xl:block">
