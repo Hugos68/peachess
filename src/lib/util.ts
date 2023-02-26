@@ -35,7 +35,7 @@ export const playMoveSound = (move: Move): void => {
     else if (move.flags.includes('n') || move.flags.includes('b')) moveSFX.play();
 }
 
-export function getAINameByDifficulity(AIDifficulity: 0 | 1 | 2 | 3 | 4): string {
+export function getAINameByDifficulity(AIDifficulity: 0 | 1 | 2 | 3 | 4 | 5): string {
     switch (AIDifficulity) {
         case 0:
             return "george";
@@ -52,10 +52,13 @@ export function getAINameByDifficulity(AIDifficulity: 0 | 1 | 2 | 3 | 4): string
         case 4:
             return "peter";
             break;
+        case 5:
+            return 'flynn'
+            break;
     }
 }
 
-export function getAIDifficulityByName(name: 'george' | 'bob' | 'will' | 'matt' | 'peter'): number {
+export function getAIDifficulityByName(name: 'george' | 'bob' | 'will' | 'matt' | 'peter' | 'flynn'): number {
     switch (name) {
         case 'george':
             return 0;
@@ -71,6 +74,8 @@ export function getAIDifficulityByName(name: 'george' | 'bob' | 'will' | 'matt' 
             break;
         case 'peter':
             return 4;
+        case 'flynn':
+            return 5;
             break;
     }
 }
