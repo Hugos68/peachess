@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { wasmThreadsSupported } from "$lib/util";
 	import { ProgressBar } from "@skeletonlabs/skeleton";
     import type { Chess } from "chess.js";
 	import { onMount } from "svelte";
@@ -18,7 +19,6 @@
     
     let ready = false;
     onMount(async () => {
-        console.log(wasmThr);
         
         Stockfish().then((value) => {
             console.log(value);
@@ -72,7 +72,7 @@
 </script>
 
 <svelte:head>
-    <script src="/stockfishwasm/stockfish.js"></script>
+    <script crossorigin="require-corp" src="/stockfishwasm/stockfish.js"></script>
 </svelte:head>
 
 <ProgressBar track="bg-black" height="h-8" label="Evaluation bar" min={0} max={200} value={$currentEvaluation + 100} />
