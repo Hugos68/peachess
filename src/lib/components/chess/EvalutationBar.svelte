@@ -19,13 +19,22 @@
     let ready = false;
     onMount(() => {
         if (!window.Worker) return;
+
+        Stockfish().then((sf) => {
+            console.log('wow');
+            sf.addMessageListener((line) => {
+            console.log(line);
+            });
+
+            sf.postMessage("uci");
+        });
+ 
         
         const wasmSupported = typeof WebAssembly === 'object' && WebAssembly.validate(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
-        stockfish = new Worker(wasmSupported ? '/stockfish/stockfish.wasm.js' : '/stockfish/stockfish.js');
-
+        stockfish = new Worker(wasmSupported ? '/stockfishwasm/stockfish.worker.js' : '/stockfishwasm/stockfish.worker.js');
         stockfish.postMessage("uci");
         stockfish.postMessage('isready');
-        stockfish.onmessage = function(e) {  
+        stockfish.onmessage = function(e) {            
             if (e.data === 'readyok') ready = true;
             if (e.data.includes('best move')) stockfish?.postMessage('stop');
             if (!e.data.includes('info depth')) return;
@@ -65,6 +74,10 @@
     };
     const cpWinningChances = (cp: number): number => rawWinningChances(Math.min(Math.max(-1000, cp), 1000));
 </script>
+
+<svelte:head>
+    <script src="/stockfishwasm/stockfish.js"></script>
+</svelte:head>
 
 <ProgressBar track="bg-black" height="h-8" label="Evaluation bar" min={0} max={200} value={$currentEvaluation + 100} />
 
