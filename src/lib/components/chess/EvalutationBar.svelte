@@ -17,21 +17,17 @@
 	});
     
     let ready = false;
-    onMount(() => {
-        if (!window.Worker) return;
-
-        Stockfish().then((sf) => {
-            console.log('wow');
-            sf.addMessageListener((line) => {
-            console.log(line);
-            });
-
-            sf.postMessage("uci");
+    onMount(async () => {
+        console.log(wasmThr);
+        
+        Stockfish().then((value) => {
+            console.log(value);
+            
         });
- 
+        
         
         const wasmSupported = typeof WebAssembly === 'object' && WebAssembly.validate(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
-        stockfish = new Worker(wasmSupported ? '/stockfishwasm/stockfish.worker.js' : '/stockfishwasm/stockfish.worker.js');
+        stockfish = new Worker('/stockfishwasm/stockfish.worker.js');
         stockfish.postMessage("uci");
         stockfish.postMessage('isready');
         stockfish.onmessage = function(e) {            
