@@ -13,7 +13,7 @@
     let stockfish: Worker | undefined;
     let currentDepth = 0;
     let currentEvaluation = tweened(0, {
-		duration: 1000,
+		duration: 4000,
         easing: cubicInOut
 	});
     
@@ -24,15 +24,14 @@
         const wasmSupported = typeof WebAssembly === 'object' && WebAssembly.validate(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
         stockfish = new Worker(wasmSupported ? '/stockfish/stockfish.wasm.js' : '/stockfish/stockfish.js');
         stockfish.onmessage = function(e) {  
-            if (e.data === 'readyok') ready = true;
+            if (e.data === 'readyok') ready = true;+
             if (e.data.includes('best move')) stockfish?.postMessage('stop');
             if (!e.data.includes('info depth')) return;
             currentDepth = e.data.split('depth')[1].split(' ')[1];
-            if (e.data.includes('mate')) currentEvaluation.set(chess.turn()==='w' ? -100 : 100);
-            else {
-                const cp = Number(e.data.split('cp')[1].split(' ')[1]);
-                currentEvaluation.set(cpWinningChances(chess.turn()==='w' ? cp : cp * -1) * 100);
-            } 
+            let cp;
+            if (e.data.includes('mate')) chess.turn()==='w' ? cp = 20000 : cp = -20000;
+            else cp = Number(e.data.split('cp')[1].split(' ')[1]);
+            currentEvaluation.set(cpWinningChances(chess.turn()==='w' ? cp : cp * -1) * 100);
         }
         stockfish.postMessage("uci");
         stockfish.postMessage('isready');
@@ -50,8 +49,8 @@
             debounceTimeout = setTimeout(() => {
                 stockfish.postMessage('ucinewgame');
                 stockfish.postMessage('position fen '+chess.fen());
-                stockfish.postMessage('go infinite');
-            }, 250);
+                stockfish.postMessage('go inf   inite');
+            }, 50);
         }
     }
     onDestroy(() => {
