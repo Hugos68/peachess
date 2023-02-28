@@ -1,48 +1,43 @@
-<script lang="ts">
+<script lang="ts" type="module">
 	import { wasmThreadsSupported } from "$lib/util";
 	import { ProgressBar } from "@skeletonlabs/skeleton";
     import type { Chess } from "chess.js";
 	import { onMount } from "svelte";
 	import { onDestroy } from "svelte";
-	import { cubicOut } from "svelte/easing";
+	import { cubicInOut } from "svelte/easing";
 	import { tweened } from "svelte/motion";
 
     export let chess: Chess;
     export let orientation: 'w' | 'b'
-
     let stockfish: Worker | undefined;
     let currentDepth = 0;
     let currentEvaluation = tweened(0, {
 		duration: 1000,
-		easing: cubicOut
+        easing: cubicInOut
 	});
     
     let ready = false;
-    onMount(async () => {
-        
-        Stockfish().then((value) => {
-            console.log(value);
-            
-        });
-        
-        
+    onMount(() => {
+        if (!window.Worker) return;
+
         const wasmSupported = typeof WebAssembly === 'object' && WebAssembly.validate(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
-        stockfish = new Worker('/stockfishwasm/stockfish.worker.js');
-        stockfish.postMessage("uci");
-        stockfish.postMessage('isready');
-        stockfish.onmessage = function(e) {            
+        stockfish = new Worker(wasmSupported ? '/stockfish/stockfish.wasm.js' : '/stockfish/stockfish.js');
+        stockfish.onmessage = function(e) {  
             if (e.data === 'readyok') ready = true;
             if (e.data.includes('best move')) stockfish?.postMessage('stop');
             if (!e.data.includes('info depth')) return;
-            try {
-                currentDepth = e.data.split('depth')[1].split(' ')[1];
-                const cp = Number(e.data.split('cp')[1].split(' ')[1]);
-                if (chess.turn()==='w') currentEvaluation.set(cpWinningChances(cp) * 100);
-                else currentEvaluation.set(cpWinningChances(cp * -1) * 100);
-            } catch(error) {}
-        }
-    });
+            currentDepth = e.data.split('depth')[1].split(' ')[1];
 
+            let cp;
+            if (e.data.includes('mate')) chess.turn()==='b' ? cp = 20000 : cp = -20000;
+            else cp = Number(e.data.split('cp')[1].split(' ')[1]);
+            console.log(cp);
+            
+            currentEvaluation.set(cpWinningChances(chess.turn()==='w' ? cp : cp * -1) * 100);
+        }
+        stockfish.postMessage("uci");
+        stockfish.postMessage('isready');
+    });
     let debounceTimeout: ReturnType<typeof setTimeout>;
     $: if (stockfish && ready) {
         stockfish.postMessage('stop');
@@ -63,7 +58,6 @@
     onDestroy(() => {
         if (stockfish) stockfish.terminate();
     });
-
     const rawWinningChances = (cp: number): number => {
         const MULTIPLIER = -0.00368208;
         return 2 / (1 + Math.exp(MULTIPLIER * cp)) - 1;

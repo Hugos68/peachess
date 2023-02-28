@@ -289,8 +289,6 @@ const AIChessStateStore = (chessState: AIChessState): AIChessStateStore => {
                 }
 
                 stockfish.postMessage('uci');
-                stockfish.postMessage('setoption name UCI_LimitStrength value true');
-                stockfish.postMessage(`setoption name UCI_Elo value ${250 + chessState.chessGame.AIDifficulity * 325}`)
                 stockfish.postMessage('isready');
             }
         
