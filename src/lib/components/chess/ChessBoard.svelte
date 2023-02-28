@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { Square } from "chess.js";
 	import { Chessground } from "chessground";
-	import { fly } from "svelte/transition";
 	import { onMount } from "svelte";
 	import { createEventDispatcher } from "svelte";
 	import { focusTrap } from "@skeletonlabs/skeleton";
@@ -10,7 +9,7 @@
     export let config: any;
     
     let board: any;
-    let boardElement: HTMLElement;
+    let boardElement: HTMLElement;  
     let promotionModal: HTMLElement;
     let promotionMove: CustomMove | null = null;
 

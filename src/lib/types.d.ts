@@ -6,6 +6,13 @@ interface OnlineChessGame {
     pgn: string
 }
 
+interface ChessPuzzle {
+    fen: string
+    moves: string
+    rating: number
+    categories: string
+}
+
 interface AIChessGame {
     AIDifficulity: 0 | 1 | 2 | 3 | 4
     pgn?: string

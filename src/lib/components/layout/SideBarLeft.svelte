@@ -10,7 +10,7 @@
     
     const navItems: navItem[] = [
         { label: 'Games', link: '/games' },
-        { label: 'Puzzles', link: '/puzzle' },
+        { label: 'Puzzles', link: '/puzzles' },
         { label: 'Social', link: '/social' }
     ];
 </script>
