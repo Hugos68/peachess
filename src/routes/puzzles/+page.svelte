@@ -127,7 +127,7 @@
                 {#key chess}  
                     <p>{chess.turn()==='w' ? "White" : "Black"} to move</p>
                 {/key}
-                <button class="btn variant-filled-primary" on:click={showNextMove}>Show next move</button>
+                <button class="btn variant-filled-primary" on:click={showNextMove}>Show Next Move</button>
             </div>
         {/if}
     </div>
