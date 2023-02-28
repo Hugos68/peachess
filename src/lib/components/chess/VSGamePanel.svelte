@@ -30,6 +30,9 @@
     let tabSet: number = 0
 </script>
 
+<div>
+    
+</div>
 <TabGroup regionPanel="flex-1 flex flex-col overflow-hidden" class="card bg-surface-300-600-token p-4 flex flex-col {height} {width}">
     <Tab bind:group={tabSet} name="moves" value={0}>Moves</Tab>
     <Tab bind:group={tabSet} name="chat" value={1}>Chat</Tab>

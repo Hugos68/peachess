@@ -24,7 +24,7 @@
         const wasmSupported = typeof WebAssembly === 'object' && WebAssembly.validate(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
         stockfish = new Worker(wasmSupported ? '/stockfish/stockfish.wasm.js' : '/stockfish/stockfish.js');
         stockfish.onmessage = function(e) {  
-            if (e.data === 'readyok') ready = true;+
+            if (e.data === 'readyok') ready = true;
             if (e.data.includes('best move')) stockfish?.postMessage('stop');
             if (!e.data.includes('info depth')) return;
             currentDepth = e.data.split('depth')[1].split(' ')[1];

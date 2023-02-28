@@ -4,10 +4,10 @@
     import { createAIChessStateStore } from "$lib/stores/chess-store";
 	import MoveControls from "$lib/components/chess/MoveControls.svelte";
     import MaterialTracker from "$lib/components/chess/MaterialTracker.svelte";
-	import ChessBoardSidePanel from "$lib/components/chess/ChessInfoPanel.svelte";
+	import ChessBoardSidePanel from "$lib/components/chess/VSGamePanel.svelte";
 	import type { Writable } from "svelte/store";
 	import { modalStore, type ModalComponent, type ModalSettings } from "@skeletonlabs/skeleton";
-	import ChessInfoPanel from "$lib/components/chess/ChessInfoPanel.svelte";
+	import ChessInfoPanel from "$lib/components/chess/VSGamePanel.svelte";
 	import { getAIDifficulityByName } from "$lib/util";
 	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
 	import EvalutationBar from "$lib/components/chess/EvalutationBar.svelte";
@@ -71,9 +71,9 @@
                 chessStateStore.move(event.detail.from, event.detail.to, event.detail?.promotion);
             }}/>
         </div>
-        <EvalutationBar orientation={$chessStateStore.playingColor} chess={$chessStateStore.chess} />
 
-    
+        <EvalutationBar orientation={$chessStateStore.playingColor} chess={$chessStateStore.chess} />
+        
         <footer class="flex justify-between items-end">
     
             <MoveControls {chessStateStore} />
