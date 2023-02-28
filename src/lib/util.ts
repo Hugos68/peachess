@@ -7,12 +7,6 @@ const moveSFX = new Howl({
 const captureSFX = new Howl({
     src: '/sfx/capture.mp3'
 });
-const castleSFX = new Howl({
-    src: '/sfx/castle.mp3'
-});
-const checkSFX = new Howl({
-    src: '/sfx/check.mp3'
-});
 const gameOverSFX = new Howl({
     src: '/sfx/gameover.mp3'
 });
