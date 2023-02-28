@@ -3,7 +3,7 @@
 	import { getAIDifficulityByName } from "$lib/util";
 	import { ListBox, ListBoxItem, modalStore, popup, toastStore, type PopupSettings, type ToastSettings } from "@skeletonlabs/skeleton";
 
-    let computerName: 'george' | 'bob' | 'will' | 'matt' | 'peter' | 'flynn' | undefined;
+    let computerName: 'george' | 'bob' | 'will' | 'matt' | 'peter' | undefined;
 
     const createComputerGame = async () => {
         modalStore.close();
@@ -46,7 +46,6 @@
             <ListBoxItem bind:group={computerName} name="medium" value="will">Will</ListBoxItem>
             <ListBoxItem bind:group={computerName} name="medium" value="matt">Matt</ListBoxItem>
             <ListBoxItem bind:group={computerName} name="medium" value="peter">Peter</ListBoxItem>
-            <ListBoxItem bind:group={computerName} name="medium" value="flynn">Flynn</ListBoxItem>
         </ListBox>
     </div>
     <button class="btn variant-filled-secondary" disabled={!computerName} on:click={createComputerGame}>Create Game</button>

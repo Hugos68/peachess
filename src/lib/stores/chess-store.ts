@@ -266,6 +266,8 @@ const AIChessStateStore = (chessState: AIChessState): AIChessStateStore => {
                 stockfish = new Worker(wasmSupported ? '/stockfish/stockfish.wasm.js' : '/stockfish/stockfish.js');
 
                 stockfish.onmessage = function(e) {
+                    console.log(e.data);
+                    
                     if (!e.data.includes('bestmove')) return;
                     const segments = e.data.split(' ');
                     const move = segments[1];
@@ -289,6 +291,9 @@ const AIChessStateStore = (chessState: AIChessState): AIChessStateStore => {
                 }
 
                 stockfish.postMessage('uci');
+
+                // Set Stockfish skill level accordingly to chosen level
+                stockfish.postMessage(`setoption name Skill Level value ${chessState.chessGame.AIDifficulity * 2}`)
                 stockfish.postMessage('isready');
             }
         

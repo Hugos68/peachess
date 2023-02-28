@@ -41,7 +41,7 @@ interface OnlineChessState extends ChessState {
 
 interface AIChessState extends ChessState {
     pgn: string
-    AIDifficulity: 0 | 1 | 2 | 3 | 4 | 5
+    AIDifficulity: 0 | 1 | 2 | 3 | 4
 }
 
 interface Material {
