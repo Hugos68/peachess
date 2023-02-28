@@ -1,4 +1,4 @@
-import { SQUARES, WHITE, BLACK } from "chess.js";
+import { SQUARES, WHITE } from "chess.js";
 import { Howl } from 'howler';
 
 const moveSFX = new Howl({
