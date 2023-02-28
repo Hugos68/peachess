@@ -31,8 +31,7 @@
             let cp;
             if (e.data.includes('mate')) chess.turn()==='b' ? cp = 20000 : cp = -20000;
             else cp = Number(e.data.split('cp')[1].split(' ')[1]);
-            console.log(cp);
-            
+                        
             currentEvaluation.set(cpWinningChances(chess.turn()==='w' ? cp : cp * -1) * 100);
         }
         stockfish.postMessage("uci");
@@ -66,7 +65,7 @@
 </script>
 
 <svelte:head>
-    <script crossorigin="require-corp" src="/stockfishwasm/stockfish.js"></script>
+    <script src="/stockfishwasm/stockfish.js"></script>
 </svelte:head>
 
 <ProgressBar track="bg-black" height="h-8" label="Evaluation bar" min={0} max={200} value={$currentEvaluation + 100} />

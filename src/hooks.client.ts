@@ -1,6 +1,6 @@
 import "$lib/supabase";
 
-import type { Handle } from "@sveltejs/kit";
+// import type { Handle } from "@sveltejs/kit";
 
 // const securityHeaders = {
 //     'Cross-Origin-Embedder-Policy': 'require-corp'
