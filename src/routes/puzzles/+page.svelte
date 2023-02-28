@@ -113,7 +113,7 @@
     <div class="overflow-hidden h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
         <ChessBoard config={config} on:move={moveCallBack}/>
     </div>
-    <div class=" overflow-hidden card h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))] hidden xl:flex items-center justify-center">
+    <div class=" overflow-hidden card h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))] flex items-center justify-center">
         {#if puzzleCompleted}  
             <div class="flex flex-col justify-center items-center gap-4">
                 <p>Puzzle completed, nice job!</p>
