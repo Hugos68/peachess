@@ -29,7 +29,7 @@
             if (!e.data.includes('info depth')) return;
             currentDepth = e.data.split('depth')[1].split(' ')[1];
             let cp;
-            if (e.data.includes('mate')) chess.turn()==='w' ? cp = 20000 : cp = -20000;
+            if (e.data.includes('mate')) chess.turn()==='w' ? cp = -20000 : cp = 20000;
             else cp = Number(e.data.split('cp')[1].split(' ')[1]);
             currentEvaluation.set(cpWinningChances(chess.turn()==='w' ? cp : cp * -1) * 100);
         }
