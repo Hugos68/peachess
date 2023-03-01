@@ -177,8 +177,8 @@ const puzzleChessStateStore = (chessState: PuzzleChessState) => {
                 return chessState;
             });
         },
-        move: (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b')  => {
-
+        move: (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b'): boolean  => {
+            let moveWasCorrect = false;
             update(chessState => {
 
                 // Check if puzzle is done
@@ -202,6 +202,7 @@ const puzzleChessStateStore = (chessState: PuzzleChessState) => {
                     chessState.chess.undo();
                     return chessState;
                 }
+                else moveWasCorrect = true;
                 
                 chessState.currentMoveIndex++;
                 chessState.lastCorrectFen = chessState.chess.fen();
@@ -236,6 +237,7 @@ const puzzleChessStateStore = (chessState: PuzzleChessState) => {
                 }
                 return chessState;
             });
+            return moveWasCorrect;
         }
     }
 }

@@ -15,17 +15,25 @@
     let chessStateStore: Writable<PuzzleChessState> = createPuzzleChessStateStore(data.chessPuzzle)
 
     let streak: number = 0;
+    let mistakes: number = 0;
     
     async function loadNewPuzzle() {
         streak++;
-        const { data } = await supabase
-        .from("puzzles")
-        .select("*")
-        .gt('rating', 600 + streak * 100)
-        .lt('rating', 700 + streak * 100)
-        .returns<ChessPuzzle[]>();
+        const { data, error } = await supabase.rpc('get_random_puzzle', {
+            low_rating: 600 + 100 * streak > 2000 ? 2000 : 600 + 100 * streak,
+            high_rating: 700 + 100 * streak
+        });
+        chessStateStore = createPuzzleChessStateStore(data);
+    }
 
-        if (data) chessStateStore = createPuzzleChessStateStore(data[Math.floor(Math.random() * data.length)])
+    async function gameOver() {
+        streak = 0;
+        mistakes = 0;
+        const { data, error } = await supabase.rpc('get_random_puzzle', {
+            low_rating: 600,
+            high_rating: 700
+        });
+        chessStateStore = createPuzzleChessStateStore(data);
     }
 
     const openGamePanel = () => {
@@ -74,12 +82,27 @@
 
         <div class="overflow-hidden card h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
             <ChessBoard config={$chessStateStore.boardConfig} on:move={(event) => {
-                chessStateStore.move(event.detail.from, event.detail.to, event.detail?.promotion);
+                const moveWasCorrect = chessStateStore.move(event.detail.from, event.detail.to, event.detail?.promotion);
+                if (!moveWasCorrect) mistakes++;
+                if (mistakes >= 3) gameOver();
             }}/>
         </div>
     
-        <footer class="flex justify-between items-end">
+        <footer class="flex justify-between items-center">
             <MoveControls {chessStateStore} />
+            <p>Streak: {streak}</p>
+            <div class="flex gap-2">
+                {#each Array(3) as _, i}
+                    <div class="card !bg-error-500 w-[2.75rem] aspect-square">
+                        {#if mistakes > i}
+                            <svg class="w-full h-full" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5.46967 5.46967C5.76256 5.17678 6.23744 5.17678 6.53033 5.46967L18.5303 17.4697C18.8232 17.7626 18.8232 18.2374 18.5303 18.5303C18.2374 18.8232 17.7626 18.8232 17.4697 18.5303L5.46967 6.53033C5.17678 6.23744 5.17678 5.76256 5.46967 5.46967Z" fill="#000000"/>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M18.5303 5.46967C18.8232 5.76256 18.8232 6.23744 18.5303 6.53033L6.53035 18.5303C6.23745 18.8232 5.76258 18.8232 5.46969 18.5303C5.17679 18.2374 5.17679 17.7626 5.46968 17.4697L17.4697 5.46967C17.7626 5.17678 18.2374 5.17678 18.5303 5.46967Z" fill="#000000"/>
+                            </svg>
+                        {/if}
+                    </div>
+                {/each}
+            </div>
         </footer>
     </div>
     <div class="hidden xl:block">

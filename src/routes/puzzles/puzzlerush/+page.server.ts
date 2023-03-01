@@ -5,13 +5,12 @@ export const load: PageServerLoad = async (event) => {
     
     const {supabaseClient} = await getSupabase(event);
 
-    const { data, error } = await supabaseClient
-    .from("puzzles")
-    .select("*")
-    .lt('rating', 700)
-    .returns<ChessPuzzle[]>();
-        
+    const { data, error } = await supabaseClient.rpc('get_random_puzzle', {
+        low_rating: 600,
+        high_rating: 700,
+    });
+
     return {
-        chessPuzzle: data[Math.floor(Math.random() * data.length)]
+        chessPuzzle: data as chessPuzzle
     }
 };
