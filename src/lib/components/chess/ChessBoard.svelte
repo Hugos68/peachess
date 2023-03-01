@@ -8,6 +8,7 @@
     import type { Api } from 'chessground/api'
     import type { Config } from "chessground/config";
 	import type { Piece } from "chessground/types";
+	import { error } from "@sveltejs/kit";
 
     export let config: Config;
     
@@ -45,10 +46,11 @@
         board.set(settingsConfig);
     }
 
-    let latestKnownFen: string = config.fen;
+    let latestKnownFen: string | undefined = config.fen;
     $: if (board) {
         board.set(config);
-        if (hasOpponentPlayed(latestKnownFen, config.fen, config.orientation)) board.playPremove();
+        if (!config.fen || !config.orientation || !latestKnownFen) throw new Error("Latest known fen, fen or orientation are not defined");
+        if (hasOpponentPlayed(latestKnownFen, config.fen || "", config.orientation)) board.playPremove();
         else board.cancelPremove();
         latestKnownFen = config.fen;
     }
@@ -68,22 +70,25 @@
 
     const dispatch = createEventDispatcher();
 
-    const moveCallback = (from: Square, to: Square, capturedPiece?: Piece) => {        
+    const moveCallback = (orig: Square, dest: Square, capturedPiece?: Piece) => {      
+
         // If there is a promotion set the promotionMove and return so that the move doesn't get played yet (in case of a promotion cancel)
-        const promotion = isMovePromotion(to);
+        const promotion = isMovePromotion(dest);
         if (promotion) { 
-            promotionMove = { from, to };
+            promotionMove = { from: orig, to: dest };
             return;
         }
 
         dispatch('move', {
-            from,
-            to
+            from: orig,
+            to: dest
         });
     }
 
     const isMovePromotion = (to: Square): boolean => {
-        const { role, color } = board.state.pieces.get(to);
+        const piece: Piece | undefined = board.state.pieces.get(to);
+        if (!piece) return false;
+        const {role, color} = piece;
         const rankNumber =  Number.parseInt(to.charAt(1));
 
         if (role!=='pawn') return false;
@@ -101,7 +106,7 @@
         const percentage = (number-1) * 12.5;
 
         // We check color here to deal with the board orientation
-        return config.orientation === 'White' ? percentage : 87.5-percentage;
+        return config.orientation === 'white' ? percentage : 87.5-percentage;
     }
 
     const handlePromotion = (promotion: 'q' | 'r' | 'n' | 'b') => {
