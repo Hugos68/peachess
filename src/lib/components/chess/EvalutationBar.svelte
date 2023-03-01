@@ -47,9 +47,9 @@
             // Debounce mechanism to make sure stockfish only evaluates positions that are looked at by the end user
             if (debounceTimeout) clearTimeout(debounceTimeout);
             debounceTimeout = setTimeout(() => {
-                stockfish.postMessage('ucinewgame');
-                stockfish.postMessage('position fen '+chess.fen());
-                stockfish.postMessage('go inf   inite');
+                stockfish?.postMessage('ucinewgame');
+                stockfish?.postMessage('position fen '+chess.fen());
+                stockfish?.postMessage('go infinite');
             }, 50);
         }
     }
