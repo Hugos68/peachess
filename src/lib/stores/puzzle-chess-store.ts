@@ -28,7 +28,7 @@ export function createPuzzleChessStateStore(chessPuzzle: ChessPuzzle): AIChessSt
     const undoneMoveStack = [];
 
     const material = getMaterial(moveStack);
-    const boardConfig: Config = getConfig(chess, playingColor, moveStack, undoneMoveStack);
+    const boardConfig: Config =  getConfig(chess, playingColor, moveStack, undoneMoveStack);
 
     const puzzleCompleted = false;
 

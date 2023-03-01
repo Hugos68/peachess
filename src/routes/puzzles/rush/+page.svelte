@@ -25,18 +25,6 @@
         chessStateStore = createPuzzleChessStateStore(data);
     }
 
-    async function gameOver() {
-        streak = 0;
-        mistakes = 0;
-        const { data } = await supabase.rpc('get_random_puzzle', {
-            low_rating: 600,
-            high_rating: 700
-        });
-        chessStateStore = createPuzzleChessStateStore(data);
-    }
-
-    $: if (mistakes >= 3) gameOver();
-
     const openGamePanel = () => {
         const modalComponent: ModalComponent = {
 		    ref: ChessGamePanel,
@@ -72,7 +60,7 @@
                 >{turn===WHITE ? 'White' : 'Black'}'s turn</p>
             {/if}
             <div class="flex gap-2">
-                <!-- <button class="btn variant-filled-success" on:click={loadNewPuzzle}>DEV LEVEL SKIP</button> -->
+                <button class="btn variant-filled-success" on:click={() => console.log($chessStateStore)}>DEV LEVEL STATE LOGGER</button>
                 <p class="bg-secondary-500 p-1.5 md:p-2">Rating: {$chessStateStore.chessPuzzle.rating} </p>
                 <p class="bg-secondary-500 p-1.5 md:p-2">Streak: {streak}</p>
             </div>
@@ -83,11 +71,19 @@
                 const moveWasCorrect = chessStateStore.move(event.detail.from, event.detail.to, event.detail?.promotion);
                 if (!moveWasCorrect) {
                     mistakes++;
-                    loadNewPuzzle();
+                    setTimeout(() =>  {
+                        
+                        // Reset streak and mistake of 3 or more mistakes were made
+                        if (mistakes >= 3) {
+                            streak = 0;
+                            mistakes = 0;
+                        }
+                        loadNewPuzzle();
+                    }, 500);
                 }
                 else if ($chessStateStore.puzzleCompleted) {
+                    streak++;
                     setTimeout(() =>  {
-                        streak++;
                         loadNewPuzzle();
                     }, 500);
                 }
@@ -97,16 +93,23 @@
         <footer class="flex justify-between items-center">
             <MoveControls {chessStateStore} />
             <div class="flex gap-1">
-                {#each Array(3) as _, i}
-                    <div class="card !bg-error-500 w-[2.75rem] aspect-square">
-                        {#if mistakes > i}
-                            <svg class="w-full h-full" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" in:scale>
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5.46967 5.46967C5.76256 5.17678 6.23744 5.17678 6.53033 5.46967L18.5303 17.4697C18.8232 17.7626 18.8232 18.2374 18.5303 18.5303C18.2374 18.8232 17.7626 18.8232 17.4697 18.5303L5.46967 6.53033C5.17678 6.23744 5.17678 5.76256 5.46967 5.46967Z" fill="#000000"/>
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M18.5303 5.46967C18.8232 5.76256 18.8232 6.23744 18.5303 6.53033L6.53035 18.5303C6.23745 18.8232 5.76258 18.8232 5.46969 18.5303C5.17679 18.2374 5.17679 17.7626 5.46968 17.4697L17.4697 5.46967C17.7626 5.17678 18.2374 5.17678 18.5303 5.46967Z" fill="#000000"/>
-                            </svg>
-                        {/if}
-                    </div>
-                {/each}
+                <div class="card !bg-error-500 w-[2.75rem] aspect-square">
+                    {#if mistakes > 0}
+                        <svg class="w-full h-full" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" in:scale>
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M5.46967 5.46967C5.76256 5.17678 6.23744 5.17678 6.53033 5.46967L18.5303 17.4697C18.8232 17.7626 18.8232 18.2374 18.5303 18.5303C18.2374 18.8232 17.7626 18.8232 17.4697 18.5303L5.46967 6.53033C5.17678 6.23744 5.17678 5.76256 5.46967 5.46967Z" fill="#000000"/>
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M18.5303 5.46967C18.8232 5.76256 18.8232 6.23744 18.5303 6.53033L6.53035 18.5303C6.23745 18.8232 5.76258 18.8232 5.46969 18.5303C5.17679 18.2374 5.17679 17.7626 5.46968 17.4697L17.4697 5.46967C17.7626 5.17678 18.2374 5.17678 18.5303 5.46967Z" fill="#000000"/>
+                        </svg>
+                    {/if}
+                </div>
+                <div class="card !bg-error-500 w-[2.75rem] aspect-square">
+                    {#if mistakes > 1}
+                        <svg class="w-full h-full" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" in:scale>
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M5.46967 5.46967C5.76256 5.17678 6.23744 5.17678 6.53033 5.46967L18.5303 17.4697C18.8232 17.7626 18.8232 18.2374 18.5303 18.5303C18.2374 18.8232 17.7626 18.8232 17.4697 18.5303L5.46967 6.53033C5.17678 6.23744 5.17678 5.76256 5.46967 5.46967Z" fill="#000000"/>
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M18.5303 5.46967C18.8232 5.76256 18.8232 6.23744 18.5303 6.53033L6.53035 18.5303C6.23745 18.8232 5.76258 18.8232 5.46969 18.5303C5.17679 18.2374 5.17679 17.7626 5.46968 17.4697L17.4697 5.46967C17.7626 5.17678 18.2374 5.17678 18.5303 5.46967Z" fill="#000000"/>
+                        </svg>
+                    {/if}
+                </div>
+                <div class="card !bg-error-500 w-[2.75rem] aspect-square"></div>
             </div>
         </footer>
     </div>
