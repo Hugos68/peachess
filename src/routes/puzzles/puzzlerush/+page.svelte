@@ -17,7 +17,7 @@
     let mistakes: number = 0;
     
     async function loadNewPuzzle() {
-        const { data, error } = await supabase.rpc('get_random_puzzle', {
+        const { data } = await supabase.rpc('get_random_puzzle', {
             low_rating: 600 + 100 * streak > 2000 ? 2000 : 600 + 100 * streak,
             high_rating: 700 + 100 * streak
         });
@@ -27,7 +27,7 @@
     async function gameOver() {
         streak = 0;
         mistakes = 0;
-        const { data, error } = await supabase.rpc('get_random_puzzle', {
+        const { data } = await supabase.rpc('get_random_puzzle', {
             low_rating: 600,
             high_rating: 700
         });
