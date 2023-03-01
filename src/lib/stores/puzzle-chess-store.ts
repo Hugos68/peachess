@@ -68,7 +68,7 @@ const puzzleChessStateStore = (chessState: PuzzleChessState) => {
             chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
             return chessState;
         });
-    }, 1000);
+    }, 500);
 
     return {
         set,
@@ -208,36 +208,35 @@ const puzzleChessStateStore = (chessState: PuzzleChessState) => {
                     return chessState;
                 }
                 else moveWasCorrect = true;
-      
-                setTimeout(() => {
-                    update(chessState => {
-                        if (chessState.puzzleCompleted) return chessState;
-
-                        // Load last move in case of desync
-                        let poppedMove;
-                        while ((poppedMove = chessState.undoneMoveStack.pop())) {
-                            chessState.chess.move(poppedMove);
-                            chessState.moveStack.push(poppedMove);
-                        }
-
-                        const move = chessState.chess.move(chessState.movesInOrder[chessState.currentMoveIndex]);
-                        if (get(settings).sfx) playMoveSound(move);
-                        chessState.currentMoveIndex++;
-                        chessState.moveStack.push(move);
-                        chessState.material = getMaterial(chessState.moveStack);
-                        chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
-                        return chessState;
-                    });
-                }, 1000);
-            
 
                 if (!chessState.movesInOrder[chessState.currentMoveIndex]) {
                     chessState.puzzleCompleted = true;
                     gameOverSFX.play();
                     return chessState;
                 }
+                else if (moveWasCorrect) {
+                    setTimeout(() => {
+                        update(chessState => {
+        
+                            // Load last move in case of desync
+                            let poppedMove;
+                            while ((poppedMove = chessState.undoneMoveStack.pop())) {
+                                chessState.chess.move(poppedMove);
+                                chessState.moveStack.push(poppedMove);
+                            }
+        
+                            const move = chessState.chess.move(chessState.movesInOrder[chessState.currentMoveIndex]);
+                            if (get(settings).sfx) playMoveSound(move);
+                            chessState.currentMoveIndex++;
+                            chessState.moveStack.push(move);
+                            chessState.material = getMaterial(chessState.moveStack);
+                            chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
+                            return chessState;
+                        });
+                    }, 500);
+                }
                 return chessState;
-            });
+            });  
             return moveWasCorrect;
         }
     }
