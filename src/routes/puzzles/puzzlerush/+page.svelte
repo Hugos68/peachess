@@ -36,6 +36,8 @@
         chessStateStore = createPuzzleChessStateStore(data);
     }
 
+    $: if (mistakes >= 3) gameOver();
+
     const openGamePanel = () => {
         const modalComponent: ModalComponent = {
 		    ref: ChessGamePanel,
@@ -75,7 +77,10 @@
                 {#if $chessStateStore.puzzleCompleted}
                     <button class="btn variant-filled-primary font-semibold p-1.5 md:p-2" on:click={loadNewPuzzle}>Next Puzzle</button>
                 {:else}
-                    <button class="btn variant-filled-primary font-semibold p-1.5 md:p-2" on:click={() => chessStateStore.showNextMove()}>Skip</button>
+                    <button class="btn variant-filled-primary font-semibold p-1.5 md:p-2" on:click={() => {
+                        loadNewPuzzle();
+                        mistakes++;
+                    }}>Skip (Costs 1 mistake)</button>
                 {/if}
             </div>
         </header>
@@ -84,7 +89,6 @@
             <ChessBoard config={$chessStateStore.boardConfig} on:move={(event) => {
                 const moveWasCorrect = chessStateStore.move(event.detail.from, event.detail.to, event.detail?.promotion);
                 if (!moveWasCorrect) mistakes++;
-                if (mistakes >= 3) gameOver();
             }}/>
         </div>
     
