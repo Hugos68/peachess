@@ -7,8 +7,7 @@
 	import { settings } from "$lib/stores/settings-store";
     import type { Api } from 'chessground/api'
     import type { Config } from "chessground/config";
-	import type { Piece } from "chessground/types";
-	import { error } from "@sveltejs/kit";
+	import type { Key, Piece } from "chessground/types";
 
     export let config: Config;
     
@@ -48,8 +47,8 @@
 
     let latestKnownFen: string | undefined = config.fen;
     $: if (board) {
-        board.set(config);
         if (!config.fen || !config.orientation || !latestKnownFen) throw new Error("Latest known fen, fen or orientation are not defined");
+        board.set(config);
         if (hasOpponentPlayed(latestKnownFen, config.fen || "", config.orientation)) board.playPremove();
         else board.cancelPremove();
         latestKnownFen = config.fen;
@@ -70,10 +69,10 @@
 
     const dispatch = createEventDispatcher();
 
-    const moveCallback = (orig: Square, dest: Square, capturedPiece?: Piece) => {      
+    const moveCallback = (orig: Key, dest: Key, capturedPiece?: Piece | undefined) => {      
 
         // If there is a promotion set the promotionMove and return so that the move doesn't get played yet (in case of a promotion cancel)
-        const promotion = isMovePromotion(dest);
+        const promotion = isMovePromotion(dest as Square);
         if (promotion) { 
             promotionMove = { from: orig, to: dest };
             return;
