@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { BLACK, WHITE } from "chess.js";
     import type { PageData } from "./$types";
-    import { createAIChessStateStore } from "$lib/stores/chess-store";
+    import { createAIChessStateStore } from "$lib/stores/online-chess-store";
 	import MoveControls from "$lib/components/chess/MoveControls.svelte";
     import MaterialTracker from "$lib/components/chess/MaterialTracker.svelte";
 	import ChessBoardSidePanel from "$lib/components/chess/VSGamePanel.svelte";

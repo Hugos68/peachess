@@ -2,7 +2,7 @@
 	import { goto } from "$app/navigation";
 	import { page } from "$app/stores";
 	import NewGameModal from "$lib/components/modal/NewGameModal.svelte";
-	import { createOnlineChessStateStore} from "$lib/stores/chess-store";
+	import { createOnlineChessStateStore} from "$lib/stores/online-chess-store";
 	import { modalStore, Paginator, popup, ProgressRadial, toastStore, type ModalComponent, type ModalSettings, type PopupSettings, type ToastSettings } from "@skeletonlabs/skeleton";
 	import { get } from "svelte/store";
 	import type { PageData } from "./$types";

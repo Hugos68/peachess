@@ -51,6 +51,13 @@ interface AIChessState extends ChessState {
     AIDifficulity: 0 | 1 | 2 | 3 | 4
 }
 
+interface PuzzleChessState extends ChessState {
+    chessPuzzle: ChessPuzzle
+    puzzleCompleted: boolean
+    movesInOrder: Move[]
+    currentMoveIndex: number
+}
+
 interface Material {
     w: {
         captures: {
