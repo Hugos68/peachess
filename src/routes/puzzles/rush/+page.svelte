@@ -8,6 +8,7 @@
 	import type { Writable } from "svelte/store";
     import type { PageData } from "./$types";
     import { supabase } from "$lib/supabase";
+	import { scale } from "svelte/transition";
 
     export let data: PageData
     
@@ -35,6 +36,8 @@
     }
 
     $: if (mistakes >= 3) gameOver();
+
+    $: if ($chessStateStore.puzzleCompleted) setTimeout(() => loadNewPuzzle(), 500);
 
     const openGamePanel = () => {
         const modalComponent: ModalComponent = {
@@ -74,26 +77,22 @@
                 <p>R: {$chessStateStore.chessPuzzle.rating} S: {streak}</p>
                 <p></p>
             </div>
-
-            <div class="flex flex-col items-end">
-                {#if $chessStateStore.puzzleCompleted}
-                    <button class="btn variant-filled-primary font-semibold p-1.5 md:p-2" on:click={() => {
-                        streak++;
-                        loadNewPuzzle();
-                    }}>Next Puzzle</button>
-                {:else}
-                    <button class="btn variant-filled-primary font-semibold p-1.5 md:p-2" on:click={() => {
-                        mistakes++
-                        loadNewPuzzle();
-                    }}>Skip (+1 mistake)</button>
-                {/if}
-            </div>
+            {#if !$chessStateStore.puzzleCompleted}
+                <button class="btn variant-filled-primary font-semibold p-1.5 md:p-2" on:click={() => {
+                    mistakes++
+                    loadNewPuzzle();
+                }}>Skip (+1 mistake)</button>
+       
+            {/if}
         </header>
 
         <div class="overflow-hidden card h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
             <ChessBoard config={$chessStateStore.boardConfig} on:move={(event) => {
                 const moveWasCorrect = chessStateStore.move(event.detail.from, event.detail.to, event.detail?.promotion);
-                if (!moveWasCorrect) mistakes++;
+                if (!moveWasCorrect) {
+                    mistakes++;
+                    loadNewPuzzle();
+                }
             }}/>
         </div>
     
@@ -103,7 +102,7 @@
                 {#each Array(3) as _, i}
                     <div class="card !bg-error-500 w-[2.75rem] aspect-square">
                         {#if mistakes > i}
-                            <svg class="w-full h-full" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <svg class="w-full h-full" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" in:scale>
                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M5.46967 5.46967C5.76256 5.17678 6.23744 5.17678 6.53033 5.46967L18.5303 17.4697C18.8232 17.7626 18.8232 18.2374 18.5303 18.5303C18.2374 18.8232 17.7626 18.8232 17.4697 18.5303L5.46967 6.53033C5.17678 6.23744 5.17678 5.76256 5.46967 5.46967Z" fill="#000000"/>
                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M18.5303 5.46967C18.8232 5.76256 18.8232 6.23744 18.5303 6.53033L6.53035 18.5303C6.23745 18.8232 5.76258 18.8232 5.46969 18.5303C5.17679 18.2374 5.17679 17.7626 5.46968 17.4697L17.4697 5.46967C17.7626 5.17678 18.2374 5.17678 18.5303 5.46967Z" fill="#000000"/>
                             </svg>

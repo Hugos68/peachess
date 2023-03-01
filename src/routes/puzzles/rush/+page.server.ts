@@ -8,7 +8,7 @@ export const load: PageServerLoad = async (event) => {
     const { data, error } = await supabaseClient.rpc('get_random_puzzle', {
         low_rating: 600,
         high_rating: 700,
-    });
+    }); 
 
     return {
         chessPuzzle: data as chessPuzzle

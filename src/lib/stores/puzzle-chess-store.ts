@@ -1,6 +1,6 @@
 import { Chess, type Move, type Square } from "chess.js";
 import { writable, type Writable, get } from "svelte/store";
-import { getConfig, getMaterial, updateMaterial, playMoveSound, gameOverSFX } from "$lib/util";
+import { getConfig, getMaterial, updateMaterial, playMoveSound, gameOverSFX, errorSFX } from "$lib/util";
 import { settings} from './settings-store';
 
 export function createPuzzleChessStateStore(chessPuzzle: ChessPuzzle): AIChessStateStore {
@@ -196,18 +196,18 @@ const puzzleChessStateStore = (chessState: PuzzleChessState) => {
 
                 const desiredMove = chessState.movesInOrder[chessState.currentMoveIndex];
 
-                // If the move done is not the one from the puzzle, undo it and return
-                if (move.from !== desiredMove.from || move.to !== desiredMove.to) {
-                    chessState.chess.undo();
-                    return chessState;
-                }
-                else moveWasCorrect = true;
-                
                 chessState.currentMoveIndex++;
                 chessState.lastCorrectFen = chessState.chess.fen();
                 chessState.moveStack.push(move);
                 chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
 
+                // If the move done is not the one from the puzzle, undo it and return
+                if (move.from !== desiredMove.from || move.to !== desiredMove.to) {
+                    if (get(settings).sfx) errorSFX.play();
+                    return chessState;
+                }
+                else moveWasCorrect = true;
+      
                 setTimeout(() => {
                     update(chessState => {
                         if (chessState.puzzleCompleted) return chessState;
@@ -228,6 +228,7 @@ const puzzleChessStateStore = (chessState: PuzzleChessState) => {
                         return chessState;
                     });
                 }, 1000);
+            
 
                 if (!chessState.movesInOrder[chessState.currentMoveIndex]) {
                     chessState.puzzleCompleted = true;

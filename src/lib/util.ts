@@ -10,6 +10,9 @@ export const captureSFX = new Howl({
 export const gameOverSFX = new Howl({
     src: '/sfx/gameover.mp3'
 });
+export const errorSFX = new Howl({
+    src: '/sfx/error.mp3'
+});
 
 export const playMoveSound = (move: Move): void => {
 
