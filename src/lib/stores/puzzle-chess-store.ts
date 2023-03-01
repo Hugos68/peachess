@@ -8,8 +8,6 @@ export function createPuzzleChessStateStore(chessPuzzle: ChessPuzzle): AIChessSt
     // Init chess object
     const chess = new Chess(chessPuzzle.fen);
 
-    const lastCorrectFen = chessPuzzle.fen;
-
     // Convert string of moves to filled array
     const movesInOrder: Move[] = [];
     chessPuzzle.moves.split(' ').forEach(move => {

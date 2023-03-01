@@ -4,13 +4,12 @@
     import { createOnlineChessStateStore } from "$lib/stores/online-chess-store";
 	import MoveControls from "$lib/components/chess/MoveControls.svelte";
     import MaterialTracker from "$lib/components/chess/MaterialTracker.svelte";
-	import ChessBoardSidePanel from "$lib/components/chess/VSGamePanel.svelte";
 	import { getPlayingColor } from "$lib/util";
 	import { page } from "$app/stores";
 	import type { Writable } from "svelte/store";
 	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
 	import { modalStore, type ModalComponent, type ModalSettings } from "@skeletonlabs/skeleton";
-	import ChessInfoPanel from "$lib/components/chess/VSGamePanel.svelte";
+	import ChessGamePanel fro$lib/components/chess/ChessGamePanel.sveltesvelte";
 	import EvalutationBar from "$lib/components/chess/EvalutationBar.svelte";
 
     export let data: PageData;
@@ -19,7 +18,7 @@
 
     const openGamePanel = () => {
         const modalComponent: ModalComponent = {
-		    ref: ChessInfoPanel,
+		    ref: ChessGamePanel,
             props: { 
                 chessStateStore,
                 width: "w-full",
@@ -88,7 +87,7 @@
         </footer>
     </div>
     <div class="hidden xl:block">
-        <ChessBoardSidePanel height="h-[min(calc(100vw)-1rem,calc(95vh-12rem))]" width="w-full" {chessStateStore} />
+        <ChessGamePanel height="h-[min(calc(100vw)-1rem,calc(95vh-12rem))]" width="w-full" {chessStateStore} />
     </div>
     
     <button class="btn variant-filled-primary xl:hidden" on:click={openGamePanel}>Open Game Panel</button>

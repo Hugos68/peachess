@@ -1,16 +1,15 @@
 <script lang="ts">
 	import { BLACK, WHITE } from "chess.js";
     import type { PageData } from "./$types";
-    import { createAIChessStateStore } from "$lib/stores/online-chess-store";
+    import { createAIChessStateStore } from "$lib/stores/ai-chess-store";
 	import MoveControls from "$lib/components/chess/MoveControls.svelte";
     import MaterialTracker from "$lib/components/chess/MaterialTracker.svelte";
-	import ChessBoardSidePanel from "$lib/components/chess/VSGamePanel.svelte";
 	import type { Writable } from "svelte/store";
 	import { modalStore, type ModalComponent, type ModalSettings } from "@skeletonlabs/skeleton";
-	import ChessInfoPanel from "$lib/components/chess/VSGamePanel.svelte";
 	import { getAIDifficulityByName } from "$lib/util";
-	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
+	import ChessBoard from "$lib/components/chess/ChessGamePanel.svelte";
 	import EvalutationBar from "$lib/components/chess/EvalutationBar.svelte";
+	import ChessGamePanel from "$lib/components/chess/ChessGamePanel.svelte";
     
     export let data: PageData;
 
@@ -18,7 +17,7 @@
 
         const openGamePanel = () => {
         const modalComponent: ModalComponent = {
-		    ref: ChessInfoPanel,
+		    ref: ChessGamePanel,
             props: { 
                 chessStateStore,
                 width: "w-full",
@@ -90,7 +89,7 @@
         </footer>
     </div>
     <div class="hidden xl:block">
-        <ChessBoardSidePanel height="h-[min(calc(100vw)-1rem,calc(95vh-12rem))]" width="w-full" {chessStateStore} />
+        <ChessGamePanel height="h-[min(calc(100vw)-1rem,calc(95vh-12rem))]" width="w-full" {chessStateStore} />
     </div>
     
     <button class="btn variant-filled-primary xl:hidden" on:click={openGamePanel}>Open Game Panel</button>
