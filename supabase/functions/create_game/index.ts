@@ -28,12 +28,13 @@ serve(async (req) => {
         }
 
         const serviceRoleSupabaseClient = createClient(
-            "https://oepoavgiwdswkdfigwsi.supabase.co",
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lcG9hdmdpd2Rzd2tkZmlnd3NpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY3NTExNzAxMSwiZXhwIjoxOTkwNjkzMDExfQ.gCCV5XJ-xnbF-8xSvQR1NXVnAVio1g-HfRb5vgpcHZQ"
+            Deno.env.get('SUPABASE_URL') ?? '', 
+            Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
         );
+
         const invokerSupabaseClient = createClient(
-            "https://oepoavgiwdswkdfigwsi.supabase.co",
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lcG9hdmdpd2Rzd2tkZmlnd3NpIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzUxMTcwMTEsImV4cCI6MTk5MDY5MzAxMX0.hUWLGXfRLmgLgVgyUDl3yBzLyOeRBAA60G0aGpm4rWg",
+            Deno.env.get('SUPABASE_URL') ?? '', 
+            Deno.env.get('SUPABASE_ANON_KEY') ?? '',
             { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
         );
 
