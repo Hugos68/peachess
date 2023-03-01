@@ -9,7 +9,7 @@
 	import type { Writable } from "svelte/store";
 	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
 	import { modalStore, type ModalComponent, type ModalSettings } from "@skeletonlabs/skeleton";
-	import ChessGamePanel fro$lib/components/chess/ChessGamePanel.sveltesvelte";
+	import ChessGamePanel from '$lib/components/chess/ChessGamePanel.svelte';
 	import EvalutationBar from "$lib/components/chess/EvalutationBar.svelte";
 
     export let data: PageData;

@@ -1,6 +1,6 @@
 import { Chess, type Move, type Square } from "chess.js";
 import { writable, type Writable, get } from "svelte/store";
-import { getConfig, getMaterial, updateMaterial, playMoveSound } from "$lib/util";
+import { getConfig, getMaterial, updateMaterial, playMoveSound, gameOverSFX } from "$lib/util";
 import { settings} from './settings-store';
 
 export function createPuzzleChessStateStore(chessPuzzle: ChessPuzzle): AIChessStateStore {
@@ -172,6 +172,7 @@ const puzzleChessStateStore = (chessState: PuzzleChessState) => {
                 
                 if (!chessState.movesInOrder[chessState.currentMoveIndex]) {
                     chessState.puzzleCompleted = true;
+                    gameOverSFX.play();
                     return chessState;
                 }
             
@@ -232,6 +233,7 @@ const puzzleChessStateStore = (chessState: PuzzleChessState) => {
 
                 if (!chessState.movesInOrder[chessState.currentMoveIndex]) {
                     chessState.puzzleCompleted = true;
+                    gameOverSFX.play();
                     return chessState;
                 }
                 return chessState;

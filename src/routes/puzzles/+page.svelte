@@ -38,7 +38,7 @@
 <div class="mx-auto xl:h-[calc(100vh-2rem)] flex flex-col xl:flex-row justify-center items-center gap-12">
 
     <div class="flex flex-col gap-2">
-        <header class="flex justify-between">
+        <header class="flex justify-between items-center">
             {#if $chessStateStore.puzzleCompleted}
                 <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Puzzle Completed</p>
             {:else}
@@ -51,11 +51,12 @@
                 class:bg-black={turn===BLACK}
                 >{turn===WHITE ? 'White' : 'Black'}'s turn</p>
             {/if}
+            <p>Rating: {$chessStateStore.chessPuzzle.rating}</p>
             <div class="flex flex-col items-end">
                 {#if $chessStateStore.puzzleCompleted}
-                    <button class="btn variant-filled-primary" on:click={loadNewPuzzle}>Load next puzzle</button>
+                    <button class="btn variant-filled-primary font-semibold" on:click={loadNewPuzzle}>Load next puzzle</button>
                 {:else}
-                    <button class="btn variant-filled-primary" on:click={chessStateStore.showNextMove()}>Reveal Move</button>
+                    <button class="btn variant-filled-primary font-semibold" on:click={chessStateStore.showNextMove()}>Reveal Move</button>
                 {/if}
             </div>
         </header>

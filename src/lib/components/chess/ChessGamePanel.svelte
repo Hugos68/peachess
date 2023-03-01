@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { clipboard, RangeSlider, SlideToggle, Tab, TabGroup, toastStore, type ToastSettings } from "@skeletonlabs/skeleton";
+	import { clipboard, SlideToggle, Tab, TabGroup, toastStore, type ToastSettings } from "@skeletonlabs/skeleton";
     import { settings } from "$lib/stores/settings-store";
 	import { page } from "$app/stores";
 	import type { Writable } from "svelte/store";
@@ -35,9 +35,8 @@
 </div>
 <TabGroup regionPanel="flex-1 flex flex-col overflow-hidden" class="card bg-surface-300-600-token p-4 flex flex-col {height} {width}">
     <Tab bind:group={tabSet} name="moves" value={0}>Moves</Tab>
-    <Tab bind:group={tabSet} name="chat" value={1}>Chat</Tab>
-    <Tab bind:group={tabSet} name="settings" value={2}>Settings</Tab>
-    <Tab bind:group={tabSet} name="share" value={3}>Share</Tab>
+    <Tab bind:group={tabSet} name="settings" value={1}>Settings</Tab>
+    <Tab bind:group={tabSet} name="share" value={2}>Share</Tab>
 
     <svelte:fragment slot="panel">
         {#if tabSet === 0}
@@ -54,8 +53,6 @@
                 {/each}
             </ul>
         {:else if tabSet === 1}
-            <p>Coming soon</p>
-        {:else if tabSet === 2}
             <div class="flex flex-col">
                 <label class="flex items-center gap-2 justify-between" for="animate">
                     Animate
@@ -82,7 +79,7 @@
                     <SlideToggle active="variant-ghost-secondary" name="checkhighlight" bind:checked={$settings.checkHighlight} />
                 </label>
             </div>
-        {:else if tabSet === 3}
+        {:else if tabSet === 2}
             <p class="text-xl font-bold text-center">Click to copy</p>
 
             <!-- svelte-ignore a11y-click-events-have-key-events -->

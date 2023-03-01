@@ -1,13 +1,13 @@
 import { SQUARES, WHITE } from "chess.js";
 import { Howl } from 'howler';
 
-const moveSFX = new Howl({
+export const moveSFX = new Howl({
     src: '/sfx/move.mp3'
 });
-const captureSFX = new Howl({
+export const captureSFX = new Howl({
     src: '/sfx/capture.mp3'
 });
-const gameOverSFX = new Howl({
+export const gameOverSFX = new Howl({
     src: '/sfx/gameover.mp3'
 });
 
