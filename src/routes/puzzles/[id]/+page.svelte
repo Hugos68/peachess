@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { invalidateAll } from "$app/navigation";
+	import { goto, invalidate } from "$app/navigation";
 	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
 	import MoveControls from "$lib/components/chess/MoveControls.svelte";
     import ChessGamePanel from "$lib/components/chess/ChessGamePanel.svelte";
@@ -14,8 +14,8 @@
     let chessStateStore: Writable<PuzzleChessState> = createPuzzleChessStateStore(data.chessPuzzle)
     
     async function loadNewPuzzle() {
-        await invalidateAll();
-        chessStateStore = createPuzzleChessStateStore(data.chessPuzzle);
+        await goto(`/puzzles/${Math.floor(Math.random() * (50000))}`);
+        chessStateStore = createPuzzleChessStateStore(data.chessPuzzle)
     }
 
     const openGamePanel = () => {
@@ -56,7 +56,7 @@
                 {#if $chessStateStore.puzzleCompleted}
                     <button class="btn variant-filled-primary font-semibold" on:click={loadNewPuzzle}>Load next puzzle</button>
                 {:else}
-                    <button class="btn variant-filled-primary font-semibold" on:click={chessStateStore.showNextMove()}>Reveal Move</button>
+                    <button class="btn variant-filled-primary font-semibold" on:click={() => chessStateStore.showNextMove()}>Reveal Move</button>
                 {/if}
             </div>
         </header>

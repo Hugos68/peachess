@@ -133,7 +133,7 @@ const puzzleChessStateStore = (chessState: PuzzleChessState) => {
 
                 // Check if puzzle is done
                 if (chessState.puzzleCompleted) return chessState;
-
+                
                 // Load last move in case of desync
                 let poppedMove;
                 while ((poppedMove = chessState.undoneMoveStack.pop())) {
