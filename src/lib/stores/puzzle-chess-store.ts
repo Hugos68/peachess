@@ -59,13 +59,20 @@ const puzzleChessStateStore = (chessState: PuzzleChessState) => {
     setTimeout(() => {
         update(chessState => {
 
+            // Load last move in case of desync
+            let poppedMove;
+            while ((poppedMove = chessState.undoneMoveStack.pop())) {
+                chessState.chess.move(poppedMove);
+                chessState.moveStack.push(poppedMove);
+            }
+
             const move = chessState.chess.move(chessState.movesInOrder[chessState.currentMoveIndex]);
             if (get(settings).sfx) playMoveSound(move);
             chessState.currentMoveIndex++;
             chessState.lastCorrectFen = chessState.chess.fen();
             chessState.moveStack.push(move);
             chessState.material = getMaterial(chessState.moveStack);
-            chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);   
+            chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
             return chessState;
         });
     }, 1000);

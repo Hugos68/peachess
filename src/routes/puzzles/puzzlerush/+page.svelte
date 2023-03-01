@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { goto } from "$app/navigation";
 	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
 	import MoveControls from "$lib/components/chess/MoveControls.svelte";
     import ChessGamePanel from "$lib/components/chess/ChessGamePanel.svelte";
