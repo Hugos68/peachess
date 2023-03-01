@@ -18,7 +18,6 @@
     let mistakes: number = 0;
     
     async function loadNewPuzzle() {
-        streak++;
         const { data, error } = await supabase.rpc('get_random_puzzle', {
             low_rating: 600 + 100 * streak > 2000 ? 2000 : 600 + 100 * streak,
             high_rating: 700 + 100 * streak
@@ -72,15 +71,22 @@
                 class:bg-black={turn===BLACK}
                 >{turn===WHITE ? 'White' : 'Black'}'s turn</p>
             {/if}
-            <p>Rating: {$chessStateStore.chessPuzzle.rating}</p>
+            <div class="bg-secondary-500 p-1.5 md:p-2 flex gap-2">
+                <p>R: {$chessStateStore.chessPuzzle.rating} S: {streak}</p>
+                <p></p>
+            </div>
+
             <div class="flex flex-col items-end">
                 {#if $chessStateStore.puzzleCompleted}
-                    <button class="btn variant-filled-primary font-semibold p-1.5 md:p-2" on:click={loadNewPuzzle}>Next Puzzle</button>
+                    <button class="btn variant-filled-primary font-semibold p-1.5 md:p-2" on:click={() => {
+                        streak++;
+                        loadNewPuzzle();
+                    }}>Next Puzzle</button>
                 {:else}
                     <button class="btn variant-filled-primary font-semibold p-1.5 md:p-2" on:click={() => {
+                        mistakes++
                         loadNewPuzzle();
-                        mistakes++;
-                    }}>Skip (Costs 1 mistake)</button>
+                    }}>Skip (+1 mistake)</button>
                 {/if}
             </div>
         </header>
@@ -94,8 +100,7 @@
     
         <footer class="flex justify-between items-center">
             <MoveControls {chessStateStore} />
-            <p>Streak: {streak}</p>
-            <div class="flex gap-2">
+            <div class="flex gap-1">
                 {#each Array(3) as _, i}
                     <div class="card !bg-error-500 w-[2.75rem] aspect-square">
                         {#if mistakes > i}
