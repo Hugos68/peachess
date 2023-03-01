@@ -35,8 +35,6 @@ export function createPuzzleChessStateStore(chessPuzzle: ChessPuzzle): AIChessSt
     chess.header('Site', 'https://peachess.vercel.app/');
     chess.header('Date', new Date());
     chess.header('Round', null);
-    chess.header('Result', '*');
-
     
     const puzzleChessState: PuzzleChessState = {
         chessPuzzle,

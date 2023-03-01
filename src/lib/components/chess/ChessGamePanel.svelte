@@ -84,17 +84,17 @@
 
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <div class="flex flex-col justify-between gap-2">
-                <label for="fen" use:clipboard={$page.url} on:click={() => triggerCopiedToast('Link')}>
+                <label for="link" use:clipboard={$page.url} on:click={() => triggerCopiedToast('Link')}>
                     Link:
-                    <input  class="input" type="text" readonly value={$page.url} />
+                    <input name="link" class="input" type="text" readonly value={$page.url} />
                 </label>
-                <label use:clipboard={$chessStateStore.chess.fen()} on:click={() => triggerCopiedToast('FEN')}>
+                <label for="FEN" use:clipboard={$chessStateStore.chess.fen()} on:click={() => triggerCopiedToast('FEN')}>
                     FEN:
-                    <input class="input" type="text" readonly value={$chessStateStore.chess.fen()} />
+                    <input name="FEN" class="input" type="text" readonly value={$chessStateStore.chess.fen()} />
                 </label>
-                <label use:clipboard={$chessStateStore.chess.pgn()} on:click={() => triggerCopiedToast('PGN')}>
+                <label for="PGN" use:clipboard={$chessStateStore.chess.pgn()} on:click={() => triggerCopiedToast('PGN')}>
                     PGN:
-                    <textarea class="input resize-none rounded-lg" rows=10 readonly value={$chessStateStore.chess.pgn()} />
+                    <textarea name="PGN"  class="input h-full resize-none rounded-lg" rows=10 readonly value={$chessStateStore.chess.pgn()} />
                 </label>
             </div>
         {/if}
