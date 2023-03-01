@@ -39,12 +39,12 @@
 
     <div class="flex flex-col gap-2">
         <header class="flex justify-between items-center">
-            {#if $chessStateStore.puzzleCompleted}
-                <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Puzzle Completed</p>
+            {#if !$chessStateStore.puzzleCompleted}
+                <p class="p-1.5 md:p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Puzzle Completed</p>
             {:else}
                 {@const turn = $chessStateStore.chess.turn()}
                 <p
-                class="my-auto p-2 rounded-token font-semibold text-center"
+                class="my-auto p-1.5 md:p-2 rounded-token font-semibold text-center"
                 class:text-white={turn===BLACK}
                 class:text-black={turn===WHITE}
                 class:bg-white={turn===WHITE} 
@@ -54,9 +54,9 @@
             <p>Rating: {$chessStateStore.chessPuzzle.rating}</p>
             <div class="flex flex-col items-end">
                 {#if $chessStateStore.puzzleCompleted}
-                    <button class="btn variant-filled-primary font-semibold" on:click={loadNewPuzzle}>Load next puzzle</button>
+                    <button class="btn variant-filled-primary font-semibold p-1.5 md:p-2" on:click={loadNewPuzzle}>Load next puzzle</button>
                 {:else}
-                    <button class="btn variant-filled-primary font-semibold" on:click={() => chessStateStore.showNextMove()}>Reveal Move</button>
+                    <button class="btn variant-filled-primary font-semibold p-1.5 md:p-2" on:click={() => chessStateStore.showNextMove()}>Reveal Move</button>
                 {/if}
             </div>
         </header>
