@@ -39,7 +39,7 @@
 
     <div class="flex flex-col gap-2">
         <header class="flex justify-between items-center">
-            {#if !$chessStateStore.puzzleCompleted}
+            {#if $chessStateStore.puzzleCompleted}
                 <p class="p-1.5 md:p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Puzzle Completed</p>
             {:else}
                 {@const turn = $chessStateStore.chess.turn()}
