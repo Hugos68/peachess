@@ -8,19 +8,30 @@
 	import { BLACK, WHITE } from "chess.js";
 	import type { Writable } from "svelte/store";
     import type { PageData } from "./$types";
+    import { supabase } from "$lib/supabase";
 
     export let data: PageData
     
     let chessStateStore: Writable<PuzzleChessState> = createPuzzleChessStateStore(data.chessPuzzle)
+
+    let streak: number = 0;
     
     async function loadNewPuzzle() {
-        await goto(`/puzzles/${Math.floor(Math.random() * (50000))}`);
-        chessStateStore = createPuzzleChessStateStore(data.chessPuzzle)
+        streak++;
+        const { data } = await supabase
+        .from("puzzles")
+        .select("*")
+        .gt('rating', 600 + streak * 100)
+        .lt('rating', 700 + streak * 100)
+        .returns<ChessPuzzle[]>();
+
+        if (data) chessStateStore = createPuzzleChessStateStore(data[Math.floor(Math.random() * data.length)])
     }
 
     const openGamePanel = () => {
         const modalComponent: ModalComponent = {
 		    ref: ChessGamePanel,
+            
             props: { 
                 chessStateStore,
                 width: "w-full",
@@ -54,9 +65,9 @@
             <p>Rating: {$chessStateStore.chessPuzzle.rating}</p>
             <div class="flex flex-col items-end">
                 {#if $chessStateStore.puzzleCompleted}
-                    <button class="btn variant-filled-primary font-semibold p-1.5 md:p-2" on:click={loadNewPuzzle}>Load next puzzle</button>
+                    <button class="btn variant-filled-primary font-semibold p-1.5 md:p-2" on:click={loadNewPuzzle}>Next Puzzle</button>
                 {:else}
-                    <button class="btn variant-filled-primary font-semibold p-1.5 md:p-2" on:click={() => chessStateStore.showNextMove()}>Reveal Move</button>
+                    <button class="btn variant-filled-primary font-semibold p-1.5 md:p-2" on:click={() => chessStateStore.showNextMove()}>Skip</button>
                 {/if}
             </div>
         </header>
