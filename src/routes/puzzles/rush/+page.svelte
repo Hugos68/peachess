@@ -37,8 +37,6 @@
 
     $: if (mistakes >= 3) gameOver();
 
-    $: if ($chessStateStore.puzzleCompleted) setTimeout(() => loadNewPuzzle(), 500);
-
     const openGamePanel = () => {
         const modalComponent: ModalComponent = {
 		    ref: ChessGamePanel,
@@ -73,17 +71,10 @@
                 class:bg-black={turn===BLACK}
                 >{turn===WHITE ? 'White' : 'Black'}'s turn</p>
             {/if}
-            <div class="bg-secondary-500 p-1.5 md:p-2 flex gap-2">
-                <p>R: {$chessStateStore.chessPuzzle.rating} S: {streak}</p>
-                <p></p>
+            <div class="flex gap-2">
+                <p class="bg-secondary-500 p-1.5 md:p-2">Rating: {$chessStateStore.chessPuzzle.rating} </p>
+                <p class="bg-secondary-500 p-1.5 md:p-2">Streak: {streak}</p>
             </div>
-            {#if !$chessStateStore.puzzleCompleted}
-                <button class="btn variant-filled-primary font-semibold p-1.5 md:p-2" on:click={() => {
-                    mistakes++
-                    loadNewPuzzle();
-                }}>Skip (+1 mistake)</button>
-       
-            {/if}
         </header>
 
         <div class="overflow-hidden card h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
@@ -92,6 +83,12 @@
                 if (!moveWasCorrect) {
                     mistakes++;
                     loadNewPuzzle();
+                }
+                else if ($chessStateStore.puzzleCompleted) {
+                    setTimeout(() =>  {
+                        streak++;
+                        loadNewPuzzle();
+                    }, 500);
                 }
             }}/>
         </div>
