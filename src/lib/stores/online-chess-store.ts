@@ -3,6 +3,7 @@ import { writable, type Writable, get } from "svelte/store";
 import { getConfig, getMaterial, updateMaterial, playMoveSound } from "$lib/util";
 import { supabase } from '$lib/supabase';
 import { settings} from './settings-store';
+import type { Config } from "chessground/config";
 
 export function createOnlineChessStateStore(chessGame: OnlineChessGame, playingColor: 'w' | 'b' | undefined): OnlineChessStateStore {
 
@@ -12,7 +13,7 @@ export function createOnlineChessStateStore(chessGame: OnlineChessGame, playingC
     const moveStack: Move[] = chess.history({verbose: true});
     const undoneMoveStack: Move[] = [];
     const material = getMaterial(moveStack);
-    const boardConfig = getConfig(chess, playingColor, moveStack, undoneMoveStack);
+    const boardConfig: Config = getConfig(chess, playingColor, moveStack, undoneMoveStack);
 
     const onlineChessState: OnlineChessState = {
         chessGame,

@@ -2,6 +2,7 @@ import { Chess, type Move, type Square } from "chess.js";
 import { writable, type Writable, get } from "svelte/store";
 import { getConfig, getMaterial, updateMaterial, playMoveSound } from "$lib/util";
 import { settings} from './settings-store';
+import type { Config } from "chessground/config";
 
 export function createAIChessStateStore(AIDifficulity: 0 | 1 | 2 | 3 | 4, playingColor: 'w' | 'b' | undefined): AIChessStateStore {
     
@@ -21,7 +22,7 @@ export function createAIChessStateStore(AIDifficulity: 0 | 1 | 2 | 3 | 4, playin
     const moveStack: Move[] = chess.history({verbose: true});
     const undoneMoveStack: Move[] = [];
     const material = getMaterial(moveStack);
-    const boardConfig = getConfig(chess, playingColor, moveStack, undoneMoveStack);
+    const boardConfig: Config = getConfig(chess, playingColor, moveStack, undoneMoveStack);
 
     const AIChessState: AIChessState = {
         chessGame,

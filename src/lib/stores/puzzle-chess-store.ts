@@ -2,6 +2,7 @@ import { Chess, type Move, type Square } from "chess.js";
 import { writable, type Writable, get } from "svelte/store";
 import { getConfig, getMaterial, updateMaterial, playMoveSound, gameOverSFX, errorSFX } from "$lib/util";
 import { settings} from './settings-store';
+import type { Config } from "chessground/config";
 
 export function createPuzzleChessStateStore(chessPuzzle: ChessPuzzle): AIChessStateStore {
     
@@ -27,7 +28,7 @@ export function createPuzzleChessStateStore(chessPuzzle: ChessPuzzle): AIChessSt
     const undoneMoveStack = [];
 
     const material = getMaterial(moveStack);
-    const boardConfig = getConfig(chess, playingColor, moveStack, undoneMoveStack);
+    const boardConfig: Config = getConfig(chess, playingColor, moveStack, undoneMoveStack);
 
     const puzzleCompleted = false;
 
