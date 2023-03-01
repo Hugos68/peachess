@@ -5,10 +5,13 @@
 	import { createEventDispatcher } from "svelte";
 	import { focusTrap } from "@skeletonlabs/skeleton";
 	import { settings } from "$lib/stores/settings-store";
+    import type { Api } from 'chessground/api'
+    import type { Config } from "chessground/config";
+	import type { Piece } from "chessground/types";
 
-    export let config: any;
+    export let config: Config;
     
-    let board: any;
+    let board: Api;
     let boardElement: HTMLElement;  
     let promotionModal: HTMLElement;
     let promotionMove: CustomMove | null = null;
@@ -65,7 +68,7 @@
 
     const dispatch = createEventDispatcher();
 
-    const moveCallback = (from: Square, to: Square) => {        
+    const moveCallback = (from: Square, to: Square, capturedPiece?: Piece) => {        
         // If there is a promotion set the promotionMove and return so that the move doesn't get played yet (in case of a promotion cancel)
         const promotion = isMovePromotion(to);
         if (promotion) { 

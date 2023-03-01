@@ -38,7 +38,7 @@ interface ChessState {
     playingColor: 'w' | 'b'
     moveStack: Move[]
     undoneMoveStack: Move[]
-    boardConfig: object
+    boardConfig: Config
     material: Material
 }
 
