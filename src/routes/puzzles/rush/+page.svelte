@@ -71,7 +71,7 @@
                 if (!moveWasCorrect) {
                     mistakes++;
                     setTimeout(() =>  {
-                        
+
                         // Reset streak and mistake of 3 or more mistakes were made
                         if (mistakes >= 3) {
                             streak = 0;
