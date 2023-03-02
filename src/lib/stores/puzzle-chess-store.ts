@@ -193,7 +193,6 @@ const puzzleChessStateStore = (chessState: PuzzleChessState) => {
                 
                 // Move (throws exception if move is invalid)
                 const move = chessState.chess.move({from, to, promotion});
-                if (get(settings).sfx) playMoveSound(move);
 
                 const desiredMove = chessState.movesInOrder[chessState.currentMoveIndex];
 
@@ -202,19 +201,17 @@ const puzzleChessStateStore = (chessState: PuzzleChessState) => {
                 chessState.moveStack.push(move);
                 chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
 
-                // If the move done is not the one from the puzzle, undo it and return
-                if (move.from !== desiredMove.from || move.to !== desiredMove.to) {
-                    if (get(settings).sfx) errorSFX.play();
-                    return chessState;
-                }
-                else moveWasCorrect = true;
-
-                if (!chessState.movesInOrder[chessState.currentMoveIndex]) {
+                if (!chessState.movesInOrder[chessState.currentMoveIndex] || chessState.chess.isCheckmate()) {
+                    if (get(settings).sfx) gameOverSFX.play();
+                    moveWasCorrect = true;
                     chessState.puzzleCompleted = true;
-                    gameOverSFX.play();
-                    return chessState;
                 }
-                else if (moveWasCorrect) {
+                else if (move.from !== desiredMove.from || move.to !== desiredMove.to) {
+                    if (get(settings).sfx) errorSFX.play();
+                } 
+                else {
+                    if (get(settings).sfx) playMoveSound(move);
+                    moveWasCorrect = true;
                     setTimeout(() => {
                         update(chessState => {
         
