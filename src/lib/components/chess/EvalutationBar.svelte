@@ -10,49 +10,69 @@
     export let chess: Chess;
     export let orientation: 'w' | 'b'
 
-    let stockfish: Worker | undefined;
+    let turn: 'w' | 'b' = chess.turn();
+    let stockfish: any | undefined;
     let currentDepth = 0;
     let currentEvaluation = tweened(0, {
-		duration: 4000,
+		duration: 1000,
         easing: cubicInOut
 	});
     
-    let ready = false;
-    onMount(() => {
-        if (!window.Worker) return;
-
-        const wasmSupported = typeof WebAssembly === 'object' && WebAssembly.validate(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
-        stockfish = new Worker(wasmSupported ? '/stockfish/stockfish.wasm.js' : '/stockfish/stockfish.js');
-        stockfish.onmessage = function(e) {  
-            if (e.data === 'readyok') ready = true;
-            if (e.data.includes('best move')) stockfish?.postMessage('stop');
-            if (!e.data.includes('info depth')) return;
-            currentDepth = e.data.split('depth')[1].split(' ')[1];
-            let cp;
-            if (e.data.includes('mate')) chess.turn()==='w' ? cp = -20000 : cp = 20000;
-            else cp = Number(e.data.split('cp')[1].split(' ')[1]);
-            currentEvaluation.set(cpWinningChances(chess.turn()==='w' ? cp : cp * -1) * 100);
+    onMount(async () => {
+        if (!wasmThreadsSupported()) {
+            console.log("Browser does not support wasm threads therefor stockfish can not be loaded");
+            return;
         }
-        stockfish.postMessage("uci");
+
+        stockfish = await Stockfish();
+        stockfish.addMessageListener((line: string) => {            
+            if (line.includes('depth')) {
+                const depth = Number(line.split('depth')[1].split(' ')[1]);
+                if (depth > currentDepth) currentDepth = depth;
+            }
+            if (line.includes('cp')) {
+                const cp = Number(line.split('cp ')[1].split(' ')[0]);
+                currentEvaluation.set(cpWinningChances(turn === 'w' ? cp : cp * -1) * 100);
+            }
+            if (line.includes('mate')) {
+                const mateValue = Number(line.split('mate ')[1].split(' ')[0]);
+                console.log(mateValue);
+                if (turn === 'w') {
+                    if (mateValue > 0) currentEvaluation.set(100);
+                    else currentEvaluation.set(-100);
+                } 
+                else {
+                    if (mateValue > 0) currentEvaluation.set(-100);
+                    else currentEvaluation.set(100);
+                }
+            }
+        });
+
+        stockfish.postMessage('uci');
         stockfish.postMessage('isready');
+        stockfish?.postMessage('ucinewgame');
+        stockfish?.postMessage('position fen '+chess.fen());
+        stockfish?.postMessage('go');
+        
     });
     let debounceTimeout: ReturnType<typeof setTimeout>;
-    $: if (stockfish && ready) {
+
+
+    $: if (stockfish) {
         stockfish.postMessage('stop');
-        if (chess.fen()==='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1') {
+        // Debounce mechanism to make sure stockfish only evaluates positions that are looked at by the user
+        if (debounceTimeout) clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(() => {
+            turn = chess.turn();
             currentDepth = 0;
             currentEvaluation.set(0);
-        }
-        else {
-            // Debounce mechanism to make sure stockfish only evaluates positions that are looked at by the end user
-            if (debounceTimeout) clearTimeout(debounceTimeout);
-            debounceTimeout = setTimeout(() => {
-                stockfish?.postMessage('ucinewgame');
-                stockfish?.postMessage('position fen '+chess.fen());
-                stockfish?.postMessage('go infinite');
-            }, 50);
-        }
+            stockfish?.postMessage('ucinewgame');
+            stockfish?.postMessage('position fen '+chess.fen());
+            stockfish?.postMessage('go');
+        }, 250);
     }
+
+
     onDestroy(() => {
         if (stockfish) stockfish.terminate();
     });
@@ -62,10 +82,6 @@
     };
     const cpWinningChances = (cp: number): number => rawWinningChances(Math.min(Math.max(-1000, cp), 1000));
 </script>
-
-<svelte:head>
-    <script src="/stockfishwasm/stockfish.js"></script>
-</svelte:head>
 
 <ProgressBar track="bg-black" height="h-8" label="Evaluation bar" min={0} max={200} value={$currentEvaluation + 100} />
 
