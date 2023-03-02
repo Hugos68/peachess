@@ -1,4 +1,4 @@
-import { SQUARES, WHITE } from "chess.js";
+import { SQUARES, WHITE, BLACK } from "chess.js";
 import { Howl } from 'howler';
 
 export const moveSFX = new Howl({
@@ -187,36 +187,19 @@ export const getLastMoveHighlight = (moves: Move[]) => {
     return [move.from, move.to];
 }
 
-export function getViewOnly(chessGame: OnlineChessGame, chess: Chess, undoneMoveStack: Move[], session: Session | undefined) {
-
-    // If someone is not logged in they cannot make moves
-    if (!session) return true;
-
-    // If someone is not part of the game they cannot make moves
-    if (session.user.id !== chessGame.player_id_white && session.user.id !== chessGame.player_id_black) return true;
-
-    // If someone is part of the game but they aren't looking at the latest turn they cannot make moves
-    if (undoneMoveStack.length!==0) return true;
-
-    // If the game is over they cannot make moves
-    if (chess.isGameOver()) return true;
-    return false;
-}
-
 export const getConfig = (chess: Chess, playingColor: 'w' | 'b' | undefined, moveStack: Move[], undoneMoveStack: Move[]) => {
-    const viewOnly = playingColor === undefined || undoneMoveStack.length!==0 || chess.isGameOver();
+    const canMove = playingColor && undoneMoveStack.length===0 && !chess.isGameOver();
     return {
         fen: chess.fen(),
         turnColor: chess.turn() === WHITE ? 'white' : 'black',
-        orientation: playingColor==='b' ? 'black' : 'white',
+        orientation: playingColor===BLACK ? 'black' : 'white',
         lastMove: getLastMoveHighlight(moveStack),
-        viewOnly: viewOnly,
         check: chess.inCheck(),
         movable: {
             free: false,
             dests: getValidMoves(chess),
             showDests: true,
-            color: playingColor === WHITE ? 'white' : 'black',
+            color: canMove ? (playingColor === WHITE ? 'white' : 'black') : undefined
         },
         drawable: {
             enabled: true,
