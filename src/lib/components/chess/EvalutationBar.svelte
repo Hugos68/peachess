@@ -1,4 +1,4 @@
-<script lang="ts" type="module">
+<script lang="ts">
 	import { wasmThreadsSupported } from "$lib/util";
 	import { ProgressBar } from "@skeletonlabs/skeleton";
     import type { Chess } from "chess.js";
@@ -82,6 +82,10 @@
     };
     const cpWinningChances = (cp: number): number => rawWinningChances(Math.min(Math.max(-1000, cp), 1000));
 </script>
+
+<svelte:head>
+    <script src="./../src/stockfish/stockfish.js"></script>
+</svelte:head>
 
 <ProgressBar track="bg-black" height="h-8" label="Evaluation bar" min={0} max={200} value={$currentEvaluation + 100} />
 
