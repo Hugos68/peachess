@@ -60,7 +60,6 @@
                 >{turn===WHITE ? 'White' : 'Black'}'s turn</p>
             {/if}
             <div class="flex gap-2">
-                <button class="btn variant-filled-success" on:click={() => console.log($chessStateStore)}>DEV LEVEL STATE LOGGER</button>
                 <p class="bg-secondary-500 p-1.5 md:p-2">Rating: {$chessStateStore.chessPuzzle.rating} </p>
                 <p class="bg-secondary-500 p-1.5 md:p-2">Streak: {streak}</p>
             </div>
