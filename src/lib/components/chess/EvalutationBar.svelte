@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { wasmThreadsSupported } from "$lib/util";
     import type { Chess } from "chess.js";
 	import { onMount } from "svelte";
 	import { onDestroy } from "svelte";
@@ -19,10 +18,13 @@
 	});
     
     onMount(async () => {
-        if (!wasmThreadsSupported()) {
-            console.log("Browser does not support wasm threads therefor stockfish can not be loaded");
-            return;
-        }
+        // if (!wasmThreadsSupported()) {
+        //     console.log("Browser does not support wasm threads therefor stockfish can not be loaded");
+        //     return;
+        // }
+
+        console.log(window.crossOriginIsolated);
+        
 
         stockfish = await Stockfish();
         stockfish.addMessageListener((line: string) => {            

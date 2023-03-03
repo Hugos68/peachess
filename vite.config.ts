@@ -13,5 +13,5 @@ const stockfishHeaderMiddleware = {
   };
 
 export default defineConfig({
-	plugins: [stockfishHeaderMiddleware, sveltekit()],
+	plugins: [sveltekit()],
 });
