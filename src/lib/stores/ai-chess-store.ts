@@ -1,10 +1,10 @@
 import { Chess, type Move, type Square, BLACK } from "chess.js";
 import { writable, type Writable, get } from "svelte/store";
-import { getConfig, getMaterial, updateMaterial, playMoveSound, getAINameByDifficulity, wasmThreadsSupported } from "$lib/util";
+import { getConfig, getMaterial, updateMaterial, playMoveSound, wasmThreadsSupported, getAIEloByAIName } from "$lib/util";
 import { settings} from './settings-store';
 import type { Config } from "chessground/config";
 
-export function createAIChessStateStore(AIDifficulity: 0 | 1 | 2 | 3 | 4, playingColor: 'w' | 'b' | undefined): AIChessStateStore {
+export function createAIChessStateStore(AIName: 'walter' | 'hank' | 'jesse', playingColor: 'w' | 'b' | undefined): AIChessStateStore {
     
     const chess = new Chess();
     chess.header('Event', 'Chess Game');
@@ -12,11 +12,11 @@ export function createAIChessStateStore(AIDifficulity: 0 | 1 | 2 | 3 | 4, playin
     chess.header('Date', new Date());
     chess.header('Round', null);
     chess.header(playingColor==='w' ? 'White' : 'Black', "You");
-    chess.header(playingColor==='w' ? 'Black' : 'White', getAINameByDifficulity(AIDifficulity));
+    chess.header(playingColor==='w' ? 'Black' : 'White', AIName[0].toUpperCase() + AIName.slice(1).toLowerCase());
     chess.header('Result', '*');
     
     const chessGame: AIChessGame = {
-        AIDifficulity,
+        AIElo: getAIEloByAIName(AIName),
         pgn: chess.pgn()
     }
     const moveStack: Move[] = chess.history({verbose: true});
@@ -144,10 +144,9 @@ const AIChessStateStore = (AIChessState: AIChessState): AIChessStateStore => {
                 });
         
                 stockfish.postMessage('uci');
-
                 // Set Stockfish skill level accordingly to chosen level
                 stockfish.postMessage('setoption name UCI_LimitStrength value true')
-                stockfish.postMessage(`setoption name UCI_Elo value ${250 + AIChessState.chessGame.AIDifficulity * 500}`)
+                stockfish.postMessage(`setoption name UCI_Elo value ${AIChessState.chessGame.AIElo}`)
                 stockfish.postMessage('isready');
             }
         
@@ -169,7 +168,7 @@ const AIChessStateStore = (AIChessState: AIChessState): AIChessStateStore => {
                 }
                 stockfish.postMessage('ucinewgame');
                 stockfish.postMessage('position fen '+ chessState.chess.fen());
-                stockfish.postMessage('go movetime 1');
+                stockfish.postMessage('go depth 1');
                 return chessState;
             });
         }

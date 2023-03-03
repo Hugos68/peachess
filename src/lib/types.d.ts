@@ -14,7 +14,7 @@ interface ChessPuzzle {
 }
 
 interface AIChessGame {
-    AIDifficulity: 0 | 1 | 2 | 3 | 4
+    string: 'walter' | 'hank' | 'jesse'
     pgn?: string
 }
 

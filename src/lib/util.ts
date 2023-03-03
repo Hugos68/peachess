@@ -26,42 +26,16 @@ export const playMoveSound = (move: Move): void => {
     else moveSFX.play();
 }
 
-export function getAINameByDifficulity(AIDifficulity: 0 | 1 | 2 | 3 | 4): string {
-    switch (AIDifficulity) {
-        case 0:
-            return "george";
-            break;
-        case 1:
-            return "bob";
-            break;
-        case 2:
-            return "will";
-            break;
-        case 3:
-            return "matt";
-            break;
-        case 4:
-            return "peter";
-            break;
-    }
-}
-
-export function getAIDifficulityByName(name: 'george' | 'bob' | 'will' | 'matt' | 'peter'): number {
+export function getAIEloByAIName(name: 'walter' | 'hank' | 'jesse'): number {
     switch (name) {
-        case 'george':
-            return 0;
+        case 'walter':
+            return 3000;
             break;
-        case 'bob':
-            return 1;
+        case 'hank':
+            return 2000;
             break;
-        case 'will':
-            return 2;
-            break;
-        case 'matt':
-            return 3;
-            break;
-        case 'peter':
-            return 4;
+        case 'jesse':
+            return 1000;
             break;
     }
 }

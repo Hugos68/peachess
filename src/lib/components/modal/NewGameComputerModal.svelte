@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
-	import { getAIDifficulityByName } from "$lib/util";
+	import { getAIEloByAIName } from "$lib/util";
 	import { ListBox, ListBoxItem, modalStore, popup, toastStore, type PopupSettings, type ToastSettings } from "@skeletonlabs/skeleton";
 
-    let computerName: 'george' | 'bob' | 'will' | 'matt' | 'peter' | undefined;
+    let computerName: 'walter' | 'hank' | 'jesse' | undefined;
 
     const createComputerGame = async () => {
         modalStore.close();
@@ -28,9 +28,9 @@
     <h2 class="text-center"><strong>Play against a computer</strong></h2>
     <div class="flex justify-between items-center">
         <p class="whitespace-nowrap">
-            Difficulity level: 
+            Elo: 
             {#if computerName}
-                {getAIDifficulityByName(computerName)}
+                {getAIEloByAIName(computerName)}
             {/if}
         </p>
         <button class="btn variant-filled w-48 justify-between" use:popup={computerNamePopup}>
@@ -41,11 +41,9 @@
 
     <div class="card w-48 bg-red-500 shadow-xl overflow-hidden z-[100]" data-popup="computer-name">
         <ListBox>
-            <ListBoxItem bind:group={computerName} name="medium" value="george">George</ListBoxItem>
-            <ListBoxItem bind:group={computerName} name="medium" value="bob">Bob</ListBoxItem>
-            <ListBoxItem bind:group={computerName} name="medium" value="will">Will</ListBoxItem>
-            <ListBoxItem bind:group={computerName} name="medium" value="matt">Matt</ListBoxItem>
-            <ListBoxItem bind:group={computerName} name="medium" value="peter">Peter</ListBoxItem>
+            <ListBoxItem bind:group={computerName} name="medium" value="walter">Walter</ListBoxItem>
+            <ListBoxItem bind:group={computerName} name="medium" value="hank">Hank</ListBoxItem>
+            <ListBoxItem bind:group={computerName} name="medium" value="jesse">Jesse</ListBoxItem>
         </ListBox>
     </div>
     <button class="btn variant-filled-secondary" disabled={!computerName} on:click={createComputerGame}>Create Game</button>
