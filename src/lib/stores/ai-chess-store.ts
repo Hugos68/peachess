@@ -1,6 +1,6 @@
 import { Chess, type Move, type Square } from "chess.js";
 import { writable, type Writable, get } from "svelte/store";
-import { getConfig, getMaterial, updateMaterial, playMoveSound, getAINameByDifficulity } from "$lib/util";
+import { getConfig, getMaterial, updateMaterial, playMoveSound, getAINameByDifficulity, wasmThreadsSupported } from "$lib/util";
 import { settings} from './settings-store';
 import type { Config } from "chessground/config";
 
@@ -23,7 +23,6 @@ export function createAIChessStateStore(AIDifficulity: 0 | 1 | 2 | 3 | 4, playin
     const undoneMoveStack: Move[] = [];
     const material = getMaterial(moveStack);
     const boardConfig: Config = getConfig(chess, playingColor, moveStack, undoneMoveStack);
-
     const AIChessState: AIChessState = {
         chessGame,
         playingColor,
@@ -32,15 +31,15 @@ export function createAIChessStateStore(AIDifficulity: 0 | 1 | 2 | 3 | 4, playin
         undoneMoveStack,
         material,
         boardConfig
-    }
+    }   
 
     return AIChessStateStore(AIChessState);
 }
 
 let stockfish;
-const AIChessStateStore = (chessState: AIChessState): AIChessStateStore => {
+const AIChessStateStore = (AIChessState: AIChessState): AIChessStateStore => {
 
-    const { set, update, subscribe }: Writable<AIChessState> = writable<AIChessState>(chessState);
+    const { set, update, subscribe }: Writable<AIChessState> = writable<AIChessState>(AIChessState);
 
     const loadPgn = (pgn: string) => {
         update(chessState => {
@@ -109,22 +108,23 @@ const AIChessStateStore = (chessState: AIChessState): AIChessStateStore => {
             
         },
         move: async (from: Square, to: Square, promotion?: 'q' | 'r' | 'n' | 'b')  => {
-            if (!window.Worker) return;
             if (!stockfish) {
-                const wasmSupported = typeof WebAssembly === 'object' && WebAssembly.validate(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
-                stockfish = new Worker(wasmSupported ? '/stockfish/stockfish.wasm.js' : '/stockfish/stockfish.js');
-
-                stockfish.onmessage = function(e) {
-                    console.log(e.data);
-                    
-                    if (!e.data.includes('bestmove')) return;
-                    const segments = e.data.split(' ');
+                if (!wasmThreadsSupported()) {
+                    console.log("Browser does not support wasm threads therefor stockfish can not be loaded");
+                    return;
+                }
+        
+                stockfish = await Stockfish();
+                stockfish.addMessageListener((line: string) => {     
+                    console.log(line);       
+                    if (!line.includes('bestmove')) return;
+                    const segments = line.split(' ');
                     const move = segments[1];
                     const from = move.substring(0, 2);
                     const to = move.substring(2, 4);
                     const promotion = move.substring(4);
                     update(chessState => {
-    
+                            
                         // Load latest pgn if user is not in sync with server (we do this check by checking if the undoneMoveSTack has any moves since this indicates a user has gone back in moves)
                         if (chessState.undoneMoveStack.length !== 0) loadPgn(chessState.chessGame.pgn);
         
@@ -137,12 +137,13 @@ const AIChessStateStore = (chessState: AIChessState): AIChessStateStore => {
                         chessState.chessGame.pgn = chessState.chess.pgn();
                         return chessState;
                     });
-                }
-
+                });
+        
                 stockfish.postMessage('uci');
 
                 // Set Stockfish skill level accordingly to chosen level
-                stockfish.postMessage(`setoption name Skill Level value ${chessState.chessGame.AIDifficulity * 2}`)
+                stockfish.postMessage('setoption name UCI_LimitStrength value true')
+                stockfish.postMessage(`setoption name UCI_Elo value ${250 + AIChessState.chessGame.AIDifficulity * 500}`)
                 stockfish.postMessage('isready');
             }
         
@@ -160,7 +161,7 @@ const AIChessStateStore = (chessState: AIChessState): AIChessStateStore => {
                 }
                 stockfish.postMessage('ucinewgame');
                 stockfish.postMessage('position fen '+ chessState.chess.fen());
-                stockfish.postMessage('go');
+                stockfish.postMessage('go movetime 1000');
                 return chessState;
             });
         }

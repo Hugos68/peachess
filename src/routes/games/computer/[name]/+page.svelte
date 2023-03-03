@@ -7,15 +7,15 @@
 	import type { Writable } from "svelte/store";
 	import { modalStore, type ModalComponent, type ModalSettings } from "@skeletonlabs/skeleton";
 	import { getAIDifficulityByName } from "$lib/util";
-	import ChessBoard from "$lib/components/chess/ChessGamePanel.svelte";
+    import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
+	import ChessGamePanel from '$lib/components/chess/ChessGamePanel.svelte';
 	import EvalutationBar from "$lib/components/chess/EvalutationBar.svelte";
-	import ChessGamePanel from "$lib/components/chess/ChessGamePanel.svelte";
     
     export let data: PageData;
 
     const chessStateStore: Writable<AIChessState> = createAIChessStateStore(getAIDifficulityByName(data.name) as 0 | 1 | 2 | 3 | 4, 'w');
 
-        const openGamePanel = () => {
+    const openGamePanel = () => {
         const modalComponent: ModalComponent = {
 		    ref: ChessGamePanel,
             props: { 

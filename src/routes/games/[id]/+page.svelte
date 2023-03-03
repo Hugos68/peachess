@@ -7,8 +7,8 @@
 	import { getPlayingColor } from "$lib/util";
 	import { page } from "$app/stores";
 	import type { Writable } from "svelte/store";
-	import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
 	import { modalStore, type ModalComponent, type ModalSettings } from "@skeletonlabs/skeleton";
+    import ChessBoard from "$lib/components/chess/ChessBoard.svelte";
 	import ChessGamePanel from '$lib/components/chess/ChessGamePanel.svelte';
 	import EvalutationBar from "$lib/components/chess/EvalutationBar.svelte";
 

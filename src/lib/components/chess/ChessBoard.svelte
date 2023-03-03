@@ -132,7 +132,7 @@
 <svelte:window on:mousedown={handleWindowMouseDown} />
 
 <!-- BOARD-WRAPPER -->
-<div class="relative  aspect-square">
+<div class="relative aspect-square w-full h-full">
 
     <!-- BOARD -->
     <div class="transition-[filter] flex justify-center items-center" class:brightness-50={promotionMove!==null} bind:this={boardElement}>
