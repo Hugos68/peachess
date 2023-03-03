@@ -1,5 +1,6 @@
 <script lang="ts">
-	import '@skeletonlabs/skeleton/themes/theme-rocket.css';
+	// import '@skeletonlabs/skeleton/themes/theme-rocket.css';
+	import '../theme.postcss';
 	import '@skeletonlabs/skeleton/styles/all.css';
 	import '../app.postcss';
 	import '../chessground.css';

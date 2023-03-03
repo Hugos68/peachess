@@ -48,7 +48,7 @@
     <div class="flex flex-col gap-2">
         <header class="flex justify-between items-center">
             {#if $chessStateStore.puzzleCompleted}
-                <p class="p-1.5 md:p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Puzzle Completed</p>
+                <p class="p-1.5 md:p-2 my-auto rounded-token font-semibold text-center bg-success-500">Puzzle Completed</p>
             {:else}
                 {@const turn = $chessStateStore.chess.turn()}
                 <p
@@ -60,8 +60,8 @@
                 >{turn===WHITE ? 'White' : 'Black'}'s turn</p>
             {/if}
             <div class="flex gap-2">
-                <p class="bg-secondary-500 p-1.5 md:p-2">Rating: {$chessStateStore.chessPuzzle.rating} </p>
-                <p class="bg-secondary-500 p-1.5 md:p-2">Streak: {streak}</p>
+                <p class="bg-secondary-500 p-1.5 md:p-2 rounded-token">Rating: {$chessStateStore.chessPuzzle.rating} </p>
+                <p class="bg-secondary-500 p-1.5 md:p-2 rounded-token">Streak: {streak}</p>
             </div>
         </header>
 
