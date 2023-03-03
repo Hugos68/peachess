@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { wasmThreadsSupported } from "$lib/util";
-	import { ProgressBar } from "@skeletonlabs/skeleton";
     import type { Chess } from "chess.js";
 	import { onMount } from "svelte";
 	import { onDestroy } from "svelte";
-	import { cubicInOut, cubicOut } from "svelte/easing";
+	import { cubicOut } from "svelte/easing";
 	import { tweened } from "svelte/motion";
 
     export let chess: Chess;
