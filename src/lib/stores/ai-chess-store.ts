@@ -1,6 +1,6 @@
 import { Chess, type Move, type Square } from "chess.js";
 import { writable, type Writable, get } from "svelte/store";
-import { getConfig, getMaterial, updateMaterial, playMoveSound } from "$lib/util";
+import { getConfig, getMaterial, updateMaterial, playMoveSound, getAINameByDifficulity } from "$lib/util";
 import { settings} from './settings-store';
 import type { Config } from "chessground/config";
 
