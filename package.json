@@ -13,7 +13,7 @@
 	},
 	"devDependencies": {
 		"@skeletonlabs/skeleton": "^0.132.5",
-		"@sveltejs/adapter-node": "^1.2.1",
+		"@sveltejs/adapter-vercel": "^2.3.0",
 		"@sveltejs/kit": "^1.0.0",
 		"@tailwindcss/forms": "^0.5.3",
 		"@tailwindcss/line-clamp": "^0.4.2",
@@ -41,6 +41,7 @@
 		"@floating-ui/dom": "^1.2.1",
 		"@supabase/auth-helpers-sveltekit": "^0.8.7",
 		"@supabase/supabase-js": "^2.7.1",
+		"@sveltejs/adapter-auto": "^2.0.0",
 		"chess.js": "^1.0.0-beta.3",
 		"chessground": "^8.3.7",
 		"dotenv": "^16.0.3",
