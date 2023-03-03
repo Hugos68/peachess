@@ -1,4 +1,4 @@
-import { Chess, type Move, type Square } from "chess.js";
+import { Chess, type Move, type Square, BLACK } from "chess.js";
 import { writable, type Writable, get } from "svelte/store";
 import { getConfig, getMaterial, updateMaterial, playMoveSound, getAINameByDifficulity, wasmThreadsSupported } from "$lib/util";
 import { settings} from './settings-store';
@@ -131,6 +131,10 @@ const AIChessStateStore = (AIChessState: AIChessState): AIChessStateStore => {
                         // Move (t  hrows exception if move is invalid)
                         const move = chessState.chess.move({from, to, promotion});
                         if (get(settings).sfx) playMoveSound(move);
+                        if (chessState.chess.isGameOver()) {
+                            if (chessState.chess.isCheckmate()) chessState.chess.turn() === BLACK ? chessState.chess.header('Result', '1-0') : chessState.chess.header('Result', '0-1');
+                            else chessState.chess.header('Result', '1/2-1/2');
+                        }
                         chessState.moveStack.push(move);
                         chessState.material = getMaterial(chessState.moveStack);
                         chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
@@ -152,6 +156,10 @@ const AIChessStateStore = (AIChessState: AIChessState): AIChessStateStore => {
                     // Move (throws exception if move is invalid)
                     const move = chessState.chess.move({from, to, promotion});
                     if (get(settings).sfx) playMoveSound(move);
+                    if (chessState.chess.isGameOver()) {
+                        if (chessState.chess.isCheckmate()) chessState.chess.turn() === BLACK ? chessState.chess.header('Result', '1-0') : chessState.chess.header('Result', '0-1');
+                        else chessState.chess.header('Result', '1/2-1/2');
+                    }
                     chessState.moveStack.push(move);
                     chessState.material = getMaterial(chessState.moveStack);
                     chessState.boardConfig = getConfig(chessState.chess, chessState.playingColor, chessState.moveStack, chessState.undoneMoveStack);
@@ -161,7 +169,7 @@ const AIChessStateStore = (AIChessState: AIChessState): AIChessStateStore => {
                 }
                 stockfish.postMessage('ucinewgame');
                 stockfish.postMessage('position fen '+ chessState.chess.fen());
-                stockfish.postMessage('go movetime 1000');
+                stockfish.postMessage('go movetime 1');
                 return chessState;
             });
         }
