@@ -34,6 +34,9 @@
 </script>
  <div class="mx-auto xl:h-[calc(100vh-2rem)] flex flex-col xl:flex-row justify-center items-center gap-12">
 
+    <div class="hidden xl:block">
+        <EvalutationBar height="h-[min(calc(100vw)-1rem,calc(95vh-12rem))]" flipped={$chessStateStore.playingColor === 'w'} chess={$chessStateStore.chess} />
+    </div>
     <div class="flex flex-col gap-2">
         <header class="flex justify-between">
             {#if $chessStateStore.chess.isCheckmate()}
@@ -69,8 +72,7 @@
                 chessStateStore.move(event.detail.from, event.detail.to, event.detail?.promotion);
             }}/>
         </div>
-        <EvalutationBar orientation={$chessStateStore.playingColor} chess={$chessStateStore.chess} />
-    
+
         <footer class="flex justify-between items-end">
     
             <MoveControls {chessStateStore} />

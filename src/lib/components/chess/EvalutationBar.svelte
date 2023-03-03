@@ -8,7 +8,8 @@
 	import { tweened } from "svelte/motion";
 
     export let chess: Chess;
-    export let orientation: 'w' | 'b'
+    export let flipped: boolean;
+    export let height: string;
 
     let turn: 'w' | 'b' = chess.turn();
     let stockfish: any | undefined;
@@ -36,7 +37,6 @@
             }
             if (line.includes('mate')) {
                 const mateValue = Number(line.split('mate ')[1].split(' ')[0]);
-                console.log(mateValue);
                 if (turn === 'w') {
                     if (mateValue > 0) currentEvaluation.set(100);
                     else currentEvaluation.set(-100);
@@ -83,5 +83,8 @@
     const cpWinningChances = (cp: number): number => rawWinningChances(Math.min(Math.max(-1000, cp), 1000));
 </script>
 
-<ProgressBar track="bg-black" height="h-8" label="Evaluation bar" min={0} max={200} value={$currentEvaluation + 100} />
-
+<div class:translate-y-180={flipped} class="{height} w-8 relative bg-black">
+    {#key $currentEvaluation}
+        <span style="height: {($currentEvaluation+100)/2}% !important;" class="absolute bottom-0 bg-white w-full "></span>
+    {/key}
+</div>
