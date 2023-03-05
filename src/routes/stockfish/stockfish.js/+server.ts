@@ -4,5 +4,5 @@ import fs from 'fs';
 export const GET: RequestHandler = async () => {
     const headers = new Headers();
     headers.append('Content-Type', 'text/javascript');
-    return new Response(fs.readFileSync('./static/stockfish-files/stockfish.js'), { headers, status: 200 });
+    return new Response(fs.readFileSync('/static/stockfish-files/stockfish.js'), { headers, status: 200 });
 };
