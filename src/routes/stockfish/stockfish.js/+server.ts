@@ -1,8 +1,8 @@
 import type { RequestHandler } from './$types';
-import file from './stockfish.js?raw';
+import fs from 'fs';
 
 export const GET: RequestHandler = async () => {
     const headers = new Headers();
     headers.append('Content-Type', 'text/javascript');
-    return new Response(file, { headers, status: 200 });
+    return new Response(fs.readFileSync('static/stockfish-files/stockfish.js'), { headers, status: 200 });
 };
