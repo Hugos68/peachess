@@ -2,7 +2,6 @@
 	import { page } from "$app/stores";
 	import { createOnlineChessStateStore } from "$lib/stores/online-chess-store";
 	import { getPlayingColor } from "$lib/util";
-	import { Chess } from "chess.js";
 	import { get } from "svelte/store";
 	import type { PageData } from "./$types";
 
