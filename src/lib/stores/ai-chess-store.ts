@@ -128,7 +128,7 @@ const AIChessStateStore = (AIChessState: AIChessState): AIChessStateStore => {
                         // Load latest pgn if user is not in sync with server (we do this check by checking if the undoneMoveSTack has any moves since this indicates a user has gone back in moves)
                         if (chessState.undoneMoveStack.length !== 0) loadPgn(chessState.chessGame.pgn);
         
-                        // Move (t  hrows exception if move is invalid)
+                        // Move (throws exception if move is invalid)
                         const move = chessState.chess.move({from, to, promotion});
                         if (get(settings).sfx) playMoveSound(move);
                         if (chessState.chess.isGameOver()) {
