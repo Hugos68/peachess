@@ -168,7 +168,7 @@ const AIChessStateStore = (AIChessState: AIChessState): AIChessStateStore => {
                 }
                 stockfish.postMessage('ucinewgame');
                 stockfish.postMessage('position fen '+ chessState.chess.fen());
-                stockfish.postMessage('go movetime 50');
+                stockfish.postMessage('go depth 15');
                 return chessState;
             });
         }
