@@ -9,6 +9,7 @@
     }
     
     const navItems: navItem[] = [
+        { label: 'Home', link: '/home' },
         { label: 'Games', link: '/games' },
         { label: 'Puzzles', link: '/puzzles' },
         { label: 'Social', link: '/social' }

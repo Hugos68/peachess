@@ -35,7 +35,7 @@
 </script>
 
 <button class="btn" use:popup={profilePopup}>
-    <Avatar width="w-10" initials={$page.data.session.user.email} />
+    <Avatar width="w-10" initials={$page.data.session.user.user_metadata.user_name} />
 </button>
 <nav class="list-nav card p-4 shadow-xl flex flex-col gap-4" data-popup="avatar-popup">
     <ul>
