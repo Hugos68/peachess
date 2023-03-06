@@ -1,12 +1,10 @@
 import type { RequestHandler } from './$types';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 export const GET: RequestHandler = async () => {
     const headers = new Headers();
     headers.append('Content-Type', 'application/wasm');
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__filename);
-    return new Response(fs.readFileSync(__dirname + '\\stockfish.wasm'), { headers, status: 200 });
+    const stockfishPath = path.resolve(PUBLIC_SRV_ROOT, '/stockfish-files/stockfish.wasm')
+    return new Response(fs.readFileSync(stockfishPath), { headers, status: 200 });
 };
