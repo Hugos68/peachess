@@ -6,7 +6,7 @@
 	<h1 class="!text-[clamp(3rem,10vw,6rem)] !leading-snug">Peachess</h1>
 	<p class="font-bold">The #1 chess website.</p>
 	<div class="flex gap-8">
-		<a class="btn btn-large variant-filled-primary" href= {$page.data.session ? "/home" : "/sign-up"}>Get started!</a>
+		<a class="btn btn-large variant-filled-primary" href={$page.data.session ? "/home" : "/sign-up"}>Get started!</a>
 		<a class="btn btn-large variant-ghost-secondary" href="/about">Learn more</a>
 	</div>
 	<div class="flex gap-[10vw] flex-wrap justify-evenly">
