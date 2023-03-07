@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from "$app/stores";
-	import { drawerStore } from "@skeletonlabs/skeleton";
+	import { drawerStore, LightSwitch } from "@skeletonlabs/skeleton";
 	import ProfileButton from "./ProfileButton.svelte";
 
     interface navItem {
@@ -36,7 +36,7 @@
             {/if}
         </ul>
     </nav>
- 
+    <LightSwitch />
     <hr class="my-8 mt-auto" />
     <p class="text-center">All Rights Reserved.</p>
 </div>

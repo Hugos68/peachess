@@ -12,14 +12,20 @@ const handleWasmHeaders: Handle = async ({ event, resolve }) => {
 }
 
 const authRoutes: string[] = ['/home', '/account'];
+const antiAuthRoutes: string[] = ['/sign-in', '/sign-up'];
 
 const handleAuthRouting: Handle = async ({ event, resolve }) => {
     const { session } = await getSupabase(event);
     const url: URL = new URL(event.request.url);
     const loggedIn: boolean = session!==null;
-    
-    if (!loggedIn && authRoutes.includes(event.route.id)) {
+    const path: string = event.route.id;
+
+    if (!loggedIn && authRoutes.includes(path)) {
         url.pathname = '/sign-in'
+        return Response.redirect(url.toString(), 302);
+    }
+    else if (loggedIn && antiAuthRoutes.includes(path)) {
+        url.pathname = '/home'
         return Response.redirect(url.toString(), 302);
     }
     

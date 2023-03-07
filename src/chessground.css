@@ -217,14 +217,14 @@ cg-board piece.fading {
   .cg-wrap.orientation-white coords.files coord:nth-child(2n),
   .cg-wrap.orientation-black coords.ranks coord:nth-child(2n + 1),
   .cg-wrap.orientation-black coords.files coord:nth-child(2n + 1) {
-    @apply text-token;
+    @apply text-black;
   }
   
   .cg-wrap.orientation-black coords.ranks coord:nth-child(2n),
   .cg-wrap.orientation-black coords.files coord:nth-child(2n),
   .cg-wrap.orientation-white coords.ranks coord:nth-child(2n + 1),
   .cg-wrap.orientation-white coords.files coord:nth-child(2n + 1) {
-    @apply text-token;
+    @apply text-black;
   }
 
 .pawn.white {
