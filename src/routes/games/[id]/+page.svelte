@@ -35,7 +35,7 @@
  <div class="mx-auto xl:h-[calc(100vh-2rem)] flex flex-col xl:flex-row justify-center items-center gap-12">
 
     <div class="hidden xl:block">
-        <EvalutationBar height="h-[min(calc(100vw)-1rem,calc(95vh-12rem))]" flipped={$chessStateStore.playingColor === 'w'} chess={$chessStateStore.chess} />
+        <EvalutationBar height="h-[min(calc(100vw)-1rem,calc(95vh-12rem))]" flipped={$chessStateStore.playingColor === 'b'} chess={$chessStateStore.chess} />
     </div>
     <div class="flex flex-col gap-2">
         <header class="flex justify-between">

@@ -12,7 +12,7 @@
 <div class="mt-[7.5vh] flex flex-col gap-4">
     <h1>Welcome, {$page.data.session.user.user_metadata.user_name}</h1>
     <hr />
-    <div class="flex flex-wrap w-full justify-between gap-4">
+    <div class="flex flex-wrap w-full gap-4">
         <div class="flex flex-col gap-2 items-center">
             <h2>Play</h2>
             <div class="grid grid-cols-2 gap-4">
@@ -49,6 +49,8 @@
                         <span class="badge variant-ghost-error">{chessState.chess.header()['Result']}</span>
                     {:else if chessState.chess.header()['Result']==='0-1' && chessState.playingColor==='b'}
                         <span class="badge variant-ghost-success">{chessState.chess.header()['Result']}</span>
+                    {:else}
+                        <span class="badge variant-ghost-warning">{chessState.chess.header()['Result']}</span>
                     {/if}
                 </a>
             {/each}
