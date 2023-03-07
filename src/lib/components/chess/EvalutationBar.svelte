@@ -3,7 +3,7 @@
     import type { Chess } from "chess.js";
 	import { onMount } from "svelte";
 	import { onDestroy } from "svelte";
-	import { cubicOut } from "svelte/easing";
+	import { sineInOut } from "svelte/easing";
 	import { tweened } from "svelte/motion";
 
     export let chess: Chess;
@@ -14,8 +14,8 @@
     let stockfish: any | undefined;
     let currentDepth = 0;
     let currentEvaluation = tweened(0, {
-		duration: 2000,
-        easing: cubicOut
+		duration: 4000,
+        easing: sineInOut
 	});
     
     onMount(async () => {
