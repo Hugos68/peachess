@@ -16,7 +16,7 @@
     let mistakeMade: boolean = false;
     
     async function loadNewPuzzle() {
-        mistakeMade = false;
+        setTimeout(() => mistakeMade = false, 250);
         await goto(`/puzzles/${Math.floor(Math.random() * (50000))}`);
         chessStateStore = createPuzzleChessStateStore(data.chessPuzzle)
     }
@@ -61,7 +61,7 @@
                 {#if $chessStateStore.puzzleCompleted || mistakeMade}
                     <button class="btn variant-filled-secondary font-semibold p-1.5 md:p-2" on:click={loadNewPuzzle}>Load next puzzle</button>
                 {:else}
-                    <button class="btn variant-filled-secondary font-semibold p-1.5 md:p-2" on:click={() => chessStateStore.showNextMove()}>Reveal Move</button>
+                    <button class="btn variant-filled-secondary font-semibold p-1.5 md:p-2" disabled={$chessStateStore.chess.turn()!==$chessStateStore.playingColor} on:click={() => chessStateStore.showNextMove()}>Reveal Move</button>
                 {/if}
             </div>
         </header>
