@@ -7,7 +7,6 @@
 
     export let chessStateStore: Writable<ChessState>;
     export let height: string;
-    export let width: string;
 
     let mounted: boolean = false;
     onMount(() => mounted = true);
@@ -33,7 +32,7 @@
 <div>
     
 </div>
-<TabGroup regionPanel="flex-1 flex flex-col overflow-hidden" class="card bg-surface-300-600-token p-4 flex flex-col {height} {width}">
+<TabGroup regionPanel="flex-1 flex flex-col overflow-hidden" class="card bg-surface-300-600-token p-4 flex flex-col {height} w-[20rem]">
     <Tab bind:group={tabSet} name="moves" value={0}>Moves</Tab>
     <Tab bind:group={tabSet} name="settings" value={1}>Settings</Tab>
     <Tab bind:group={tabSet} name="share" value={2}>Share</Tab>

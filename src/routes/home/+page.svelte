@@ -39,7 +39,7 @@
 <div class="mt-[7.5vh] flex flex-col gap-4">
     <h1>Welcome, {$page.data.session.user.user_metadata.user_name}</h1>
     <hr />
-    <div class="flex flex-wrap w-full gap-24">
+    <div class="flex flex-wrap w-full gap-24 justify-between">
         <div class="flex flex-col gap-2 items-center">
             <div class="grid grid-cols-2 gap-4">
                 <button class="card !bg-tertiary-300-600-token p-4 aspect-square flex flex-col justify-center items-center" on:click={openNewGamePlayerModal}>

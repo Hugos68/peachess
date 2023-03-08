@@ -38,7 +38,7 @@
     }
 </script>
 
-<div class="mx-auto xl:h-[calc(100vh-2rem)] flex flex-col xl:flex-row justify-center items-center gap-12">
+<div class="mx-auto xl:h-[calc(100vh-6rem)] flex flex-col xl:flex-row justify-center items-center gap-12">
 
     <div class="flex flex-col gap-2">
         <header class="flex justify-between items-center">
@@ -80,7 +80,7 @@
         </footer>
     </div>
     <div class="hidden xl:block">
-        <ChessGamePanel height="h-[min(calc(100vw)-1rem,calc(95vh-12rem))]" width="w-full" {chessStateStore} />
+        <ChessGamePanel height="h-[min(calc(100vw)-1rem,calc(95vh-12rem))]" {chessStateStore} />
     </div>
     
     <button class="btn variant-filled-primary xl:hidden" on:click={openGamePanel}>Open Game Panel</button>

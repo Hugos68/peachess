@@ -122,7 +122,7 @@ cg-board piece.fading {
   pointer-events: none;
 }
 .cg-wrap .cg-shapes {
-  opacity: 0.6;
+  opacity: 0.8;
   z-index: 2;
 }
 .cg-wrap .cg-custom-svgs {

@@ -27,7 +27,7 @@
                 <rect fill="currentColor" width="100" height="10" x="0" y="80"></rect>
             </svg>
         </button>
-        <nav class="list-nav flex">
+        <nav class="list-nav hidden md:flex">
             {#each navItems as {label, href}}
                 <a class="nav-item" href={href}>{label}</a>
             {/each}
