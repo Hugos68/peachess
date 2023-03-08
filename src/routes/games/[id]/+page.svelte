@@ -32,66 +32,72 @@
         modalStore.trigger(modal);
     }
 </script>
- <div class="grid grid-cols-3 grid-rows-3 h-[calc(100vh-6rem)]">
+ <div class="grid grid-cols-[3rem_6rem_auto_6rem_15rem] grid-rows-[auto_calc(100vh-11.5rem)_auto]">
 
-    <span class="hidden xl:block">
+    {#if $chessStateStore.chess.isCheckmate()}
+        <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700 col-[2]">Checkmate</p>
+    {:else if $chessStateStore.chess.isStalemate()}
+        <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700 col-[2]">Stalemate</p>
+    {:else if $chessStateStore.chess.isDraw()}
+        <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700 col-[2]">Draw</p>
+    {:else}
+        {@const turn = $chessStateStore.chess.turn()}
+        <p
+        class="my-auto p-2 rounded-token font-semibold text-center col-[2]"
+        class:text-white={turn===BLACK}
+        class:text-black={turn===WHITE}
+        class:bg-white={turn===WHITE} 
+        class:bg-black={turn===BLACK}
+        >{turn===WHITE ? 'White' : 'Black'}'s turn</p>
+    {/if}
+
+    <div class="flex flex-col items-end col-[4]">
+        {#if ($chessStateStore.playingColor ? $chessStateStore.playingColor==='w' : true)}
+            <p class="font-bold capitalize">{$chessStateStore.chess.header()['Black']}</p>
+            <MaterialTracker material={$chessStateStore.material} color={WHITE} />
+        {:else}
+            <p class="font-bold capitalize">{$chessStateStore.chess.header()['White']}</p>
+            <MaterialTracker material={$chessStateStore.material} color={BLACK} />
+        {/if}
+    </div>
+
+    <span class="hidden xl:block row-[2]">
         <EvalutationBar height="h-full" flipped={$chessStateStore.playingColor === 'b'} chess={$chessStateStore.chess} />
     </span>
 
-    <div class="flex flex-col">
-        <div class="flex justify-between">
-            {#if $chessStateStore.chess.isCheckmate()}
-                <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Checkmate</p>
-            {:else if $chessStateStore.chess.isStalemate()}
-                <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Stalemate</p>
-            {:else if $chessStateStore.chess.isDraw()}
-                <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Draw</p>
-            {:else}
-                {@const turn = $chessStateStore.chess.turn()}
-                <p
-                class="my-auto p-2 rounded-token font-semibold text-center"
-                class:text-white={turn===BLACK}
-                class:text-black={turn===WHITE}
-                class:bg-white={turn===WHITE} 
-                class:bg-black={turn===BLACK}
-                >{turn===WHITE ? 'White' : 'Black'}'s turn</p>
-            {/if}
-            <div class="flex flex-col items-end">
-                {#if ($chessStateStore.playingColor ? $chessStateStore.playingColor==='w' : true)}
-                    <p class="font-bold capitalize">{$chessStateStore.chess.header()['Black']}</p>
-                    <MaterialTracker material={$chessStateStore.material} color={WHITE} />
-                {:else}
-                    <p class="font-bold capitalize">{$chessStateStore.chess.header()['White']}</p>
-                    <MaterialTracker material={$chessStateStore.material} color={BLACK} />
-                {/if}
-            </div>
-        </div>
-        
-   
+    <span class="chessboard">
         <ChessBoard config={$chessStateStore.boardConfig} on:move={(event) => {
             chessStateStore.move(event.detail.from, event.detail.to, event.detail?.promotion);
         }}/>
+    </span>
 
-
-      
-        <div class="flex justify-between items-end">
-            <MoveControls {chessStateStore} />
-
-            <div class="flex flex-col items-end">
-                {#if ($chessStateStore.playingColor ? $chessStateStore.playingColor==='b' : false)}
-                    <p class="font-bold capitalize">{$chessStateStore.chess.header()['Black']}</p>
-                    <MaterialTracker material={$chessStateStore.material} color={WHITE} />
-                {:else}
-                    <p class="font-bold capitalize">{$chessStateStore.chess.header()['White']}</p>
-                    <MaterialTracker material={$chessStateStore.material} color={BLACK} />
-                {/if}
-            </div>
-        </div>
-    </div>
-
-    <span class="hidden xl:block">
+    <span class="hidden xl:block row-[2]">
         <ChessGamePanel height="h-full" width="w-full" {chessStateStore} />
     </span>
+
+    <span class="row-[3] col-[2]">
+        <MoveControls {chessStateStore} />
+    </span>
+
+
+    <div class="flex flex-col items-end col-[4] row-[3]">
+        {#if ($chessStateStore.playingColor ? $chessStateStore.playingColor==='b' : false)}
+            <p class="font-bold capitalize">{$chessStateStore.chess.header()['Black']}</p>
+            <MaterialTracker material={$chessStateStore.material} color={WHITE} />
+        {:else}
+            <p class="font-bold capitalize">{$chessStateStore.chess.header()['White']}</p>
+            <MaterialTracker material={$chessStateStore.material} color={BLACK} />
+        {/if}
+    </div>
     
     <button class="btn variant-filled-primary xl:hidden" on:click={openGamePanel}>Open Game Panel</button>
  </div>
+
+ <style>
+
+    .chessboard {
+        grid-column: 2 / span 3;
+        aspect-ratio: 1;  
+        grid-row: 2;
+    }
+ </style>
