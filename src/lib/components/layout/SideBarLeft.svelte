@@ -3,16 +3,11 @@
 	import { drawerStore, LightSwitch } from "@skeletonlabs/skeleton";
 	import ProfileButton from "./ProfileButton.svelte";
 
-    interface navItem {
-        label: string
-        link: string
-    }
-    
-    const navItems: navItem[] = [
-        { label: 'Home', link: '/home' },
-        { label: 'Games', link: '/games' },
-        { label: 'Puzzles', link: '/puzzles' },
-        { label: 'Social', link: '/social' }
+    const navItems = [
+        { label: 'Home', href: '/home' },
+        { label: 'Games', href: '/games' },
+        { label: 'Puzzles', href: '/puzzles' },
+        { label: 'Social', href: '/social' }
     ];
 </script>
 
@@ -27,8 +22,8 @@
 
     <nav class="mx-auto w-full">
         <ul class="flex flex-col list-nav">
-            {#each navItems as navItem}
-                <li><a href={navItem.link} on:click={() => drawerStore.close()}>{navItem.label}</a></li>
+            {#each navItems as {label, href}}
+                <li><a href={href} on:click={() => drawerStore.close()}>{label}</a></li>
             {/each}
             {#if !$page.data.session}
                 <li><a href="/sign-in" on:click={() => drawerStore.close()}>Sign In</a></li>

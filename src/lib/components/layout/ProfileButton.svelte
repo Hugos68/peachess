@@ -9,7 +9,7 @@
             if (result.type==='redirect') {
                 const t: ToastSettings = {
                     message: 'Successfully signed out',
-                    preset: 'success',
+                    background: 'success',
                     autohide: true
                 }
                 toastStore.trigger(t);
@@ -18,7 +18,7 @@
             else if (result.type==='failure') {
                 const t: ToastSettings = {
                 message: result.data?.message,
-                preset: 'error',
+                background: 'error',
                 autohide: true
             }
             toastStore.trigger(t);

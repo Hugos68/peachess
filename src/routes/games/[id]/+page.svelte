@@ -32,13 +32,14 @@
         modalStore.trigger(modal);
     }
 </script>
- <div class="mx-auto xl:h-[calc(100vh-2rem)] flex flex-col xl:flex-row justify-center items-center gap-12">
+ <div class="grid grid-cols-3 grid-rows-3 h-[calc(100vh-6rem)]">
 
-    <div class="hidden xl:block">
-        <EvalutationBar height="h-[min(calc(100vw)-1rem,calc(95vh-12rem))]" flipped={$chessStateStore.playingColor === 'b'} chess={$chessStateStore.chess} />
-    </div>
-    <div class="flex flex-col gap-2">
-        <header class="flex justify-between">
+    <span class="hidden xl:block">
+        <EvalutationBar height="h-full" flipped={$chessStateStore.playingColor === 'b'} chess={$chessStateStore.chess} />
+    </span>
+
+    <div class="flex flex-col">
+        <div class="flex justify-between">
             {#if $chessStateStore.chess.isCheckmate()}
                 <p class="p-2 my-auto rounded-token font-semibold text-center bg-secondary-700">Checkmate</p>
             {:else if $chessStateStore.chess.isStalemate()}
@@ -64,19 +65,18 @@
                     <MaterialTracker material={$chessStateStore.material} color={BLACK} />
                 {/if}
             </div>
-    
-        </header>
-
-        <div class="overflow-hidden card h-[min(calc(100vw)-1rem,calc(95vh-12rem))] w-[min(calc(100vw)-1rem,calc(95vh-12rem))]">
-            <ChessBoard config={$chessStateStore.boardConfig} on:move={(event) => {
-                chessStateStore.move(event.detail.from, event.detail.to, event.detail?.promotion);
-            }}/>
         </div>
+        
+   
+        <ChessBoard config={$chessStateStore.boardConfig} on:move={(event) => {
+            chessStateStore.move(event.detail.from, event.detail.to, event.detail?.promotion);
+        }}/>
 
-        <footer class="flex justify-between items-end">
-    
+
+      
+        <div class="flex justify-between items-end">
             <MoveControls {chessStateStore} />
-    
+
             <div class="flex flex-col items-end">
                 {#if ($chessStateStore.playingColor ? $chessStateStore.playingColor==='b' : false)}
                     <p class="font-bold capitalize">{$chessStateStore.chess.header()['Black']}</p>
@@ -86,11 +86,12 @@
                     <MaterialTracker material={$chessStateStore.material} color={BLACK} />
                 {/if}
             </div>
-        </footer>
+        </div>
     </div>
-    <div class="hidden xl:block">
-        <ChessGamePanel height="h-[min(calc(100vw)-1rem,calc(95vh-12rem))]" width="w-full" {chessStateStore} />
-    </div>
+
+    <span class="hidden xl:block">
+        <ChessGamePanel height="h-full" width="w-full" {chessStateStore} />
+    </span>
     
     <button class="btn variant-filled-primary xl:hidden" on:click={openGamePanel}>Open Game Panel</button>
  </div>
