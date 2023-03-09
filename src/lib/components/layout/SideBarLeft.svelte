@@ -1,14 +1,8 @@
 <script lang="ts">
 	import { page } from "$app/stores";
+	import { antiAuthNavItems, authNavItems } from "$lib/util";
 	import { drawerStore, LightSwitch } from "@skeletonlabs/skeleton";
 	import ProfileButton from "./ProfileButton.svelte";
-
-    const navItems = [
-        { label: 'Home', href: '/home' },
-        { label: 'Games', href: '/games' },
-        { label: 'Puzzles', href: '/puzzles' },
-        { label: 'Social', href: '/social' }
-    ];
 </script>
 
 <div class="h-screen !w-[min(30rem,80vw] p-8 flex flex-col ">
@@ -22,13 +16,9 @@
 
     <nav class="mx-auto w-full">
         <ul class="flex flex-col list-nav">
-            {#each navItems as {label, href}}
+            {#each $page.data.session ? authNavItems : antiAuthNavItems as {label, href}}
                 <li><a href={href} on:click={() => drawerStore.close()}>{label}</a></li>
             {/each}
-            {#if !$page.data.session}
-                <li><a href="/sign-in" on:click={() => drawerStore.close()}>Sign In</a></li>
-                <li><a href="/sign-up" on:click={() => drawerStore.close()}>Sign Up</a></li>
-            {/if}
         </ul>
     </nav>
     <LightSwitch />

@@ -1,6 +1,19 @@
 import { SQUARES, WHITE, BLACK } from "chess.js";
 import { Howl } from 'howler';
 
+
+export const antiAuthNavItems = [
+    { label: 'Sign In', href: '/sign-in' },
+    { label: 'Sign Up', href: '/sign-up' }
+]
+export const authNavItems = [
+    { label: 'Home', href: '/home' },
+    { label: 'Games', href: '/games' },
+    { label: 'Puzzles', href: '/puzzles' },
+    { label: 'Social', href: '/social' }
+]
+
+
 export const moveSFX = new Howl({
     src: '/sfx/move.mp3'
 });

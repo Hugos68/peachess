@@ -14,7 +14,7 @@
     let stockfish: any | undefined;
     let currentDepth = 0;
     let currentEvaluation = tweened(0, {
-		duration: 4000,
+		duration: 3000,
         easing: sineInOut
 	});
     
@@ -71,7 +71,6 @@
         }, 250);
     }
 
-
     onDestroy(() => {
         if (stockfish) stockfish.terminate();
     });
@@ -82,8 +81,8 @@
     const cpWinningChances = (cp: number): number => rawWinningChances(Math.min(Math.max(-1000, cp), 1000));
 </script>
 
-<div class:rotate-180={flipped} class="{height} w-8 relative bg-black">
+<div class="{height} w-8 relative {flipped ? "bg-white" : "bg-black"}">
     {#key $currentEvaluation}
-        <span style="height: {($currentEvaluation+100)/2}% !important;" class="absolute bottom-0 bg-white w-full "></span>
+        <span style="height: {flipped ? 100-($currentEvaluation+100)/2 : ($currentEvaluation+100)/2}% !important;" class="absolute bottom-0 {flipped ? "bg-black" : "bg-white"} w-full"></span>
     {/key}
 </div>
