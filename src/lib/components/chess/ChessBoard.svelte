@@ -23,6 +23,7 @@
                 move: moveCallback
             }
         });
+        return board.destroy();
     });
 
     // Apply new settings when settings are changed
